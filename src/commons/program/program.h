@@ -1,0 +1,59 @@
+#pragma once
+
+#include "commons/clause/clause.h"
+#include "commons/dudg/DUDG.h"
+#include "commons/udg/UDG.h"
+#include <map>
+#include <set>
+#include <string.h>
+#include <vector>
+#include <z3++.h>
+
+typedef int var_t;                  // variable
+typedef std::set<clause *> cpset_t; // clause point set
+typedef std::set<var_t> vset_t;     // variable set
+typedef std::map<var_t, z3::expr> exprs_t;
+typedef std::map<var_t, z3::func_decl> decls_t;
+
+cpset_t operator-(const cpset_t &A, const cpset_t &B);
+cpset_t operator+(const cpset_t &A, const cpset_t &B); // the union
+vset_t operator-(const vset_t &A, const vset_t &B);
+
+// cpset_t exclude_by_priori_knowledge(cpset_t &base, vset_t &true_set,
+// vset_t &false_set);
+
+class program {
+  z3::context c;
+  std::vector<clause> clauses;
+  std::map<var_t, cpset_t> vars2clauses_map;
+  std::map<var_t, cpset_t> true_match,
+      false_match;       // if var of var_t(key) set to true/ false,
+                         // then set of caluses can be matched
+                         // DUDG<var_t> c_udg;
+  cpset_t all_clause_ps; // all clause pointers
+  vset_t vars;           // all variables
+
+  // cpset_t reduce_key_clause_ratio(double ratio, cpset_t from);
+  // std::vector<cpset_t> separate_clauses(cpset_t &overall, vset_t true_set,
+  //                                       vset_t false_set);
+
+  std::pair<int, double> get_vs_ex_interior(vset_t &vs);
+  vset_t get_clauses_defined_vars(cpset_t &css);
+  cpset_t get_vars_defined_clauses(vset_t &vs);
+
+  Z3_lbool model_of_v(z3::model &model, var_t v, decls_t &decls);
+  void dont_gen_m_again(z3::optimize &opt, z3::model &m, exprs_t &exprs,
+                        decls_t &decls, const vset_t &considered_vars);
+  void dont_gen_m_again(z3::optimize &opt, z3::model &m, exprs_t &exprs,
+                        decls_t &decls) {
+    dont_gen_m_again(opt, m, exprs, decls, vars);
+  }
+
+public:
+  int vars_num;
+  program(std::string input_file);
+  // { parse_cnf(input_file); }
+  std::vector<vset_t> find_kernal_vars();
+  z3::model gen_valid_model(z3::optimize &opt, exprs_t &exprs);
+  void solve();
+};
