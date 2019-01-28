@@ -362,10 +362,10 @@ void program::solve() {
         auto has_valid = optp.check();
         if (has_valid != z3::sat)
           break;
-        // TODO here combine the models???
+        // TODO here combine the models??? do that later with z3::optimize
+        // cached
       }
-      std::cout << r << " ";
     } // end sub_model
-    std::cout << std::endl << "XXX == " << XTimer.duration() << std::endl;
+    std::cout << "XXX == " << XTimer.duration() << std::endl;
   } // end for &kernal
 }

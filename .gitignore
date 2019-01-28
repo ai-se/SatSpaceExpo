@@ -34,3 +34,6 @@ bin/
 
 # The dataset
 Benchmarks/*
+
+# Accessories
+TODOS.txt
