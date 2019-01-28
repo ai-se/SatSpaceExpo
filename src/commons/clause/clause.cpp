@@ -23,24 +23,24 @@ clause::clause(std::string s) {
   std::sort(vs.begin(), vs.end());
 }
 
-// z3::expr clause::toExpr(z3::context &c) {
-//   // z3::context c;
-//   z3::expr_vector res(c);
-//   for (int v : vs) {
-//     z3::expr l = c.constant(
-//         c.str_symbol(std::to_string(v > 0 ? v : -v).c_str()), c.bool_sort());
-//     if (v > 0)
-//       res.push_back(l);
-//     else
-//       res.push_back(!l);
-//     // if (v > 0)
-//     //   res.push_back(literal(v));
-//     // else
-//     //   res.push_back(!literal(-v));
-//   }
-//
-//   return mk_or(res);
-// }
+z3::expr clause::toExpr(z3::context &c) {
+  // z3::context c;
+  z3::expr_vector res(c);
+  for (int v : vs) {
+    z3::expr l = c.constant(
+        c.str_symbol(std::to_string(v > 0 ? v : -v).c_str()), c.bool_sort());
+    if (v > 0)
+      res.push_back(l);
+    else
+      res.push_back(!l);
+    // if (v > 0)
+    //   res.push_back(literal(v));
+    // else
+    //   res.push_back(!literal(-v));
+  }
+
+  return mk_or(res);
+}
 
 std::size_t clause::unique() const {
   // https://stackoverflow.com/questions/20511347/a-good-hash-function-for-a-vector

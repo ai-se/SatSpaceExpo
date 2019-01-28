@@ -1,12 +1,9 @@
 #pragma once
 
 #include <iostream>
-#include <set>
 #include <string>
+#include <set>
 #include <vector>
-
-#define PBSTR "||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||"
-#define PBWIDTH 60
 
 /**
  * Get the running time (in seconds) of a block of code!
@@ -27,17 +24,14 @@ struct timer {
   }
 };
 
-void debug(int s);
-void debug(double s);
-void debug(std::string s);
-void debug(std::set<int> s);
-void debug(std::vector<int> s);
+void print(int s);
+void print(double s);
+void print(std::string s);
+void print(std::set<int> s);
+void print(std::vector<int> s);
+
+
+template <class T> void debug(T s);
 
 double std_dev(std::vector<int> v, double avg);
 double std_dev(std::vector<int> v);
-
-std::set<int> get_two_objs_PF(std::vector<std::pair<int, double>>);
-
-std::set<int> random_pickup(std::set<int> src, int cnt);
-
-void print_progress(double percentage);

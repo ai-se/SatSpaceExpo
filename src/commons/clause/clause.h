@@ -12,6 +12,7 @@ struct clause {
   std::set<int> avs;
 
   clause(std::string s);
+  z3::expr toExpr(z3::context &c);
 
   std::size_t unique() const;
   bool empty() { return vs.size() <= 1; }
