@@ -4,47 +4,8 @@
 #include <cstring>
 #include <fstream>
 #include <iostream>
+#include <limits>
 #include <z3++.h>
-
-clausep_set_t operator-(const clausep_set_t &all, const clausep_set_t &except) {
-  clausep_set_t remain;
-  for (auto &i : all)
-    if (except.find(i) == except.end())
-      remain.insert(i);
-  return remain;
-}
-
-std::set<int> get_clauses_set_vars(clausep_set_t &css) {
-  std::set<int> res;
-  for (auto &each_clause_p : css)
-    for (int i : each_clause_p->avs)
-      res.insert(i);
-  return res;
-}
-
-clausep_set_t exclude_by_priori_knowledge(clausep_set_t &base,
-                                          std::set<int> &true_set,
-                                          std::set<int> &false_set) {
-  clausep_set_t res;
-  for (auto &each_clause_p : base) {
-    // check out whether to be surpassed
-    bool surpassed = false;
-    for (int i : each_clause_p->vs) {
-      if (i > 0 && true_set.find(i) != true_set.end()) {
-        surpassed = true;
-        break;
-      }
-      if (i < 0 && false_set.find(-i) != false_set.end()) {
-        surpassed = true;
-        break;
-      }
-    }
-    if (surpassed)
-      continue;
-    res.insert(each_clause_p);
-  }
-  return res;
-}
 
 /**
  * Parsing the cnf file as the program.
@@ -76,129 +37,154 @@ void program::parse_cnf(std::string input_file) {
   }
 
   // set up the vars2clauses_map
-  for (clause &each_clause : clauses)
-    for (int v : each_clause.vs) {
-      vars2clauses_map[std::abs(v)].insert(&each_clause);
-      if (v > 0)
-        true_match[v].insert(&each_clause);
-      else
-        false_match[-v].insert(&each_clause);
-    }
+  for (clause &each_clause : clauses) {
+    for (int v : each_clause.avs)
+      vars2clauses_map[v].insert(&each_clause);
+  }
+
 
   // Link the UDG here
   for (auto &each_clause : clauses)
     for (int i : each_clause.avs)
-      c_udg.add_node(i);
+      vars.insert(i);
+  for (auto &v : vars)
+    c_udg.add_node(v);
 
   for (auto &each_clause : clauses)
     for (size_t i = 1; i < each_clause.vs.size(); ++i)
       c_udg.add_edge(std::abs(each_clause.vs[0]), std::abs(each_clause.vs[i]));
 
+  std::cout << "INFO : |E| = " << c_udg.get_edge_num() << std::endl;
   std::cout << "INIT : Loading " << input_file << " done." << std::endl;
+}
+
+void program::get_trivial_model(int trivial[]) {
+  std::memset(trivial, 0, (vars_num + 1) * sizeof(int));
+  for (auto &each_clause : clauses) {
+    int v;
+    if ((v = each_clause.get_determined())) {
+      trivial[std::abs(v)] = v > 0 ? 1 : -1;
+    }
+  }
 }
 
 /**
  * Randomly assign the key clauses
- * Gurantee NOT to assign to key clauses beyond the condiered
- * The ratio is related to the considered clauses
+ * Gurantee NOT to assign the unkey clause to key clauses
+ * The ratio is related to the overall clauses
  * @param ratio [description]
  */
-clausep_set_t program::reduce_key_clause_ratio(double ratio,
-                                               clausep_set_t from) {
-  clausep_set_t res;
-  for (auto &c : from)
-    if ((double)rand() / RAND_MAX < ratio)
-      res.insert(c);
+kmap_t program::reduce_key_clause_ratio(double ratio, kmap_t &key_map) {
+  kmap_t res;
+  int key_counts = 0;
+  for (clause &each_clause : clauses)
+    if (key_map[&each_clause])
+      key_counts++;
+  double prev_ratio = ((double)key_counts) / clauses.size();
+  double reduction_ratio = ratio / prev_ratio;
+
+  for (clause &each_clause : clauses)
+    if (key_map[&each_clause] && rand() / double(RAND_MAX) > reduction_ratio)
+      res[&each_clause] = NOT_KEY; // removing the key tag
+    else
+      res[&each_clause] = key_map[&each_clause]; // remain the same
+
   return res;
 }
 
-std::vector<clausep_set_t> program::separate_clauses(clausep_set_t &overall,
-                                                     std::set<int> true_set,
-                                                     std::set<int> false_set) {
+/**
+ * remove the clause of Index index.
+ * swap that with last one, and them remove the last one
+ * @param index [description]
+ */
+void program::erase_clause(int index) {
+  std::swap(clauses[index], clauses[clauses.size() - 1]);
+  clauses.pop_back();
+}
+
+/**
+ * Given a key_map, calculate the evaluation of the map
+ * The evaluation is LOWER THE BETTER
+ * Objective = stdard_dev(size of each component)
+ * @param  key_map
+ * @return         [description]
+ */
+double program::get_kmap_objs(kmap_t &key_map) {
+  // reset the c_udg edges
   c_udg.clear_edges();
-  for (auto &each_clause_p : overall) {
-    for (size_t i = 1; i < each_clause_p->vs.size(); ++i) {
-      // TODO consider the true_set/false_set here? is it necessary?
-      c_udg.add_edge(std::abs(each_clause_p->vs[0]),
-                     std::abs(each_clause_p->vs[i]));
-    }
+  for (auto &each_clause : clauses) {
+    if (key_map[&each_clause])
+      continue;
+    for (size_t i = 1; i < each_clause.vs.size(); ++i)
+      c_udg.add_edge(std::abs(each_clause.vs[0]), std::abs(each_clause.vs[i]));
   }
+  // print(c_udg.get_edge_num());
 
   std::vector<std::set<int>> vars_clouds = c_udg.de_components();
-
-  std::vector<clausep_set_t> res;
+  // int evaluation = 1;
+  std::vector<int> cloud_sizes;
   // note: the complexity is NOT O(n^3)
   for (auto &each_var_cloud : vars_clouds) {
-    clausep_set_t this_clause_cloud;
+    std::set<clause *> this_clause_cloud;
     for (int each_var : each_var_cloud) {
-
       for (auto &contain_clause : vars2clauses_map[each_var])
-        if (overall.find(contain_clause) != overall.end()) {
+        if (!key_map[contain_clause])
           this_clause_cloud.insert(contain_clause);
-        }
     }
-    res.push_back(this_clause_cloud);
+    cloud_sizes.push_back(this_clause_cloud.size());
   }
-  return res;
+  print(cloud_sizes);
+  return std_dev(cloud_sizes);
 }
 
-clausep_set_t program::find_key_clauses() {
+kmap_t program::find_key_clauses() {
   timer timer_of_this;
   std::cout << "INFO : Searching for key clauses." << std::endl;
+  // starting for trival plan -- all as key
+  kmap_t full_map;
+  for (clause &each_clause : clauses)
+    full_map[&each_clause] = IS_KEY;
 
-  // step 1: sample base -- ALL clauses
-  clausep_set_t all_clauses;
-  for (clause &each_clause : clauses) {
-    all_clauses.insert(&each_clause);
+  // reduction path 90-70-50-30-10%
+  // sampling plan size = 10 (or based on the running time / program
+  // complexity?)
+  kmap_t last_map = full_map, best;
+  for (double ratio : {0.9, 0.7, 0.5, 0.3, 0.1}) {
+  // for (double ratio : {0.7}) {
+    std::cout << "Ratio " << ratio << "====" << std::endl;
+    int sample_size = 30;
+    double map_obj, best_obj = std::numeric_limits<double>::max();
+    kmap_t best;
+    for (int s = 0; s < sample_size; ++s) {
+      kmap_t map_plan = reduce_key_clause_ratio(ratio, last_map);
+      map_obj = get_kmap_objs(map_plan);
+      // print(map_obj);
+      if (map_obj < best_obj) { // update the current best
+        best_obj = map_obj;
+        best = map_plan;
+      } // end update
+    }   // end sample
+    last_map = best;
+    std::cout << best_obj << std::endl;
   }
-
-  // step 2: random assign key clauses with ratio key
-  clausep_set_t key_plan;
-  for (size_t repeat = 0; repeat < 20; repeat++) {
-    double ratio = 0.3;
-    key_plan = reduce_key_clause_ratio(ratio, all_clauses);
-    auto determined_vars = get_clauses_set_vars(key_plan);
-    auto key_model = get_model_match_key(key_plan);
-
-    // step 3: get prior knowledge
-    std::set<int> true_set, false_set;
-    for (int i : determined_vars) {
-      if (exam_model(key_model, i))
-        true_set.insert(i);
-      else
-        false_set.insert(i);
-    }
-
-    // step 4: exclue the known knowledge, and separte clauses
-    auto remain = all_clauses - key_plan;
-    auto remain2 = exclude_by_priori_knowledge(remain, true_set, false_set);
-    std::cout << get_clauses_set_vars(remain2).size() << std::endl;
-    // step 5: separation
-    auto clouds = separate_clauses(remain2, true_set, false_set);
-    clouds.push_back(key_plan);
-    std::vector<int> cloudsize;
-    for (auto &each_cloud_set : clouds)
-      cloudsize.push_back(each_cloud_set.size());
-
-    print(cloudsize);
-    double map_obj = std_dev(cloudsize);
-  }
-
   std::cout << "INFO : Done in " << timer_of_this.duration() << " secs."
             << std::endl;
-  return key_plan;
+  return best;
 }
 
 /**
  * figure out the model which matchs the key clauses only
- * use microsoft open-source Z3 solver
+ * @param key_map [description]
  */
-z3::model program::get_model_match_key(const clausep_set_t &keyset) {
+void program::get_model_match_key(kmap_t &key_map) {
+  // Using microsoft open-source Z3 solver
+  z3::context c;
   z3::optimize opt(c);
   z3::expr_vector exp(c);
 
-  for (auto &each_clause : keyset) {
-    exp.push_back(each_clause->toExpr(c));
+  for (auto &each_clause : clauses) {
+    // if (key_map[&each_clause])
+    exp.push_back(each_clause.toExpr(c));
   }
   z3::expr formula = mk_and(exp);
   opt.add(formula);
@@ -210,25 +196,23 @@ z3::model program::get_model_match_key(const clausep_set_t &keyset) {
     std::cout << "WARNING : No valid model" << std::endl;
   z3::model m_match_key_clauses = opt.get_model();
   opt.pop();
-
-  return m_match_key_clauses;
+  // printing the models
+  // std::cout << get_model_string(m_match_key_clauses, c) << std::endl;
 }
 
-bool program::exam_model(z3::model &model, int v) {
-  z3::func_decl decl(
-      c.constant(c.str_symbol(std::to_string(v).c_str()), c.bool_sort())
-          .decl());
-  z3::expr b = model.get_const_interp(decl);
-  return b.bool_value() == Z3_L_TRUE;
-}
+std::string program::get_model_string(z3::model &model, z3::context &c) {
+  std::string s;
+  // z3::context c;
+  for (int v : vars) {
+    z3::func_decl decl(
+        c.constant(c.str_symbol(std::to_string(v).c_str()), c.bool_sort())
+            .decl());
+    z3::expr b = model.get_const_interp(decl);
+    if (b.bool_value() == Z3_L_TRUE)
+      s += "1";
+    else
+      s += "0";
+  }
 
-// std::string program::get_model_string(z3::model &model, z3::context &c) {
-//   std::string s;
-//   // TODO ATTENTION may contain zeros which are dumped.
-//   for (int v = 1; v <= vars_num; v++) {
-//     bool tmp = exam_model(v, model, c);
-//     s += tmp ? "1" : "0";
-//   }
-//
-//   return s;
-// }
+  return s;
+}

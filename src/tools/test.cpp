@@ -30,14 +30,13 @@ void test_key_clause_searching(int argc, char *argv[]) {
   // srand (time(NULL));
   srand(1);
   std::string model = "Benchmarks/polynomial.sk_7_25.cnf";
-  // std::string model = "Benchmarks/test.cnf";
   if (argc >= 2 && strcmp(argv[1], "L") == 0)
     model = "Benchmarks/enqueueSeqSK.sk_10_42.cnf";
   if (argc >= 2 && strcmp(argv[1], "test") == 0)
     model = "Benchmarks/test.cnf";
   program p_test(model);
-  auto mm = p_test.find_key_clauses();
-  // p_test.get_model_match_key(mm);
+  kmap_t mm = p_test.find_key_clauses();
+  p_test.get_model_match_key(mm);
 }
 
 int main(int argc, char *argv[]) {

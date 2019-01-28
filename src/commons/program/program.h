@@ -8,35 +8,26 @@
 #include <string.h>
 #include <vector>
 
-typedef std::set<clause *> clausep_set_t;
-
-clausep_set_t operator-(const clausep_set_t &all, const clausep_set_t &except);
-std::set<int> get_clauses_set_vars(clausep_set_t &css);
-clausep_set_t exclude_by_priori_knowledge(clausep_set_t &base,
-                                          std::set<int> &true_set,
-                                          std::set<int> &false_set);
+enum key_sig { NOT_KEY, IS_KEY, BEYOND_CONSIDERED };
+typedef std::map<clause *, key_sig> kmap_t;
 
 class program {
-  z3::context c;
   std::vector<clause> clauses;
-  std::map<int, clausep_set_t> vars2clauses_map;
-  std::map<int, clausep_set_t> true_match; // if var of int(key) set to true,
-                                           // then set of caluses can be matched
-  std::map<int, clausep_set_t>
-      false_match; // similar to the true_match... set to false
+  std::map<int, std::set<clause *>> vars2clauses_map;
+  kmap_t key_map;
   DUDG<int> c_udg;
+  std::set<int> vars;
 
   void parse_cnf(std::string input_file);
-  clausep_set_t reduce_key_clause_ratio(double ratio, clausep_set_t from);
-  std::vector<clausep_set_t> separate_clauses(clausep_set_t &overall,
-                                              std::set<int> true_set,
-                                              std::set<int> false_set);
-  // std::string get_model_string(z3::model &model, z3::context &c);
-  bool exam_model(z3::model &model, int v);
+  void erase_clause(int index);
+  kmap_t reduce_key_clause_ratio(double ratio, kmap_t &key_map);
+  double get_kmap_objs(kmap_t &key_map);
+  std::string get_model_string(z3::model &model, z3::context &c);
 
 public:
   int vars_num;
   program(std::string input_file) { parse_cnf(input_file); }
-  clausep_set_t find_key_clauses();
-  z3::model get_model_match_key(const clausep_set_t &keyset);
+  void get_trivial_model(int trivial[]);
+  kmap_t find_key_clauses();
+  void get_model_match_key(kmap_t &key_map);
 };
