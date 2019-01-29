@@ -14,13 +14,11 @@ typedef std::set<clause *> cpset_t; // clause point set
 typedef std::set<var_t> vset_t;     // variable set
 typedef std::map<var_t, z3::expr> exprs_t;
 typedef std::map<var_t, z3::func_decl> decls_t;
+typedef std::vector<z3::model> z3_model_vec_t;
 
 cpset_t operator-(const cpset_t &A, const cpset_t &B);
 cpset_t operator+(const cpset_t &A, const cpset_t &B); // the union
 vset_t operator-(const vset_t &A, const vset_t &B);
-
-// cpset_t exclude_by_priori_knowledge(cpset_t &base, vset_t &true_set,
-// vset_t &false_set);
 
 class program {
   z3::context c;
@@ -32,10 +30,6 @@ class program {
                          // DUDG<var_t> c_udg;
   cpset_t all_clause_ps; // all clause pointers
   vset_t vars;           // all variables
-
-  // cpset_t reduce_key_clause_ratio(double ratio, cpset_t from);
-  // std::vector<cpset_t> separate_clauses(cpset_t &overall, vset_t true_set,
-  //                                       vset_t false_set);
 
   std::pair<int, double> get_vs_ex_interior(vset_t &vs);
   vset_t get_clauses_defined_vars(cpset_t &css);
@@ -49,11 +43,15 @@ class program {
     dont_gen_m_again(opt, m, exprs, decls, vars);
   }
 
+  std::vector<vset_t> find_kernal_vars(const vset_t &considering);
+  std::vector<vset_t> find_kernal_vars() { return find_kernal_vars(vars); }
+
+  z3_model_vec_t solve(z3::optimize &opt, vset_t &unsolved_vars, exprs_t &exprs,
+                       decls_t &decls, int gen_size);
+
 public:
   int vars_num;
   program(std::string input_file);
-  // { parse_cnf(input_file); }
-  std::vector<vset_t> find_kernal_vars();
-  z3::model gen_valid_model(z3::optimize &opt, exprs_t &exprs);
-  void solve();
+  z3_model_vec_t solve();
+  z3_model_vec_t gen_N_models(int N);
 };

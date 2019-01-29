@@ -37,3 +37,4 @@ Benchmarks/*
 
 # Accessories
 TODOS.txt
+tools/cppexp.cpp

@@ -26,3 +26,6 @@ $(TOOLS_BINARIES): $(FILES_OBJECTS) $(TOOLS_OBJECTS)
 
 %.o: %.cpp
 	$(CC) $(CFLAGS) -c ./$< -o $@
+
+learn: # DONT MAKE "learn" IF YOU DOWNLOAD THE CODE VIA GITHUB
+	g++ -std=c++11 -g ./src/tools/cppexp.cpp -o ./bin/cppexp

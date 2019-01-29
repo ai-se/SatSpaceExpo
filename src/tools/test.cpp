@@ -38,7 +38,8 @@ void test_key_clause_searching(int argc, char *argv[]) {
       model = "Benchmarks/test.cnf";
   }
   program p_test(model);
-  p_test.solve();
+  // p_test.solve();
+  p_test.gen_N_models(100);
 }
 
 int main(int argc, char *argv[]) {

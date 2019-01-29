@@ -32,29 +32,6 @@ vset_t operator-(const vset_t &A, const vset_t &B) {
   return remain;
 }
 
-// cpset_t exclude_by_priori_knowledge(cpset_t &base, vset_t &true_set,
-//                                     vset_t &false_set) {
-//   cpset_t res;
-//   for (auto &each_clause_p : base) {
-//     // check out whether to be surpassed
-//     bool surpassed = false;
-//     for (var_t i : each_clause_p->vs) {
-//       if (i > 0 && true_set.find(i) != true_set.end()) {
-//         surpassed = true;
-//         break;
-//       }
-//       if (i < 0 && false_set.find(-i) != false_set.end()) {
-//         surpassed = true;
-//         break;
-//       }
-//     }
-//     if (surpassed)
-//       continue;
-//     res.insert(each_clause_p);
-//   }
-//   return res;
-// }
-
 /**
  * Parsing the cnf file as the program.
  * Does not return anything set up in the private variables
@@ -99,16 +76,6 @@ program::program(std::string input_file) {
   for (auto &each_clause : clauses)
     all_clause_ps.insert(&each_clause);
 
-  // // Link the UDG here
-  // for (auto &each_clause : clauses)
-  //   for (var_t i : each_clause.avs)
-  //     c_udg.add_node(i);
-  //
-  // for (auto &each_clause : clauses)
-  //   for (size_t i = 1; i < each_clause.vs.size(); ++i)
-  //     c_udg.add_edge(std::abs(each_clause.vs[0]),
-  //     std::abs(each_clause.vs[i]));
-
   std::cout << "INIT : Loading " << input_file << " done." << std::endl;
 }
 
@@ -126,50 +93,6 @@ cpset_t program::get_vars_defined_clauses(vset_t &vs) {
     res = res + vars2clauses_map[v];
   return res;
 }
-
-// /**
-//  * Randomly assign the key clauses
-//  * Gurantee NOT to assign to key clauses beyond the condiered
-//  * The ratio is related to the considered clauses
-//  * @param ratio [description]
-//  */
-// cpset_t program::reduce_key_clause_ratio(double ratio, cpset_t from) {
-//   cpset_t res;
-//   for (auto &c : from)
-//     if ((double)rand() / RAND_MAX < ratio)
-//       res.insert(c);
-//   return res;
-// }
-//
-// std::vector<cpset_t>
-// program::separate_clauses(cpset_t &overall, vset_t true_set, vset_t
-// false_set) {
-//   c_udg.clear_edges();
-//   for (auto &each_clause_p : overall) {
-//     for (size_t i = 1; i < each_clause_p->vs.size(); ++i) {
-//       // TODO consider the true_set/false_set here? is it necessary?
-//       c_udg.add_edge(std::abs(each_clause_p->vs[0]),
-//                      std::abs(each_clause_p->vs[i]));
-//     }
-//   }
-//
-//   std::vector<vset_t> vars_clouds = c_udg.de_components();
-//
-//   std::vector<cpset_t> res;
-//   // note: the complexity is NOT O(n^3)
-//   for (auto &each_var_cloud : vars_clouds) {
-//     cpset_t this_clause_cloud;
-//     for (int each_var : each_var_cloud) {
-//
-//       for (auto &contain_clause : vars2clauses_map[each_var])
-//         if (overall.find(contain_clause) != overall.end()) {
-//           this_clause_cloud.insert(contain_clause);
-//         }
-//     }
-//     res.push_back(this_clause_cloud);
-//   }
-//   return res;
-// }
 
 /**
  * exterior
@@ -209,30 +132,30 @@ std::pair<int, double> program::get_vs_ex_interior(vset_t &vs) {
   return std::pair<int, double>{exterior, interior};
 }
 
-std::vector<vset_t> program::find_kernal_vars() {
+std::vector<vset_t> program::find_kernal_vars(const vset_t &considering) {
   // step 1 - randomly create vset
   double ratio = 0.2;   // TODO set ratio (sample unit size) here
   int samples_cnt = 50; // TODO set sampling size here
 
   std::vector<vset_t> Xs;
-  std::cout << "Seeking kernal vals ..." << std::endl;
+  // std::cout << "Seeking kernal vals ..." << std::endl;
   for (int i = 1; i <= samples_cnt; i++) {
-    print_progress((double)i / samples_cnt); // for debugging...
-    vset_t X = random_pickup(vars, (int)(ratio * vars_num));
+    // print_progress((double)i / samples_cnt); // for debugging...
+    vset_t X = random_pickup(considering, (int)(ratio * considering.size()));
     Xs.push_back(std::move(X));
   }
-  std::cout << std::endl;
+  // std::cout << std::endl;
 
   // step 2 - get the objectives
   typedef std::pair<int, double> objs_t;
   std::vector<objs_t> objs;
-  std::cout << "Fetching ex/interior objectives ..." << std::endl;
-  double tmp_cnt = 1.0;
+  // std::cout << "Fetching ex/interior objectives ..." << std::endl;
+  // double tmp_cnt = 1.0;
   for (auto &X : Xs) {
-    print_progress((tmp_cnt++) / Xs.size()); // for debuging...
+    // print_progress((tmp_cnt++) / Xs.size()); // for debuging...
     objs.push_back(get_vs_ex_interior(X));
   }
-  std::cout << std::endl;
+  // std::cout << std::endl;
 
   // step 3 - get the pareto frontier
   std::set<int> pfs = get_two_objs_PF(objs);
@@ -245,29 +168,6 @@ std::vector<vset_t> program::find_kernal_vars() {
     res.push_back(Xs[pfi]);
 
   return res;
-}
-
-/**
- * figure out the model
- * use microsoft open-source Z3 solver
- */
-z3::model program::gen_valid_model(z3::optimize &opt, exprs_t &exprs) {
-  for (auto &each_clause : clauses) {
-    z3::expr_vector V(c);
-
-    for (var_t v : each_clause.vs)
-      V.push_back(v > 0 ? exprs.at(v) : !exprs.at(-v));
-    opt.add(mk_or(V));
-  }
-
-  z3::check_result has_correct = opt.check();
-
-  if (has_correct != z3::sat) {
-    std::cout << "WARNING : No valid model" << std::endl;
-    abort();
-  }
-  z3::model m = opt.get_model();
-  return m;
 }
 
 Z3_lbool program::model_of_v(z3::model &model, var_t v, decls_t &decls) {
@@ -285,7 +185,60 @@ void program::dont_gen_m_again(z3::optimize &opt, z3::model &m, exprs_t &exprs,
   opt.add(mk_or(V));
 }
 
-void program::solve() {
+/* The clauses has been install in the opt*/
+z3_model_vec_t program::solve(z3::optimize &opt, vset_t &unsolved_vars,
+                              exprs_t &exprs, decls_t &decls, int gen_size) {
+  // handling the leaves
+  if (static_cast<double>(unsolved_vars.size()) /
+          static_cast<double>(vars.size()) <
+      0.3) {
+    z3_model_vec_t result;
+    while (gen_size-- > 0) {
+      z3::check_result has_correct = opt.check();
+      if (has_correct != z3::sat)
+        break;
+      z3::model m = opt.get_model();
+      result.push_back(m);
+      dont_gen_m_again(opt, m, exprs, decls, unsolved_vars);
+    }
+
+    return result;
+  }
+
+  std::vector<vset_t> kernals = find_kernal_vars(unsolved_vars);
+  int varsity_for_each_kernal = 1;
+  z3_model_vec_t res;
+
+  for (vset_t &kernal : kernals) {
+    opt.push(); // state 1
+    for (int r = varsity_for_each_kernal; r > 0; r--) {
+      z3::check_result has_correct = opt.check();
+      if (has_correct != z3::sat)
+        continue;
+      opt.push(); // state 2
+      z3::model m = opt.get_model();
+      /** TODO need to separation?
+        to compirm ... the Z3 solver can automatically boost up via given
+       some fix variables
+       */
+      for (var_t v : kernal)
+        opt.add(model_of_v(m, v, decls) == Z3_L_TRUE ? exprs.at(v)
+                                                     : !exprs.at(v));
+      auto rest_vars = unsolved_vars - kernal;
+      auto sub_res = solve(opt, rest_vars, exprs, decls,
+                           gen_size / (static_cast<int>(kernals.size()) *
+                                       varsity_for_each_kernal));
+      res.insert(res.end(), sub_res.begin(), sub_res.end());
+      opt.pop(); // recover state 2
+      dont_gen_m_again(opt, m, exprs, decls, kernal);
+    }          // end r-->0
+    opt.pop(); // recover state 1
+  }            // end for kernal
+
+  return res;
+}
+
+z3_model_vec_t program::solve() {
   // create exprs and decls
   exprs_t exprs;
   decls_t decls;
@@ -297,75 +250,50 @@ void program::solve() {
   }
 
   z3::optimize opt(c);
+  for (auto &each_clause : clauses) {
+    z3::expr_vector V(c);
 
-  std::vector<vset_t> kernals = find_kernal_vars();
-  for (const vset_t &kernal : kernals) { // for each group of kernal variables
-    // step 1 - find valid model over all variables
-    z3::model m = gen_valid_model(opt, exprs);
-    opt.push(); // state 1 - model solved
+    for (var_t v : each_clause.vs)
+      V.push_back(v > 0 ? exprs.at(v) : !exprs.at(-v));
+    opt.add(mk_or(V));
+  }
 
-    // step 2 - separtation!
-    // s2.1 figure out the satisfied clauses
-    cpset_t satisfied;
-    for (var_t k : kernal) {
-      if (model_of_v(m, k, decls) == Z3_L_TRUE)
-        satisfied = satisfied + true_match.at(k);
-      else
-        satisfied = satisfied + false_match.at(k);
-    }
+  auto res = solve(opt, vars, exprs, decls, 10000); // TODO change gen_size here
 
-    // s2.2 link to get c_udg; avoid satisfied clauses; avoid seted vars
-    DUDG<var_t> c_udg;
-    for (var_t v : vars - kernal)
-      c_udg.add_node(v);
+  return res;
+}
 
-    for (auto &each_clause : clauses) {
-      if (satisfied.find(&each_clause) != satisfied.end()) // existed
-        continue;
-      var_t lst = -1;
-      for (var_t v : each_clause.avs) {
-        if (kernal.find(v) != kernal.end()) // v exist in kernal
-          continue;
-        if (lst != -1)
-          c_udg.add_edge(v, lst);
-        lst = v;
-      } // end v
-    }   // end each_clause
+z3_model_vec_t program::gen_N_models(int N) {
+  // create exprs and decls
+  exprs_t exprs;
+  decls_t decls;
+  for (var_t v : vars) {
+    z3::expr l =
+        c.constant(c.str_symbol(std::to_string(v).c_str()), c.bool_sort());
+    exprs.insert(std::make_pair(v, l));
+    decls.insert(std::make_pair(v, l.decl()));
+  }
 
-    // s2.3 decomponents
-    std::vector<vset_t> sub_model_vars = c_udg.de_components();
-    std::vector<cpset_t> sub_models;
-    for (vset_t &vs : sub_model_vars)
-      sub_models.push_back(get_vars_defined_clauses(vs));
+  z3::optimize opt(c);
+  for (auto &each_clause : clauses) {
+    z3::expr_vector V(c);
 
-    // s2.4 solving each submodels
-    timer XTimer;
-    for (cpset_t &sub_model : sub_models) { // for each sub_model
-      z3::optimize optp(c);                 // opt pi
-      for (auto &each_clause : sub_model) {
-        z3::expr_vector V(c);
-        for (var_t v : each_clause->vs) {
-          if (kernal.find(v) != kernal.end()) // v is included in the kernal
-            continue;
-          V.push_back(v > 0 ? exprs.at(v) : !exprs.at(-v));
-        }
-        optp.add(mk_or(V));
-      } // end of constructing the submodel
-      // z3::check_result has_correct =
-      optp.check();
-      // generate another hundreds of valid sub models
-      auto checking_vars = vars - kernal;
-      int r = 0;
-      while (r++ < 100) {
-        z3::model m = optp.get_model();
-        dont_gen_m_again(optp, m, exprs, decls, checking_vars);
-        auto has_valid = optp.check();
-        if (has_valid != z3::sat)
-          break;
-        // TODO here combine the models??? do that later with z3::optimize
-        // cached
-      }
-    } // end sub_model
-    std::cout << "XXX == " << XTimer.duration() << std::endl;
-  } // end for &kernal
+    for (var_t v : each_clause.vs)
+      V.push_back(v > 0 ? exprs.at(v) : !exprs.at(-v));
+    opt.add(mk_or(V));
+  }
+
+  z3_model_vec_t res;
+  double total = static_cast<double>(N);
+  while (N-- > 0) {
+    print_progress(1 - N / total);
+    z3::check_result has_correct = opt.check();
+    if (has_correct != z3::sat)
+      break;
+    z3::model m = opt.get_model();
+    res.push_back(m);
+    dont_gen_m_again(opt, m, exprs, decls);
+  }
+  std::cout << std::endl;
+  return res;
 }
