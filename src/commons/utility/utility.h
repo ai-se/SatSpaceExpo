@@ -39,5 +39,6 @@ double std_dev(std::vector<int> v);
 std::set<int> get_two_objs_PF(std::vector<std::pair<int, double>>);
 
 std::set<int> random_pickup(std::set<int> src, int cnt);
+std::set<int> first_N_elements(std::set<int> src, int cnt);
 
 void print_progress(double percentage);

@@ -70,6 +70,9 @@ std::set<int> get_two_objs_PF(std::vector<std::pair<int, double>> candidates) {
 }
 
 std::set<int> random_pickup(std::set<int> src, int cnt) {
+  if (static_cast<int>(src.size()) <= cnt)
+    return src;
+
   double rate = cnt / (double)src.size();
   std::set<int> res;
   for (int i : src)
@@ -90,6 +93,16 @@ std::set<int> random_pickup(std::set<int> src, int cnt) {
     res.insert(*it);
   }
 
+  return res;
+}
+
+std::set<int> first_N_elements(std::set<int> src, int cnt) {
+  std::set<int> res;
+  for (int x : src) {
+    if (!cnt-- > 0)
+      break;
+    res.insert(x);
+  }
   return res;
 }
 

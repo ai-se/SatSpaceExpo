@@ -3,6 +3,7 @@
 #include "commons/clause/clause.h"
 #include "commons/dudg/DUDG.h"
 #include "commons/udg/UDG.h"
+#include <bitset>
 #include <map>
 #include <set>
 #include <string.h>
@@ -42,12 +43,16 @@ class program {
                         decls_t &decls) {
     dont_gen_m_again(opt, m, exprs, decls, vars);
   }
+  void frozen_parial_of_m(z3::optimize &opt, z3::model &m, decls_t &decls,
+                          exprs_t &exprs, vset_t &to_fronzen_vars);
 
   std::vector<vset_t> find_kernal_vars(const vset_t &considering);
   std::vector<vset_t> find_kernal_vars() { return find_kernal_vars(vars); }
 
   z3_model_vec_t solve(z3::optimize &opt, vset_t &unsolved_vars, exprs_t &exprs,
                        decls_t &decls, int gen_size);
+
+  std::string read_model(z3::model &m, decls_t &decls, vset_t &printing_vars);
 
 public:
   int vars_num;
