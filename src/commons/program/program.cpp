@@ -32,6 +32,20 @@ vset_t operator-(const vset_t &A, const vset_t &B) {
   return remain;
 }
 
+std::istream &operator>>(std::istream &is, vset_t &obj) {
+  var_t i;
+  obj.clear();
+  while (is >> i)
+    obj.insert(i);
+  return is;
+}
+
+std::ostream &operator<<(std::ostream &os, const vset_t &obj) {
+  for (var_t i : obj)
+    os << i << " ";
+  return os;
+}
+
 /**
  * Parsing the cnf file as the program.
  * Does not return anything set up in the private variables
@@ -308,81 +322,96 @@ z3_model_vec_t program::gen_N_models(int N) {
   //     break;
   // }
   opt.push();
-  // int N1 = 8;
-  // timer T1;
-  // while (N1-- > 0) {
-  //   // print_progress(1 - N / total);
-  //   std::cout << N1 << std::endl;
-  //   z3::check_result has_correct = opt.check();
-  //   if (has_correct != z3::sat)
-  //     break;
-  //   z3::model m = opt.get_model();
-  //   // std::cout << N << " : " << read_model(m, decls, printed_vars) <<
-  //   // std::endl;
-  //   res.push_back(m);
-  //   dont_gen_m_again(opt, m, exprs, decls);
-  // }
-  // std::cout << N1 << " " << T1.duration() << std::endl;
+  int N1 = 0;
+  timer T1;
+  do {
+    z3::check_result has_correct = opt.check();
+    if (has_correct != z3::sat)
+      break;
+    z3::model m = opt.get_model();
+    // std::cout << N << " : " << read_model(m, decls, printed_vars) <<
+    // std::endl;
+    res.push_back(m);
+    dont_gen_m_again(opt, m, exprs, decls);
+  } while (N1++ < 100);
+  std::cout << N1 << " " << T1.duration() << std::endl;
 
   /* what if I fix the first half of variables?*/
   opt.pop();
-  // int N2 = 8;
+  for (int i2 : {10, 100, 500, 1000}) {
+    opt.push();
+    int N2 = 0;
+    opt.check();
+    z3::model m = opt.get_model();
+    int x = i2;
+    vset_t to_fronzen_vars;
+    for (var_t v : vars) {
+      if (!x-- > 0)
+        break;
+      to_fronzen_vars.insert(v);
+    }
+    // vset_t to_fronzen_vars = find_kernal_vars()[0];
+
+    // std::ofstream ofs("heihei.txt", std::ofstream::out);
+    // ofs << to_fronzen_vars;
+    // ofs.close();
+    //
+    // std::ifstream ifs("heihei.txt", std::ifstream::in);
+    // vset_t for_in;
+    // ifs >> for_in;
+    // ifs.close();
+
+    frozen_parial_of_m(opt, m, decls, exprs, to_fronzen_vars);
+    timer T2;
+    do {
+      if (opt.check() != z3::sat)
+        break;
+      m = opt.get_model();
+      res.push_back(m);
+      dont_gen_m_again(opt, m, exprs, decls);
+    } while (N2++ < 100);
+    std::cout << i2 << "::" << N2 << " " << T2.duration() << std::endl;
+    opt.pop();
+    // End of experiment...
+  }
   // opt.check();
   // z3::model m = opt.get_model();
-  // int x = 1000;
-  // vset_t to_fronzen_vars;
-  // for (var_t v : vars) {
-  //   if (!x-- > 0)
-  //     break;
-  //   to_fronzen_vars.insert(v);
-  // }
-  //
-  // frozen_parial_of_m(opt, m, decls, exprs, to_fronzen_vars);
-  // timer T2;
-  // while (N2-- > 0) {
-  //   debug(N2);
-  //   if (opt.check() != z3::sat)
-  //     break;
-  //   m = opt.get_model();
-  //   res.push_back(m);
-  //   dont_gen_m_again(opt, m, exprs, decls);
-  // }
-  //
-  // std::cout << (100 - N2) << " " << T2.duration() << std::endl;
-  // // End of experiment...
-
-  opt.check();
-  z3::model m = opt.get_model();
-  int N3 = 5;
+  // int N3 = 5;
   // vset_t focus_vars = random_pickup(vars, N3);
-  vset_t focus_vars = first_N_elements(vars, N3);
-  debug(focus_vars);
-
-  // check out how many clauses are satisfied
-  z3::optimize opt2(c);
-  for (var_t v : focus_vars) {
-    cpset_t satc =
-        model_of_v(m, v, decls) == Z3_L_TRUE ? true_match[v] : false_match[v];
-    for (auto &each_clause : satc) {
-      z3::expr_vector V(c);
-      for (var_t v : each_clause->vs) {
-        if (focus_vars.count(std::abs(v)))
-          V.push_back(v > 0 ? exprs.at(v) : !exprs.at(-v));
-      }
-      opt2.add(mk_or(V));
-    }
-  }
-
-  // solve all opt2
-  int tmp = 100;
-  while (tmp-- > 0) {
-    if (opt2.check() != z3::sat)
-      break;
-    m = opt2.get_model();
-    dont_gen_m_again(opt2, m, exprs, decls, focus_vars);
-    std::cout << read_model(m, decls, focus_vars) << std::endl;
-  }
-
-  std::cout << 100 - tmp << std::endl;
+  // // vset_t focus_vars = first_N_elements(vars, N3);
+  // // vset_t focus_vars = vars;
+  // // debug(focus_vars);
+  //
+  // // check out how many clauses are satisfied
+  // z3::optimize opt2(c);
+  // cpset_t satc;
+  // for (var_t v : focus_vars) {
+  //   auto tmp_cs =
+  //       model_of_v(m, v, decls) == Z3_L_TRUE ? true_match[v] :
+  //       false_match[v];
+  //   for (auto &tc : tmp_cs)
+  //     satc.insert(tc);
+  // }
+  //
+  // for (auto &each_clause : satc) {
+  //   z3::expr_vector V(c);
+  //   for (var_t v : each_clause->vs) {
+  //     if (focus_vars.count(std::abs(v)))
+  //       V.push_back(v > 0 ? exprs.at(v) : !exprs.at(-v));
+  //   }
+  //   opt2.add(mk_or(V));
+  // }
+  //
+  // // solve all opt2
+  // int tmp = 100;
+  // while (tmp-- > 0) {
+  //   if (opt2.check() != z3::sat)
+  //     break;
+  //   m = opt2.get_model();
+  //   dont_gen_m_again(opt2, m, exprs, decls, focus_vars);
+  //   // std::cout << read_model(m, decls, focus_vars) << std::endl;
+  // }
+  //
+  // std::cout << 100 - tmp << std::endl;
   return res;
 }

@@ -4,6 +4,7 @@
 #include "commons/dudg/DUDG.h"
 #include "commons/udg/UDG.h"
 #include <bitset>
+#include <iostream>
 #include <map>
 #include <set>
 #include <string.h>
@@ -19,7 +20,10 @@ typedef std::vector<z3::model> z3_model_vec_t;
 
 cpset_t operator-(const cpset_t &A, const cpset_t &B);
 cpset_t operator+(const cpset_t &A, const cpset_t &B); // the union
+
 vset_t operator-(const vset_t &A, const vset_t &B);
+std::istream &operator>>(std::istream &is, vset_t &obj);
+std::ostream &operator<<(std::ostream &os, const vset_t &obj);
 
 class program {
   z3::context c;

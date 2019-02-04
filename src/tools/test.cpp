@@ -32,10 +32,12 @@ void test_key_clause_searching(int argc, char *argv[]) {
   std::string model = "Benchmarks/polynomial.sk_7_25.cnf";
   // std::string model = "Benchmarks/test.cnf";
   for (int i = 0; i < argc; i++) {
-    if (strcmp(argv[i], "L") == 0)
+    if (!strcmp(argv[i], "L"))
       model = "Benchmarks/enqueueSeqSK.sk_10_42.cnf";
-    if (strcmp(argv[i], "test") == 0)
+    if (!strcmp(argv[i], "test"))
       model = "Benchmarks/test.cnf";
+    if (!strcmp(argv[i], "M"))
+      model = "Benchmarks/ActivityService.sk_11_27.cnf";
   }
   program p_test(model);
   // p_test.solve();
