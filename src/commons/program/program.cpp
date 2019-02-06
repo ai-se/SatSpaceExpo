@@ -323,45 +323,33 @@ z3_model_vec_t program::gen_N_models(int N) {
   // }
   opt.push();
   int N1 = 0;
-  timer T1;
-  do {
-    z3::check_result has_correct = opt.check();
-    if (has_correct != z3::sat)
-      break;
-    z3::model m = opt.get_model();
-    // std::cout << N << " : " << read_model(m, decls, printed_vars) <<
-    // std::endl;
-    res.push_back(m);
-    dont_gen_m_again(opt, m, exprs, decls);
-  } while (N1++ < 100);
-  std::cout << N1 << " " << T1.duration() << std::endl;
+  // timer T1;
+  // do {
+  //   z3::check_result has_correct = opt.check();
+  //   if (has_correct != z3::sat)
+  //     break;
+  //   z3::model m = opt.get_model();
+  //   // std::cout << N << " : " << read_model(m, decls, printed_vars) <<
+  //   // std::endl;
+  //   res.push_back(m);
+  //   dont_gen_m_again(opt, m, exprs, decls);
+  // } while (N1++ < 100);
+  // std::cout << N1 << " " << T1.duration() << std::endl;
 
   /* what if I fix the first half of variables?*/
   opt.pop();
-  for (int i2 : {10, 100, 500, 1000}) {
-    opt.push();
+  opt.push();
+
+  // for (int i2 : {1, 10, 100, 250, 500, 1000}) {
+  for (int i2 : std::vector<int>(1, 0)) {
+    // opt.push();
     int N2 = 0;
     opt.check();
     z3::model m = opt.get_model();
     int x = i2;
-    vset_t to_fronzen_vars;
-    for (var_t v : vars) {
-      if (!x-- > 0)
-        break;
-      to_fronzen_vars.insert(v);
-    }
-    // vset_t to_fronzen_vars = find_kernal_vars()[0];
+    // vset_t to_fronzen_vars = vars;
 
-    // std::ofstream ofs("heihei.txt", std::ofstream::out);
-    // ofs << to_fronzen_vars;
-    // ofs.close();
-    //
-    // std::ifstream ifs("heihei.txt", std::ifstream::in);
-    // vset_t for_in;
-    // ifs >> for_in;
-    // ifs.close();
-
-    frozen_parial_of_m(opt, m, decls, exprs, to_fronzen_vars);
+    // frozen_parial_of_m(opt, m, decls, exprs, to_fronzen_vars);
     timer T2;
     do {
       if (opt.check() != z3::sat)
@@ -369,49 +357,48 @@ z3_model_vec_t program::gen_N_models(int N) {
       m = opt.get_model();
       res.push_back(m);
       dont_gen_m_again(opt, m, exprs, decls);
-    } while (N2++ < 100);
-    std::cout << i2 << "::" << N2 << " " << T2.duration() << std::endl;
-    opt.pop();
+      print_progress(static_cast<double>(N2) / 100);
+      // std::cout << read_model(m, decls, vars) << std::endl;
+    } while (N2++ < 14);
+    // std::cout << i2 << "::" << N2 << " " << T2.duration() << " "
+    //           << static_cast<double>(T2.duration()) / static_cast<double>(N2)
+    //           << std::endl;
+    // opt.pop();
     // End of experiment...
   }
-  // opt.check();
-  // z3::model m = opt.get_model();
-  // int N3 = 5;
-  // vset_t focus_vars = random_pickup(vars, N3);
-  // // vset_t focus_vars = first_N_elements(vars, N3);
-  // // vset_t focus_vars = vars;
-  // // debug(focus_vars);
-  //
-  // // check out how many clauses are satisfied
-  // z3::optimize opt2(c);
-  // cpset_t satc;
-  // for (var_t v : focus_vars) {
-  //   auto tmp_cs =
-  //       model_of_v(m, v, decls) == Z3_L_TRUE ? true_match[v] :
-  //       false_match[v];
-  //   for (auto &tc : tmp_cs)
-  //     satc.insert(tc);
-  // }
-  //
-  // for (auto &each_clause : satc) {
-  //   z3::expr_vector V(c);
-  //   for (var_t v : each_clause->vs) {
-  //     if (focus_vars.count(std::abs(v)))
-  //       V.push_back(v > 0 ? exprs.at(v) : !exprs.at(-v));
-  //   }
-  //   opt2.add(mk_or(V));
-  // }
-  //
-  // // solve all opt2
-  // int tmp = 100;
-  // while (tmp-- > 0) {
-  //   if (opt2.check() != z3::sat)
-  //     break;
-  //   m = opt2.get_model();
-  //   dont_gen_m_again(opt2, m, exprs, decls, focus_vars);
-  //   // std::cout << read_model(m, decls, focus_vars) << std::endl;
-  // }
-  //
-  // std::cout << 100 - tmp << std::endl;
+
+  // find out the diffs or the model
+  std::cout << std::endl << "starts here" << std::endl;
+  vset_t not_diffs;
+  vset_t diffs;
+  for (var_t v : vars) {
+    bool to_insert = true;
+    auto tt = model_of_v(res[0], v, decls);
+    for (auto &m : res)
+      if (model_of_v(m, v, decls) != tt) {
+        to_insert = false;
+        break;
+      }
+    if (to_insert)
+      not_diffs.insert(v);
+    else
+      diffs.insert(v);
+  }
+
+  // fronzen the not_diffs
+  opt.pop();
+  int repeat = 0;
+  std::cout << not_diffs.size() << " " << diffs.size() << std::endl;
+  frozen_parial_of_m(opt, res[10], decls, exprs, not_diffs);
+  timer NN;
+  while (repeat++ < 100) {
+    std::cout << '.';
+    if (opt.check() != z3::sat)
+      break;
+    z3::model m = opt.get_model();
+    dont_gen_m_again(opt, m, exprs, decls, diffs);
+  }
+  std::cout << repeat << std::endl;
+  std::cout << NN.duration() << std::endl;
   return res;
 }

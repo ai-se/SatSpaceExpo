@@ -27,8 +27,6 @@ void test_udg(int argc, char *argv[]) {
 }
 
 void test_key_clause_searching(int argc, char *argv[]) {
-  // srand (time(NULL));
-  srand(1);
   std::string model = "Benchmarks/polynomial.sk_7_25.cnf";
   // std::string model = "Benchmarks/test.cnf";
   for (int i = 0; i < argc; i++) {
@@ -45,6 +43,8 @@ void test_key_clause_searching(int argc, char *argv[]) {
 }
 
 int main(int argc, char *argv[]) {
+  // srand (time(NULL));
+  srand(2019);
   test_key_clause_searching(argc, argv);
   // test_udg(argc, argv);
   return 0;
