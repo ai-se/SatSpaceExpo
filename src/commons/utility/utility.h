@@ -1,9 +1,22 @@
 #pragma once
 
+#include "commons/clause/clause.h"
+#include <boost/dynamic_bitset.hpp>
 #include <iostream>
+#include <map>
 #include <set>
 #include <string>
 #include <vector>
+#include <z3++.h>
+
+typedef int var_t; // variable
+typedef std::set<clause *> cpset_t; // clause point set
+typedef std::set<var_t> vset_t;     // variable set
+typedef std::map<var_t, z3::expr> exprs_t;
+typedef std::map<var_t, z3::func_decl> decls_t;
+typedef std::vector<z3::model> z3_model_vec_t;
+typedef boost::dynamic_bitset<> var_bitset;
+typedef std::vector<var_bitset> vbitset_vec_t;
 
 #define PBSTR "||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||"
 #define PBWIDTH 60

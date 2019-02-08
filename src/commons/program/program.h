@@ -1,22 +1,16 @@
 #pragma once
 
+#include "commons/bintree/binaryTree.cpp"
 #include "commons/clause/clause.h"
 #include "commons/dudg/DUDG.h"
 #include "commons/udg/UDG.h"
-#include <bitset>
+#include "commons/utility/utility.h"
 #include <iostream>
 #include <map>
 #include <set>
 #include <string.h>
 #include <vector>
 #include <z3++.h>
-
-typedef int var_t;                  // variable
-typedef std::set<clause *> cpset_t; // clause point set
-typedef std::set<var_t> vset_t;     // variable set
-typedef std::map<var_t, z3::expr> exprs_t;
-typedef std::map<var_t, z3::func_decl> decls_t;
-typedef std::vector<z3::model> z3_model_vec_t;
 
 cpset_t operator-(const cpset_t &A, const cpset_t &B);
 cpset_t operator+(const cpset_t &A, const cpset_t &B); // the union
@@ -50,17 +44,17 @@ class program {
   void frozen_parial_of_m(z3::optimize &opt, z3::model &m, decls_t &decls,
                           exprs_t &exprs, vset_t &to_fronzen_vars);
 
-  std::vector<vset_t> find_kernal_vars(const vset_t &considering);
-  std::vector<vset_t> find_kernal_vars() { return find_kernal_vars(vars); }
-
-  z3_model_vec_t solve(z3::optimize &opt, vset_t &unsolved_vars, exprs_t &exprs,
-                       decls_t &decls, int gen_size);
-
   std::string read_model(z3::model &m, decls_t &decls, vset_t &printing_vars);
+  std::string read_model(z3::model &m, decls_t &decls) {
+    return read_model(m, decls, vars);
+  }
+
+  // bin_tree_node *create_sub_guide_tree(vbitset_vec_t &samples,
+  //                                      vset_t &consider);
 
 public:
   int vars_num;
   program(std::string input_file);
-  z3_model_vec_t solve();
-  z3_model_vec_t gen_N_models(int N);
+  vbitset_vec_t gen_N_models(int N);
+  // btree create_flip_guide_tree();
 };
