@@ -4,6 +4,7 @@
 #include <cstring>
 #include <fstream>
 #include <iostream>
+#include <math.h>
 #include <z3++.h>
 
 cpset_t operator-(const cpset_t &A, const cpset_t &B) {
@@ -177,21 +178,114 @@ vbitset_vec_t program::gen_N_models(int N) {
   return res;
 }
 
-// bin_tree_node *program::create_sub_guide_tree(vbitset_vec_t &samples,
-//                                               vset_t &consider) {
-//   bin_tree_node *subroot = new bin_tree_node(consider);
-//   // spliting the left and right basing on the samples
-//   // s1. randomly pick up one variable
-//
-//   // end of spliting
-//
-//   subroot->left = create_sub_guide_tree(samples, TODO1);
-//   subroot->right = create_sub_guide_tree(samples, TODO2);
-//   return subroot;
-// }
-//
-// btree program::create_flip_guid_tree() {
-//   vbitset_vec_t samples = get_N_models(100); // TODO set here
-//   // find any diffs
-//
-// }
+/**
+ * NOTICE All operations are based on Boost::dynamic_bitset
+ * @param  samples  [description]
+ * @param  consider [description]
+ * @return          [description]
+ */
+bin_tree_node *program::create_sub_guide_tree(vbitset_vec_t &samples,
+                                              var_bitset &consider) {
+  bin_tree_node *subroot = new bin_tree_node(consider);
+  if (consider.count() < sqrt(vars_num)) // TODO set par here
+    return subroot;
+
+  // spliting the left and right basing on the samples
+  /* s1. randomly pick up one variable */
+  size_t Ri;
+  do {
+    Ri = rand() % vars_num;
+  } while (!consider[Ri]);
+
+  /* s2. for each var. cal the diverse measure */
+  std::map<size_t, int> t_diverse; // diverse measure when Ri set to true
+  std::map<size_t, int> f_diverse;
+
+  // O(n^2) complexity here?
+
+  int case_count = 0; // marking how many sample with Ri set
+  for (auto &sample : samples)
+    if (sample[Ri])
+      case_count += 1;
+
+  int case_f_count =
+      samples.size() - case_count; // how many sampel with Ri false
+
+  for (size_t i = 0; i < consider.size(); i++) {
+    if (!consider[i] || i == Ri)
+      continue;
+
+    t_diverse[i] = 0; // init
+    f_diverse[i] = 0;
+
+    for (auto &sample : samples) {
+      if (sample[Ri] && sample[i])
+        t_diverse[i] += 1;
+      else if (!sample[Ri] && sample[i])
+        f_diverse[i] += 1;
+    }
+  }
+
+  /*
+  up to now, when Ri set,
+  var i has {t_diverse[i]} (T) over {case_count-t_diverse[i]} (F)
+
+  when Ri false
+  var i has {f_diverse[i]} (T) over {case_f_count-f_diverse[i]} (F)
+
+  diverse measure of i should be (abs(T-F)/case_count,
+      abs(T'-F')/(case_f_count))
+
+   */
+  std::vector<double> measure_t;
+  std::vector<double> measure_f;
+
+  for (size_t i = 0; i < consider.size(); i++) {
+    if (!consider[i]) {
+      measure_t.push_back(-1);
+      measure_f.push_back(-1);
+    }
+    if (i == Ri) {
+      measure_t.push_back(0);
+      measure_f.push_back(0);
+      continue;
+    }
+
+    measure_t.push_back(
+        static_cast<double>(std::abs(2 * t_diverse[i] - case_count)) /
+        static_cast<double>(case_count));
+    measure_f.push_back(
+        static_cast<double>(std::abs(2 * f_diverse[i] - case_f_count)) /
+        static_cast<double>(case_f_count));
+  }
+
+  /* s3. splitting based on the measures */
+  var_bitset left_consider, right_consider;
+  left_consider.resize(consider.size(), false);  // init
+  right_consider.resize(consider.size(), false); // init
+
+  auto t_indexes = sort_indexes(measure_t);
+  auto f_indexes = sort_indexes(measure_f);
+  auto index_base = consider.count();
+
+  for (size_t i = 0; i < consider.size(); i++) {
+    if (!consider[i])
+      continue;
+    if (t_indexes[i] + f_indexes[i] - 2 * index_base > index_base)
+      right_consider.set(i, true);
+    else
+      left_consider.set(i, true);
+  }
+
+  subroot->left = create_sub_guide_tree(samples, left_consider);
+  subroot->right = create_sub_guide_tree(samples, right_consider);
+  return subroot;
+}
+
+btree program::create_mutate_guide_tree() {
+  vbitset_vec_t samples = gen_N_models(100); // TODO set here
+  var_bitset mask = locate_diffs(samples);
+  btree res;
+  res.root = create_sub_guide_tree(samples, mask);
+  return res;
+}

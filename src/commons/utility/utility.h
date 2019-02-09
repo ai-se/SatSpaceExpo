@@ -9,7 +9,7 @@
 #include <vector>
 #include <z3++.h>
 
-typedef int var_t; // variable
+typedef int var_t;                  // variable
 typedef std::set<clause *> cpset_t; // clause point set
 typedef std::set<var_t> vset_t;     // variable set
 typedef std::map<var_t, z3::expr> exprs_t;
@@ -49,9 +49,11 @@ void debug(std::vector<int> s);
 double std_dev(std::vector<int> v, double avg);
 double std_dev(std::vector<int> v);
 
-std::set<int> get_two_objs_PF(std::vector<std::pair<int, double>>);
-
 std::set<int> random_pickup(std::set<int> src, int cnt);
 std::set<int> first_N_elements(std::set<int> src, int cnt);
 
 void print_progress(double percentage);
+
+var_bitset locate_diffs(vbitset_vec_t &inputs);
+
+std::vector<size_t> sort_indexes(const std::vector<double> &v);

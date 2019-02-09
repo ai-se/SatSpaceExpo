@@ -42,10 +42,20 @@ void test_key_clause_searching(int argc, char *argv[]) {
   p_test.gen_N_models(100);
 }
 
+void test_bit_op() {
+  vbitset_vec_t sample;
+  sample.push_back(var_bitset(std::string("1000")));
+  sample.push_back(var_bitset(std::string("1010")));
+  sample.push_back(var_bitset(std::string("0011")));
+
+  std::cout << locate_diffs(sample) << std::endl;
+}
+
 int main(int argc, char *argv[]) {
   // srand (time(NULL));
   srand(2019);
   test_key_clause_searching(argc, argv);
   // test_udg(argc, argv);
+  // test_bit_op();
   return 0;
 }

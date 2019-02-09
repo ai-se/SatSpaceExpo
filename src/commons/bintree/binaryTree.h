@@ -3,11 +3,11 @@
 #include "commons/utility/utility.h"
 
 struct bin_tree_node {
-  vset_t v;
+  var_bitset v;
   bin_tree_node *left;
   bin_tree_node *right;
 
-  bin_tree_node(vset_t &v1) : v(v1) {}
+  bin_tree_node(var_bitset &v1) : v(v1) {}
 };
 
 class btree {
@@ -15,5 +15,5 @@ class btree {
 
 public:
   bin_tree_node *root;
-  // ~btree() { destroy_tree(root); }
+  ~btree() { destroy_tree(root); }
 };

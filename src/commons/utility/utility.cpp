@@ -38,37 +38,6 @@ double std_dev(std::vector<int> v) {
   return std_dev(v, avg);
 }
 
-/**
- * ALL LESS THE BETTER!!
- * Brute force...
- * Binary domination
- * @param candidates The objective pair candidates
- * TODO efficiency improvement
- *
- * @return the index that contributes to the paretor frontier
- */
-std::set<int> get_two_objs_PF(std::vector<std::pair<int, double>> candidates) {
-  std::set<int> pf_indices; // pareto frontier
-  for (size_t i = 0; i < candidates.size();
-       i++) { // for each candidate, check whether it
-              // is dominated by any other candidate
-    bool dominated = false;
-    for (size_t j = 0; j < candidates.size(); j++) {
-      if (i == j)
-        continue;
-      if (candidates[i].first > candidates[j].first &&
-          candidates[i].second > candidates[j].second) {
-        dominated = true;
-        break;
-      } // end if dominated
-    }   // end checking
-
-    if (!dominated)
-      pf_indices.insert(i);
-  }
-  return pf_indices;
-}
-
 std::set<int> random_pickup(std::set<int> src, int cnt) {
   if (static_cast<int>(src.size()) <= cnt)
     return src;
@@ -112,4 +81,30 @@ void print_progress(double percentage) {
   int rpad = PBWIDTH - lpad;
   printf("\r%3d%% [%.*s%*s]", val, lpad, PBSTR, rpad, "");
   fflush(stdout);
+}
+
+var_bitset locate_diffs(vbitset_vec_t &inputs) {
+  var_bitset locations;
+  locations.resize(inputs[0].size(), true);
+  for (size_t i = 1; i < inputs.size(); i++) {
+    auto mask = inputs[i - 1] ^ inputs[i];
+    locations &= ~mask;
+  }
+
+  return locations;
+}
+
+/*https://stackoverflow.com/questions/1577475/
+c-sorting-and-keeping-track-of-indexes*/
+std::vector<size_t> sort_indexes(const std::vector<double> &v) {
+
+  // initialize original index locations
+  std::vector<size_t> idx(v.size());
+  iota(idx.begin(), idx.end(), 0);
+
+  // sort indexes based on comparing values in v
+  sort(idx.begin(), idx.end(),
+       [&v](size_t i1, size_t i2) { return v[i1] < v[i2]; });
+
+  return idx;
 }

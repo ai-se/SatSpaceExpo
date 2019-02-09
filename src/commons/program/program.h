@@ -1,6 +1,6 @@
 #pragma once
 
-#include "commons/bintree/binaryTree.cpp"
+#include "commons/bintree/binaryTree.h"
 #include "commons/clause/clause.h"
 #include "commons/dudg/DUDG.h"
 #include "commons/udg/UDG.h"
@@ -49,12 +49,12 @@ class program {
     return read_model(m, decls, vars);
   }
 
-  // bin_tree_node *create_sub_guide_tree(vbitset_vec_t &samples,
-  //                                      vset_t &consider);
+  bin_tree_node *create_sub_guide_tree(vbitset_vec_t &samples,
+                                       var_bitset &consider);
 
 public:
   int vars_num;
   program(std::string input_file);
   vbitset_vec_t gen_N_models(int N);
-  // btree create_flip_guide_tree();
+  btree create_mutate_guide_tree();
 };
