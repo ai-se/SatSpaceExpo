@@ -65,11 +65,11 @@ program::program(std::string input_file) {
     if (line.find("c ind ") == 0) {
       // TODO is independent var valid?
     } else if (line.find("p cnf") == 0) {
-      std::istringstream iss(line);
-      std::string s_dump;
-      iss >> s_dump >> s_dump; // 'p' 'cnf'
-      iss >> vars_num;         // p value
-      std::cout << "INFO : |vars| = " << vars_num << std::endl;
+      // std::istringstream iss(line);
+      // std::string s_dump;
+      // iss >> s_dump >> s_dump; // 'p' 'cnf'
+      // iss >> vars_num;         // p value
+      // std::cout << "INFO : |vars| = " << vars_num << std::endl;
     } else if (line[0] != 'c' && line[0] != 'p') {
       clause cline(line);
       clauses.push_back(cline);
@@ -91,6 +91,7 @@ program::program(std::string input_file) {
   for (auto &each_clause : clauses)
     all_clause_ps.insert(&each_clause);
 
+  vars_num = vars.size();
   std::cout << "INIT : Loading " << input_file << " done." << std::endl;
 }
 
@@ -187,6 +188,7 @@ vbitset_vec_t program::gen_N_models(int N) {
 bin_tree_node *program::create_sub_guide_tree(vbitset_vec_t &samples,
                                               var_bitset &consider) {
   bin_tree_node *subroot = new bin_tree_node(consider);
+  // std::cout << consider.count() << std::endl;
   if (consider.count() < sqrt(vars_num)) // TODO set par here
     return subroot;
 
@@ -196,7 +198,7 @@ bin_tree_node *program::create_sub_guide_tree(vbitset_vec_t &samples,
   do {
     Ri = rand() % vars_num;
   } while (!consider[Ri]);
-
+  
   /* s2. for each var. cal the diverse measure */
   std::map<size_t, int> t_diverse; // diverse measure when Ri set to true
   std::map<size_t, int> f_diverse;
@@ -204,9 +206,10 @@ bin_tree_node *program::create_sub_guide_tree(vbitset_vec_t &samples,
   // O(n^2) complexity here?
 
   int case_count = 0; // marking how many sample with Ri set
-  for (auto &sample : samples)
+  for (auto &sample : samples) {
     if (sample[Ri])
       case_count += 1;
+  }
 
   int case_f_count =
       samples.size() - case_count; // how many sampel with Ri false
@@ -283,7 +286,7 @@ bin_tree_node *program::create_sub_guide_tree(vbitset_vec_t &samples,
 }
 
 btree program::create_mutate_guide_tree() {
-  vbitset_vec_t samples = gen_N_models(100); // TODO set here
+  vbitset_vec_t samples = gen_N_models(10); // TODO set here
   var_bitset mask = locate_diffs(samples);
   btree res;
   res.root = create_sub_guide_tree(samples, mask);

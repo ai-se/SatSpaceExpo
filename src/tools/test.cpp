@@ -38,8 +38,7 @@ void test_key_clause_searching(int argc, char *argv[]) {
       model = "Benchmarks/ActivityService.sk_11_27.cnf";
   }
   program p_test(model);
-  // p_test.solve();
-  p_test.gen_N_models(100);
+  p_test.create_mutate_guide_tree();
 }
 
 void test_bit_op() {

@@ -84,11 +84,12 @@ void print_progress(double percentage) {
 }
 
 var_bitset locate_diffs(vbitset_vec_t &inputs) {
+  // set locaation bit =1 when there exist diffs in
   var_bitset locations;
-  locations.resize(inputs[0].size(), true);
+  locations.resize(inputs[0].size(), false);
   for (size_t i = 1; i < inputs.size(); i++) {
     auto mask = inputs[i - 1] ^ inputs[i];
-    locations &= ~mask;
+    locations |= mask;
   }
 
   return locations;
