@@ -38,6 +38,10 @@ struct timer {
     struct timespec *b = &end_time;
     return (b->tv_sec - a->tv_sec) + 1.0e-9 * (b->tv_nsec - a->tv_nsec);
   }
+
+  void show_duration(std::string name) {
+    std::cout << name << "<<< " << duration() << " sec(s)." << std::endl;
+  }
 };
 
 void debug(int s);

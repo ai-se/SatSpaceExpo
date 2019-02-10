@@ -1,5 +1,6 @@
 #pragma once
 
+#include <boost/dynamic_bitset.hpp>
 #include <map>
 #include <set>
 #include <string.h>
@@ -16,6 +17,8 @@ struct clause {
   std::size_t unique() const;
   bool empty() { return vs.size() <= 1; }
   int get_determined();
+
+  boost::dynamic_bitset<> mask, reversed;
 
   friend std::ostream &operator<<(std::ostream &, const clause &);
 };

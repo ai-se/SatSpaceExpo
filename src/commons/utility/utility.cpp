@@ -95,8 +95,6 @@ var_bitset locate_diffs(vbitset_vec_t &inputs) {
   return locations;
 }
 
-/*https://stackoverflow.com/questions/1577475/
-c-sorting-and-keeping-track-of-indexes*/
 std::vector<size_t> sort_indexes(const std::vector<double> &v) {
 
   // initialize original index locations
@@ -107,5 +105,12 @@ std::vector<size_t> sort_indexes(const std::vector<double> &v) {
   sort(idx.begin(), idx.end(),
        [&v](size_t i1, size_t i2) { return v[i1] < v[i2]; });
 
-  return idx;
+  // sort again to get ridx
+  std::vector<size_t> ridx(v.size());
+  iota(ridx.begin(), ridx.end(), 0);
+
+  sort(ridx.begin(), ridx.end(),
+       [&idx](size_t i1, size_t i2) { return idx[i1] < idx[i2]; });
+
+  return ridx;
 }

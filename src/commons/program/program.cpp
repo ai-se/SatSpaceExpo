@@ -91,7 +91,29 @@ program::program(std::string input_file) {
   for (auto &each_clause : clauses)
     all_clause_ps.insert(&each_clause);
 
+  // mark var_bit_id
+  {
+    size_t i = 0;
+    for (var_t v : vars) {
+      var_bit_id[v] = i;
+      i++;
+    }
+  }
+
+  // setting up the clause mask and reversed
+  timer T3;
+  for (auto &each_clause : clauses) {
+    each_clause.mask.resize(vars_num, false);
+    each_clause.reversed.resize(vars_num, false);
+    for (var_t v : each_clause.vs) {
+      each_clause.mask.set(var_bit_id[std::abs(v)]);
+      each_clause.reversed.set(var_bit_id[std::abs(v)], !(v > 0));
+    }
+  }
+  T3.show_duration("T3");
+
   vars_num = vars.size();
+  std::cout << "INFO : |vars| = " << vars_num << std::endl;
   std::cout << "INIT : Loading " << input_file << " done." << std::endl;
 }
 
@@ -188,8 +210,11 @@ vbitset_vec_t program::gen_N_models(int N) {
 bin_tree_node *program::create_sub_guide_tree(vbitset_vec_t &samples,
                                               var_bitset &consider) {
   bin_tree_node *subroot = new bin_tree_node(consider);
-  // std::cout << consider.count() << std::endl;
-  if (consider.count() < sqrt(vars_num)) // TODO set par here
+  size_t c_c = consider.count();
+
+  std::cout << "F: " << c_c << std::endl;
+
+  if (c_c < sqrt(vars_num)) // TODO set par here
     return subroot;
 
   // spliting the left and right basing on the samples
@@ -198,7 +223,7 @@ bin_tree_node *program::create_sub_guide_tree(vbitset_vec_t &samples,
   do {
     Ri = rand() % vars_num;
   } while (!consider[Ri]);
-  
+
   /* s2. for each var. cal the diverse measure */
   std::map<size_t, int> t_diverse; // diverse measure when Ri set to true
   std::map<size_t, int> f_diverse;
@@ -269,7 +294,7 @@ bin_tree_node *program::create_sub_guide_tree(vbitset_vec_t &samples,
 
   auto t_indexes = sort_indexes(measure_t);
   auto f_indexes = sort_indexes(measure_f);
-  auto index_base = consider.count();
+  auto index_base = c_c;
 
   for (size_t i = 0; i < consider.size(); i++) {
     if (!consider[i])
@@ -280,15 +305,23 @@ bin_tree_node *program::create_sub_guide_tree(vbitset_vec_t &samples,
       left_consider.set(i, true);
   }
 
-  subroot->left = create_sub_guide_tree(samples, left_consider);
-  subroot->right = create_sub_guide_tree(samples, right_consider);
+  size_t l_c = left_consider.count();
+  size_t r_c = right_consider.count();
+
+  if (l_c != 0 && l_c != c_c)
+    subroot->left = create_sub_guide_tree(samples, left_consider);
+  if (r_c != 0 && r_c != c_c)
+    subroot->right = create_sub_guide_tree(samples, right_consider);
   return subroot;
 }
 
-btree program::create_mutate_guide_tree() {
-  vbitset_vec_t samples = gen_N_models(10); // TODO set here
+btree program::create_mutate_guide_tree(vbitset_vec_t &samples) {
   var_bitset mask = locate_diffs(samples);
   btree res;
   res.root = create_sub_guide_tree(samples, mask);
   return res;
+}
+
+void program::mutate_the_seed_with_tree(btree &tree, var_bitset &seed) {
+  // attach memo info to the guide tree
 }
