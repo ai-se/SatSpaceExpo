@@ -329,7 +329,8 @@ void random_var_bit_set(var_bitset &r, size_t size) {
     r.set(i, rand() % 2);
 }
 
-void program::mutate_the_seed_with_tree(btree &tree, var_bitset &seed) {
+void program::mutate_the_seed_with_tree(btree &tree, var_bitset &seed,
+                                        vbitset_vec_t &samples) {
   // attach memo info to the guide tree
   timer Y;
   tree.traverse(TRA_T_PRE_ORDER, [&](bin_tree_node *node) {
@@ -351,16 +352,16 @@ void program::mutate_the_seed_with_tree(btree &tree, var_bitset &seed) {
   Y.show_duration("recording info");
 
   // random generating and verifying based on the memo info
+  // std::set<var_bitset> P;
+  int P = 0;
   tree.traverse(TRA_T_POST_ORDER, [&](bin_tree_node *node) {
     /**
      * node.memo contains pair <short_mask, short_reversed>
-     * for (auto &info : node->memo)
-         std::cout << info.first.count() << " " << info.second.size();
      */
-    std::set<var_bitset> P;
     for (size_t repeat = 0; repeat < node->consider.count() * 20; repeat++) {
       var_bitset r;
       random_var_bit_set(r, node->consider.count());
+
       bool passed = true;
       for (auto &info : node->memo) {
         if (!((r & info.first) ^ info.second).any()) {
@@ -370,10 +371,10 @@ void program::mutate_the_seed_with_tree(btree &tree, var_bitset &seed) {
       } // for each info
 
       if (passed) { // recording
-        P.insert(r);
+        // P.insert(r);
+        P++;
       }
     } // for each repeat
-
-    std::cout << P.size() << std::endl;
   });
+  std::cout << P << std::endl;
 }

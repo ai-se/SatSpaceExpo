@@ -62,7 +62,7 @@ void test_solver(int argc, char *argv[]) {
   } // End of loading.
 
   btree T = p_test.create_mutate_guide_tree(samples);
-  p_test.mutate_the_seed_with_tree(T, samples[4]);
+  p_test.mutate_the_seed_with_tree(T, samples[4], samples);
 }
 
 void test_bit_op() {
