@@ -22,13 +22,13 @@ std::ostream &operator<<(std::ostream &os, const vset_t &obj);
 class program {
   int vars_num;
   z3::context c;
-  std::vector<clause> clauses;
+  std::vector<clause_t> clauses;
   std::map<var_t, cpset_t> vars2clauses_map;
   std::map<var_t, cpset_t> true_match,
       false_match;       // if var of var_t(key) set to true/ false,
                          // then set of caluses can be matched
                          // DUDG<var_t> c_udg;
-  cpset_t all_clause_ps; // all clause pointers
+  cpset_t all_clause_ps; // all clause_t pointers
   vset_t vars;           // all variables
   std::map<var_t, size_t> var_bit_id;
 
@@ -46,8 +46,8 @@ class program {
   void frozen_parial_of_m(z3::optimize &opt, z3::model &m, decls_t &decls,
                           exprs_t &exprs, vset_t &to_fronzen_vars);
 
-  std::string read_model(z3::model &m, decls_t &decls, vset_t &printing_vars);
-  std::string read_model(z3::model &m, decls_t &decls) {
+  var_bitset read_model(z3::model &m, decls_t &decls, vset_t &printing_vars);
+  var_bitset read_model(z3::model &m, decls_t &decls) {
     return read_model(m, decls, vars);
   }
 
@@ -60,3 +60,5 @@ public:
   btree create_mutate_guide_tree(vbitset_vec_t &samples);
   void mutate_the_seed_with_tree(btree &tree, var_bitset &seed);
 };
+
+void random_var_bit_set(var_bitset &r, size_t size);

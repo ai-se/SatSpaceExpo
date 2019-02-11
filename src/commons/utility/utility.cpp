@@ -114,3 +114,21 @@ std::vector<size_t> sort_indexes(const std::vector<double> &v) {
 
   return ridx;
 }
+
+var_bitset truncate_bitset(var_bitset &truncating, var_bitset &mask) {
+  var_bitset res;
+  size_t L = mask.count();
+  if (L == 0)
+    return res;
+  res.resize(L);
+  size_t cursor = 0;
+
+  size_t i = mask.find_first();
+  do {
+    res.set(cursor, truncating[i]);
+    i = mask.find_next(i);
+    cursor++;
+  } while (cursor < L);
+
+  return res;
+}

@@ -8,11 +8,11 @@
 #include <vector>
 #include <z3++.h>
 
-struct clause {
+struct clause_t {
   std::vector<int> vs;
   std::set<int> avs;
 
-  clause(std::string s);
+  clause_t(std::string s);
 
   std::size_t unique() const;
   bool empty() { return vs.size() <= 1; }
@@ -20,5 +20,5 @@ struct clause {
 
   boost::dynamic_bitset<> mask, reversed;
 
-  friend std::ostream &operator<<(std::ostream &, const clause &);
+  friend std::ostream &operator<<(std::ostream &, const clause_t &);
 };

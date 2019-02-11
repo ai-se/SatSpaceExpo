@@ -10,7 +10,7 @@
 //   return c.constant(c.str_symbol(std::to_string(v).c_str()), c.bool_sort());
 // }
 
-clause::clause(std::string s) {
+clause_t::clause_t(std::string s) {
   std::istringstream iss(s);
   int v;
   while (!iss.eof()) {
@@ -23,7 +23,7 @@ clause::clause(std::string s) {
   std::sort(vs.begin(), vs.end());
 }
 
-// z3::expr clause::toExpr(z3::context &c) {
+// z3::expr clause_t::toExpr(z3::context &c) {
 //   // z3::context c;
 //   z3::expr_vector res(c);
 //   for (int v : vs) {
@@ -42,7 +42,7 @@ clause::clause(std::string s) {
 //   return mk_or(res);
 // }
 
-std::size_t clause::unique() const {
+std::size_t clause_t::unique() const {
   // https://stackoverflow.com/questions/20511347/a-good-hash-function-for-a-vector
   std::size_t seed = vs.size();
   for (auto &i : vs) {
@@ -56,14 +56,14 @@ std::size_t clause::unique() const {
  * return +/- value for the unique determined values
  * @return [description]
  */
-int clause::get_determined() {
+int clause_t::get_determined() {
   if (vs.size() != 1)
     return 0;
   else
     return vs[0];
 }
 
-std::ostream &operator<<(std::ostream &os, const clause &me) {
+std::ostream &operator<<(std::ostream &os, const clause_t &me) {
   for (int v : me.vs)
     os << v << " ";
   return os;

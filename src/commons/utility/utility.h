@@ -9,9 +9,9 @@
 #include <vector>
 #include <z3++.h>
 
-typedef int var_t;                  // variable
-typedef std::set<clause *> cpset_t; // clause point set
-typedef std::set<var_t> vset_t;     // variable set
+typedef int var_t;                    // variable
+typedef std::set<clause_t *> cpset_t; // clause_t point set
+typedef std::set<var_t> vset_t;       // variable set
 typedef std::map<var_t, z3::expr> exprs_t;
 typedef std::map<var_t, z3::func_decl> decls_t;
 typedef std::vector<z3::model> z3_model_vec_t;
@@ -61,3 +61,5 @@ void print_progress(double percentage);
 var_bitset locate_diffs(vbitset_vec_t &inputs);
 
 std::vector<size_t> sort_indexes(const std::vector<double> &v);
+
+var_bitset truncate_bitset(var_bitset &truncating, var_bitset &mask);

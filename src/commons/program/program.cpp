@@ -71,48 +71,46 @@ program::program(std::string input_file) {
       // iss >> vars_num;         // p value
       // std::cout << "INFO : |vars| = " << vars_num << std::endl;
     } else if (line[0] != 'c' && line[0] != 'p') {
-      clause cline(line);
+      clause_t cline(line);
       clauses.push_back(cline);
     }
   }
 
   // set up the vars2clauses_map
-  for (clause &each_clause : clauses)
-    for (var_t v : each_clause.vs) {
-      vars2clauses_map[std::abs(v)].insert(&each_clause);
+  for (clause_t &clause : clauses)
+    for (var_t v : clause.vs) {
+      vars2clauses_map[std::abs(v)].insert(&clause);
       if (v > 0)
-        true_match[v].insert(&each_clause);
+        true_match[v].insert(&clause);
       else
-        false_match[-v].insert(&each_clause);
+        false_match[-v].insert(&clause);
       vars.insert(std::abs(v));
     }
 
   // save to all_clause_ps
-  for (auto &each_clause : clauses)
-    all_clause_ps.insert(&each_clause);
+  for (auto &clause : clauses)
+    all_clause_ps.insert(&clause);
 
   // mark var_bit_id
   {
     size_t i = 0;
-    for (var_t v : vars) {
-      var_bit_id[v] = i;
-      i++;
-    }
+    for (var_t v : vars)
+      var_bit_id[v] = i++;
   }
-
-  // setting up the clause mask and reversed
-  timer T3;
-  for (auto &each_clause : clauses) {
-    each_clause.mask.resize(vars_num, false);
-    each_clause.reversed.resize(vars_num, false);
-    for (var_t v : each_clause.vs) {
-      each_clause.mask.set(var_bit_id[std::abs(v)]);
-      each_clause.reversed.set(var_bit_id[std::abs(v)], !(v > 0));
-    }
-  }
-  T3.show_duration("T3");
 
   vars_num = vars.size();
+
+  // setting up the clause mask and reversed
+  for (auto &clause : clauses) {
+    clause.mask.resize(vars_num, false);
+    clause.reversed.resize(vars_num);
+    for (var_t v : clause.vs) {
+      clause.mask.set(var_bit_id[std::abs(v)]);
+      clause.reversed.set(var_bit_id[std::abs(v)], !(v > 0));
+    }
+  }
+  // end..
+
   std::cout << "INFO : |vars| = " << vars_num << std::endl;
   std::cout << "INIT : Loading " << input_file << " done." << std::endl;
 }
@@ -154,11 +152,13 @@ void program::frozen_parial_of_m(z3::optimize &opt, z3::model &m,
     opt.add(model_of_v(m, v, decls) == Z3_L_TRUE ? exprs.at(v) : !exprs.at(v));
 }
 
-std::string program::read_model(z3::model &m, decls_t &decls,
-                                vset_t &printing_vars) {
-  std::string res("");
+var_bitset program::read_model(z3::model &m, decls_t &decls,
+                               vset_t &printing_vars) {
+  var_bitset res;
+  res.resize(printing_vars.size());
+  size_t cursor = 0;
   for (var_t v : printing_vars)
-    res += model_of_v(m, v, decls) == Z3_L_TRUE ? '1' : '0';
+    res.set(cursor++, model_of_v(m, v, decls) == Z3_L_TRUE);
   return res;
 }
 
@@ -176,10 +176,10 @@ vbitset_vec_t program::gen_N_models(int N) {
 
   // load the whole model
   z3::optimize opt(c);
-  for (auto &each_clause : clauses) {
+  for (auto &clause : clauses) {
     z3::expr_vector V(c);
 
-    for (var_t v : each_clause.vs)
+    for (var_t v : clause.vs)
       V.push_back(v > 0 ? exprs.at(v) : !exprs.at(-v));
     opt.add(mk_or(V));
   }
@@ -194,7 +194,7 @@ vbitset_vec_t program::gen_N_models(int N) {
     if (has_correct != z3::sat)
       break;
     z3::model m = opt.get_model();
-    res.push_back(var_bitset(read_model(m, decls)));
+    res.push_back(read_model(m, decls));
     dont_gen_m_again(opt, m, exprs, decls);
   }
   std::cout << std::endl;
@@ -212,7 +212,7 @@ bin_tree_node *program::create_sub_guide_tree(vbitset_vec_t &samples,
   bin_tree_node *subroot = new bin_tree_node(consider);
   size_t c_c = consider.count();
 
-  std::cout << "F: " << c_c << std::endl;
+  // std::cout << "F: " << c_c << std::endl;
 
   if (c_c < sqrt(vars_num)) // TODO set par here
     return subroot;
@@ -322,6 +322,46 @@ btree program::create_mutate_guide_tree(vbitset_vec_t &samples) {
   return res;
 }
 
+void random_var_bit_set(var_bitset &r, size_t size) { r.resize(size); }
+
 void program::mutate_the_seed_with_tree(btree &tree, var_bitset &seed) {
   // attach memo info to the guide tree
+  tree.traverse(TRA_T_PRE_ORDER, [&](bin_tree_node *node) {
+    var_bitset rest_of_consider = ~node->consider;
+    node->memo.clear(); // removing old result
+    for (auto &clause : clauses) {
+      auto sated_already = (seed & rest_of_consider & clause.mask) ^
+                           (clause.reversed & rest_of_consider);
+
+      if (sated_already.any())
+        continue;
+      // create the memo info
+      auto short_mask = truncate_bitset(clause.mask, node->consider);
+      auto short_reversed = truncate_bitset(clause.reversed, node->consider);
+      // std::cout << short_mask.count() << " ";
+      node->memo.push_back(std::make_pair(short_mask, short_reversed));
+    } // end for clause
+  });
+
+  // random generating and verifying based on the memo info
+  tree.traverse(TRA_T_POST_ORDER, [&](bin_tree_node *node) {
+    /**
+     * node.memo contains pair <short_mask, short_reversed>
+     * for (auto &info : node->memo)
+         std::cout << info.first.count() << " " << info.second.size();
+     */
+    var_bitset r;
+    random_var_bit_set(r, node->consider.count());
+
+    bool passed = true;
+    for (auto &info : node->memo) {
+      if (!((r & info.first) ^ info.second).any()) {
+        passed = false;
+        break;
+      }
+    } // for each info
+
+    if (passed) { // recording
+    }
+  });
 }

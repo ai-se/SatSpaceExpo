@@ -62,16 +62,20 @@ void test_solver(int argc, char *argv[]) {
   } // End of loading.
 
   btree T = p_test.create_mutate_guide_tree(samples);
-  std::cout << T.get_depth() << std::endl;
+  p_test.mutate_the_seed_with_tree(T, samples[4]);
 }
 
 void test_bit_op() {
-  vbitset_vec_t sample;
-  sample.push_back(var_bitset(std::string("1000")));
-  sample.push_back(var_bitset(std::string("1010")));
-  sample.push_back(var_bitset(std::string("0011")));
+  // vbitset_vec_t sample;
+  // sample.push_back(var_bitset(std::string("1000")));
+  // sample.push_back(var_bitset(std::string("1010")));
+  // sample.push_back(var_bitset(std::string("0011")));
+  // std::cout << locate_diffs(sample) << std::endl;
 
-  std::cout << locate_diffs(sample) << std::endl;
+  var_bitset mmmmmmmask(std::string("11010001000"));
+  var_bitset truncating(std::string("11001101001"));
+  auto e = truncate_bitset(truncating, mmmmmmmask);
+  std::cout << e << std::endl;
 }
 
 int main(int argc, char *argv[]) {

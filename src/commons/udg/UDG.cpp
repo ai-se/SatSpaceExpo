@@ -61,4 +61,4 @@ template <class T> std::vector<std::set<T>> UDG<T>::de_components() {
 }
 
 template class UDG<int>;
-template class UDG<clause *>;
+template class UDG<clause_t *>;
