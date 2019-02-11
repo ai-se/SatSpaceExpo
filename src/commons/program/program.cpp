@@ -322,10 +322,16 @@ btree program::create_mutate_guide_tree(vbitset_vec_t &samples) {
   return res;
 }
 
-void random_var_bit_set(var_bitset &r, size_t size) { r.resize(size); }
+void random_var_bit_set(var_bitset &r, size_t size) {
+  // TODO complete random! change to DE strategy?
+  r.resize(size);
+  for (size_t i = 0; i < size; i++)
+    r.set(i, rand() % 2);
+}
 
 void program::mutate_the_seed_with_tree(btree &tree, var_bitset &seed) {
   // attach memo info to the guide tree
+  timer Y;
   tree.traverse(TRA_T_PRE_ORDER, [&](bin_tree_node *node) {
     var_bitset rest_of_consider = ~node->consider;
     node->memo.clear(); // removing old result
@@ -342,6 +348,7 @@ void program::mutate_the_seed_with_tree(btree &tree, var_bitset &seed) {
       node->memo.push_back(std::make_pair(short_mask, short_reversed));
     } // end for clause
   });
+  Y.show_duration("recording info");
 
   // random generating and verifying based on the memo info
   tree.traverse(TRA_T_POST_ORDER, [&](bin_tree_node *node) {
@@ -350,18 +357,23 @@ void program::mutate_the_seed_with_tree(btree &tree, var_bitset &seed) {
      * for (auto &info : node->memo)
          std::cout << info.first.count() << " " << info.second.size();
      */
-    var_bitset r;
-    random_var_bit_set(r, node->consider.count());
+    std::set<var_bitset> P;
+    for (size_t repeat = 0; repeat < node->consider.count() * 20; repeat++) {
+      var_bitset r;
+      random_var_bit_set(r, node->consider.count());
+      bool passed = true;
+      for (auto &info : node->memo) {
+        if (!((r & info.first) ^ info.second).any()) {
+          passed = false;
+          break;
+        }
+      } // for each info
 
-    bool passed = true;
-    for (auto &info : node->memo) {
-      if (!((r & info.first) ^ info.second).any()) {
-        passed = false;
-        break;
+      if (passed) { // recording
+        P.insert(r);
       }
-    } // for each info
+    } // for each repeat
 
-    if (passed) { // recording
-    }
+    std::cout << P.size() << std::endl;
   });
 }
