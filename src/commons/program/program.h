@@ -19,9 +19,9 @@ vset_t operator-(const vset_t &A, const vset_t &B);
 std::istream &operator>>(std::istream &is, vset_t &obj);
 std::ostream &operator<<(std::ostream &os, const vset_t &obj);
 
-class program
-{
-  int vars_num;z3::context c;
+class program {
+  int vars_num;
+  z3::context c;
   std::vector<clause_t> clauses;
   std::map<var_t, cpset_t> vars2clauses_map;
   std::map<var_t, cpset_t> true_match,
@@ -40,16 +40,14 @@ class program
   void dont_gen_m_again(z3::optimize &opt, z3::model &m, exprs_t &exprs,
                         decls_t &decls, const vset_t &considered_vars);
   void dont_gen_m_again(z3::optimize &opt, z3::model &m, exprs_t &exprs,
-                        decls_t &decls)
-  {
+                        decls_t &decls) {
     dont_gen_m_again(opt, m, exprs, decls, vars);
   }
   void frozen_parial_of_m(z3::optimize &opt, z3::model &m, decls_t &decls,
                           exprs_t &exprs, vset_t &to_fronzen_vars);
 
   var_bitset read_model(z3::model &m, decls_t &decls, vset_t &printing_vars);
-  var_bitset read_model(z3::model &m, decls_t &decls)
-  {
+  var_bitset read_model(z3::model &m, decls_t &decls) {
     return read_model(m, decls, vars);
   }
 
