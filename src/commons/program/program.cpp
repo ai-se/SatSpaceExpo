@@ -1,6 +1,7 @@
-#include "commons/utility/utility.h"
 #include "program.h"
+#include "commons/utility/utility.h"
 #include <algorithm>
+#include <boost/range/irange.hpp>
 #include <cstring>
 #include <fstream>
 #include <iostream>
@@ -201,6 +202,23 @@ vbitset_vec_t program::gen_N_models(int N) {
   return res;
 }
 
+bool program::verify_var_bitset(const var_bitset &vbt) {
+  for (size_t i = 0; i < clauses.size(); i++) {
+    // if (!((vbt & clauses[i].mask) ^ clauses[i].reversed).any())
+    //   return false;
+    bool pass = false;
+    for (auto &v : clauses[i].vs) {
+      if (vbt[var_bit_id[std::abs(v)]] == bool(v > 0)) {
+        pass = true;
+        break;
+      }
+    }
+    if (!pass)
+      return false;
+  }
+  return true;
+}
+
 /**
  * NOTICE All operations are based on Boost::dynamic_bitset
  * @param  samples  [description]
@@ -308,14 +326,36 @@ bin_tree_node *program::create_sub_guide_tree(vbitset_vec_t &samples,
   size_t l_c = left_consider.count();
   size_t r_c = right_consider.count();
 
-  if (l_c != 0 && l_c != c_c)
+  if (l_c >= 2 && l_c != c_c)
     subroot->left = create_sub_guide_tree(samples, left_consider);
-  if (r_c != 0 && r_c != c_c)
+  if (r_c >= 2 && r_c != c_c)
     subroot->right = create_sub_guide_tree(samples, right_consider);
   return subroot;
 }
 
 btree program::create_mutate_guide_tree(vbitset_vec_t &samples) {
+  std::set<var_bitset> deltas;
+  for (size_t i = 0; i < samples.size(); i++)
+    for (size_t j = i + 1; j < samples.size(); j++)
+      deltas.insert(samples[i] ^ samples[j]);
+  std::cout << deltas.size() << " " << samples.size() << " "
+            << samples.size() * samples.size() << std::endl;
+  // abort();
+  vbitset_vec_t dd;
+  dd.assign(deltas.begin(), deltas.end());
+  auto base = samples[rand() % samples.size()];
+  int tt = 0;
+  for (auto &delta1 : deltas) {
+    // auto delta1 = dd[rand() % deltas.size()];
+    // auto delta2 = dd[rand() % deltas.size()];
+    auto out = base ^ (delta1);
+    if (verify_var_bitset(out))
+      tt++;
+  }
+  std::cout << tt << " " << (deltas.size());
+  std::cout << std::endl;
+  abort();
+
   var_bitset mask = locate_diffs(samples);
   btree res;
   res.root = create_sub_guide_tree(samples, mask);
@@ -358,23 +398,24 @@ void program::mutate_the_seed_with_tree(btree &tree, var_bitset &seed,
     /**
      * node.memo contains pair <short_mask, short_reversed>
      */
-    for (size_t repeat = 0; repeat < node->consider.count() * 20; repeat++) {
-      var_bitset r;
-      random_var_bit_set(r, node->consider.count());
+    std::cout << node->consider.count() << std::endl;
+    var_bitset r;
+    random_var_bit_set(r, node->consider.count());
 
-      bool passed = true;
-      for (auto &info : node->memo) {
-        if (!((r & info.first) ^ info.second).any()) {
-          passed = false;
-          break;
-        }
-      } // for each info
-
-      if (passed) { // recording
-        // P.insert(r);
-        P++;
+    bool passed = true;
+    for (auto &info : node->memo) {
+      if (!((r & info.first) ^ info.second).any()) {
+        passed = false;
+        break;
       }
-    } // for each repeat
+    } // for each info
+
+    if (passed) { // recording
+      // P.insert(r);
+      P++;
+      std::cout << '+';
+    } else
+      std::cout << '.';
   });
   std::cout << P << std::endl;
 }
