@@ -13,6 +13,7 @@
 #include <z3++.h>
 
 cpset_t operator-(const cpset_t &A, const cpset_t &B);
+cpset_t &operator-=(cpset_t &lhs, const cpset_t &rhs);
 cpset_t operator+(const cpset_t &A, const cpset_t &B); // the union
 
 vset_t operator-(const vset_t &A, const vset_t &B);
@@ -53,7 +54,7 @@ class program {
 
   bin_tree_node *create_sub_guide_tree(std::set<var_bitset> deltas);
 
-  bool verify_var_bitset(const var_bitset &vbt);
+  bool verify_var_bitset(const var_bitset &vbt, cpset_t &toverify);
 
 public:
   program(std::string input_file);

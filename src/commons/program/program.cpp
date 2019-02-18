@@ -19,6 +19,12 @@ cpset_t operator-(const cpset_t &A, const cpset_t &B) {
   return remain;
 }
 
+cpset_t &operator-=(cpset_t &lhs, const cpset_t &rhs) {
+  for (auto i : rhs)
+    lhs.erase(i);
+  return lhs;
+}
+
 cpset_t operator+(const cpset_t &A, const cpset_t &B) {
   cpset_t sum;
   for (auto &i : A)
@@ -206,12 +212,10 @@ vbitset_vec_t program::gen_N_models(int N) {
   return res;
 }
 
-bool program::verify_var_bitset(const var_bitset &vbt) {
-  for (size_t i = 0; i < clauses.size(); i++) {
-    // if (!((vbt & clauses[i].mask) ^ clauses[i].reversed).any())
-    //   return false;
+bool program::verify_var_bitset(const var_bitset &vbt, cpset_t &toverify) {
+  for (auto cp : toverify) {
     bool pass = false;
-    for (auto &v : clauses[i].vs) {
+    for (auto &v : cp->vs) {
       if (vbt[var_bit_id[std::abs(v)]] == bool(v > 0)) {
         pass = true;
         break;
@@ -260,6 +264,8 @@ bin_tree_node *program::create_sub_guide_tree(std::set<var_bitset> deltas) {
 
   subroot->left = create_sub_guide_tree(ldeltas);
   subroot->right = create_sub_guide_tree(rdeltas);
+  subroot->left->parent = subroot;
+  subroot->right->parent = subroot;
   return subroot;
 }
 
@@ -288,8 +294,28 @@ void program::mutate_the_seed_with_tree(btree &tree, var_bitset &seed,
     });
   } // end of setting union and intersection for each node
 
+  // create the fast verification memo, set the root first.
+  tree.root->should_verify = all_clause_ps;
+  for (var_t v : vars) {
+    size_t i = var_bit_id[v];
+    if (!tree.root->union_delta.test(i))
+      tree.root->should_verify -= seed.test(i) ? true_match[v] : false_match[v];
+  }
+
   tree.traverse(TRA_T_PRE_ORDER, [&](bin_tree_node *node) {
-    std::cout << node->union_delta.count() << " "
-              << node->intersection_delta.count() << std::endl;
+    if (node == tree.root) // already done
+      return;
+
+    node->should_verify =
+        node->parent->should_verify; // substraction starting from the parent
+    auto further_sub = node->union_delta ^ node->parent->union_delta;
+    for (var_t v : vars) {
+      size_t i = var_bit_id[v];
+      if (further_sub.test(i))
+        node->should_verify -= seed.test(i) ? true_match[v] : false_match[v];
+    }
   });
+  // END of creating memo
+
+  // the mutation
 }

@@ -12,10 +12,12 @@ struct bin_tree_node {
   std::set<var_bitset> deltas;
   var_bitset union_delta;
   var_bitset intersection_delta;
+  cpset_t should_verify;
   // end of metadata
 
   bin_tree_node *left = NULL;
   bin_tree_node *right = NULL;
+  bin_tree_node *parent = NULL;
 };
 
 int get_sub_depth(bin_tree_node *node);
