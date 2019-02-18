@@ -20,5 +20,11 @@ int main(int argc, char **argv) {
   // printf("%s\n", rep.z.tostring().c_str()); // EXPECTED: [[1,2],[0,3]]
   clusterizerrunkmeans(s, 2, rep);
   printf("%s\n", rep.cidx.tostring().c_str());
+
+  // real_2d_array ab;
+  // ab.setlength(3, 6);
+  // ab[0] = xy[0].tostring();
+  // ab[1] = xy[2].tostring();
+  // ab[2] = xy[3].tostring();
   return 0;
 }

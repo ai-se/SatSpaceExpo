@@ -85,9 +85,9 @@ void test_solver(std::string model) {
     samples.push_back(var_bitset(line));
   loading_file.close();
 
-  // btree T = p_test.create_mutate_guide_tree(samples);
-  // p_test.mutate_the_seed_with_tree(T, samples[4], samples);
-  p_test.exp_start_from_samples(samples);
+  btree T = p_test.create_mutate_guide_tree(samples);
+  p_test.mutate_the_seed_with_tree(T, samples[4], samples);
+  // p_test.exp_start_from_samples(samples);
 }
 
 void test_bit_op() {

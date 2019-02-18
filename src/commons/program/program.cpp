@@ -181,6 +181,7 @@ vbitset_vec_t program::gen_N_models(int N) {
   // load the whole model
   z3::optimize opt(c);
   for (auto &clause : clauses) {
+
     z3::expr_vector V(c);
 
     for (var_t v : clause.vs)
@@ -222,117 +223,43 @@ bool program::verify_var_bitset(const var_bitset &vbt) {
   return true;
 }
 
-/**
- * NOTICE All operations are based on Boost::dynamic_bitset
- * @param  samples  [description]
- * @param  consider [description]
- * @return          [description]
- */
-bin_tree_node *program::create_sub_guide_tree(vbitset_vec_t &samples,
-                                              var_bitset &consider) {
-  bin_tree_node *subroot = new bin_tree_node(consider);
-  size_t c_c = consider.count();
-
-  // std::cout << "F: " << c_c << std::endl;
-
-  if (c_c < sqrt(vars_num)) // TODO set par here
+bin_tree_node *program::create_sub_guide_tree(std::set<var_bitset> deltas) {
+  bin_tree_node *subroot = new bin_tree_node;
+  subroot->deltas = std::move(deltas);
+  // TODO set leaf condition here!
+  if (subroot->deltas.size() < 10)
     return subroot;
 
-  // spliting the left and right basing on the samples
-  /* s1. randomly pick up one variable */
-  size_t Ri;
-  do {
-    Ri = rand() % vars_num;
-  } while (!consider[Ri]);
+  // run alglib k-means++ to separte the deltas into two groups
+  alglib::clusterizerstate s; // alglib::ahcreport rep;
+  alglib::kmeansreport rep;
+  alglib::ae_int_t disttype = 2;
+  alglib::real_2d_array xy;
+  xy.setlength(subroot->deltas.size(), subroot->deltas.begin()->size());
 
-  /* s2. for each var. cal the diverse measure */
-  std::map<size_t, int> t_diverse; // diverse measure when Ri set to true
-  std::map<size_t, int> f_diverse;
-
-  // O(n^2) complexity here?
-
-  int case_count = 0; // marking how many sample with Ri set
-  for (auto &sample : samples) {
-    if (sample[Ri])
-      case_count += 1;
+  size_t di = 0;
+  for (auto &d : subroot->deltas) {
+    for (size_t j = 0; j < d.size(); j++)
+      xy(di, j) = d.test(j) ? 1 : 0;
+    di++;
   }
 
-  int case_f_count =
-      samples.size() - case_count; // how many sampel with Ri false
+  alglib::clusterizercreate(s);
+  alglib::clusterizersetpoints(s, xy, disttype);
+  alglib::clusterizerrunkmeans(s, 2, rep);
+  // END of k-menas++. result stored in rep.cidx
 
-  for (size_t i = 0; i < consider.size(); i++) {
-    if (!consider[i] || i == Ri)
-      continue;
-
-    t_diverse[i] = 0; // init
-    f_diverse[i] = 0;
-
-    for (auto &sample : samples) {
-      if (sample[Ri] && sample[i])
-        t_diverse[i] += 1;
-      else if (!sample[Ri] && sample[i])
-        f_diverse[i] += 1;
-    }
-  }
-
-  /*
-  up to now, when Ri set,
-  var i has {t_diverse[i]} (T) over {case_count-t_diverse[i]} (F)
-
-  when Ri false
-  var i has {f_diverse[i]} (T) over {case_f_count-f_diverse[i]} (F)
-
-  diverse measure of i should be (abs(T-F)/case_count,
-      abs(T'-F')/(case_f_count))
-
-   */
-  std::vector<double> measure_t;
-  std::vector<double> measure_f;
-
-  for (size_t i = 0; i < consider.size(); i++) {
-    if (!consider[i]) {
-      measure_t.push_back(-1);
-      measure_f.push_back(-1);
-    }
-    if (i == Ri) {
-      measure_t.push_back(0);
-      measure_f.push_back(0);
-      continue;
-    }
-
-    measure_t.push_back(
-        static_cast<double>(std::abs(2 * t_diverse[i] - case_count)) /
-        static_cast<double>(case_count));
-    measure_f.push_back(
-        static_cast<double>(std::abs(2 * f_diverse[i] - case_f_count)) /
-        static_cast<double>(case_f_count));
-  }
-
-  /* s3. splitting based on the measures */
-  var_bitset left_consider, right_consider;
-  left_consider.resize(consider.size(), false);  // init
-  right_consider.resize(consider.size(), false); // init
-
-  auto t_indexes = sort_indexes(measure_t);
-  auto f_indexes = sort_indexes(measure_f);
-  auto index_base = c_c;
-
-  for (size_t i = 0; i < consider.size(); i++) {
-    if (!consider[i])
-      continue;
-    if (t_indexes[i] + f_indexes[i] - 2 * index_base > index_base)
-      right_consider.set(i, true);
+  std::set<var_bitset> ldeltas, rdeltas;
+  di = 0;
+  for (auto &d : subroot->deltas) {
+    if (rep.cidx[di++] == 1)
+      ldeltas.insert(d);
     else
-      left_consider.set(i, true);
+      rdeltas.insert(d);
   }
 
-  size_t l_c = left_consider.count();
-  size_t r_c = right_consider.count();
-
-  if (l_c >= 2 && l_c != c_c)
-    subroot->left = create_sub_guide_tree(samples, left_consider);
-  if (r_c >= 2 && r_c != c_c)
-    subroot->right = create_sub_guide_tree(samples, right_consider);
+  subroot->left = create_sub_guide_tree(ldeltas);
+  subroot->right = create_sub_guide_tree(rdeltas);
   return subroot;
 }
 
@@ -341,128 +268,28 @@ btree program::create_mutate_guide_tree(vbitset_vec_t &samples) {
   for (size_t i = 0; i < samples.size(); i++)
     for (size_t j = i + 1; j < samples.size(); j++)
       deltas.insert(samples[i] ^ samples[j]);
-  std::cout << deltas.size() << " " << samples.size() << " "
-            << samples.size() * samples.size() << std::endl;
-  for (auto &d : deltas)
-    std::cout << d.count() << " ";
-  std::cout << std::endl;
-
-  // vbitset_vec_t dd;
-  // dd.assign(deltas.begin(), deltas.end());
-  // auto base = samples[rand() % samples.size()];
-  // int tt = 0;
-  // for (auto &delta1 : deltas) {
-  //   // auto delta1 = dd[rand() % deltas.size()];
-  //   // auto delta2 = dd[rand() % deltas.size()];
-  //   auto out = base ^ (delta1);
-  //   if (verify_var_bitset(out))
-  //     tt++;
-  // }
-
-  var_bitset mask = locate_diffs(samples);
   btree res;
-  res.root = create_sub_guide_tree(samples, mask);
+  res.root = create_sub_guide_tree(deltas);
   return res;
-}
-
-void random_var_bit_set(var_bitset &r, size_t size) {
-  // TODO complete random! change to DE strategy?
-  r.resize(size);
-  for (size_t i = 0; i < size; i++)
-    r.set(i, rand() % 2);
 }
 
 void program::mutate_the_seed_with_tree(btree &tree, var_bitset &seed,
                                         vbitset_vec_t &samples) {
-  // attach memo info to the guide tree
-  timer Y;
-  tree.traverse(TRA_T_PRE_ORDER, [&](bin_tree_node *node) {
-    var_bitset rest_of_consider = ~node->consider;
-    node->memo.clear(); // removing old result
-    for (auto &clause : clauses) {
-      auto sated_already = (seed & rest_of_consider & clause.mask) ^
-                           (clause.reversed & rest_of_consider);
-
-      if (sated_already.any())
-        continue;
-      // create the memo info
-      auto short_mask = truncate_bitset(clause.mask, node->consider);
-      auto short_reversed = truncate_bitset(clause.reversed, node->consider);
-      // std::cout << short_mask.count() << " ";
-      node->memo.push_back(std::make_pair(short_mask, short_reversed));
-    } // end for clause
-  });
-  Y.show_duration("recording info");
-
-  // random generating and verifying based on the memo info
-  // std::set<var_bitset> P;
-  int P = 0;
-  tree.traverse(TRA_T_POST_ORDER, [&](bin_tree_node *node) {
-    /**
-     * node.memo contains pair <short_mask, short_reversed>
-     */
-    std::cout << node->consider.count() << std::endl;
-    var_bitset r;
-    random_var_bit_set(r, node->consider.count());
-
-    bool passed = true;
-    for (auto &info : node->memo) {
-      if (!((r & info.first) ^ info.second).any()) {
-        passed = false;
-        break;
+  if (!tree.node_union_inter_delta_set) {
+    tree.node_union_inter_delta_set = true;
+    // marking the union and intersection var_bitste for each tree node
+    tree.traverse(TRA_T_POST_ORDER, [&](bin_tree_node *node) {
+      node->union_delta.resize(vars_num, false);
+      node->intersection_delta.resize(vars_num, true);
+      for (auto &d : node->deltas) {
+        node->union_delta |= d;
+        node->intersection_delta &= d;
       }
-    } // for each info
+    });
+  } // end of setting union and intersection for each node
 
-    if (passed) { // recording
-      // P.insert(r);
-      P++;
-      std::cout << '+';
-    } else
-      std::cout << '.';
+  tree.traverse(TRA_T_PRE_ORDER, [&](bin_tree_node *node) {
+    std::cout << node->union_delta.count() << " "
+              << node->intersection_delta.count() << std::endl;
   });
-  std::cout << P << std::endl;
-}
-
-/**
- * this is just for the experiments
- * starting fromt the samples,
- * what can we do?
- */
-void program::exp_start_from_samples(vbitset_vec_t &samples) {
-  // get the deltas
-  std::set<var_bitset> deltas;
-  for (size_t i = 0; i < samples.size(); i++)
-    for (size_t j = i + 1; j < samples.size(); j++)
-      deltas.insert(samples[i] ^ samples[j]);
-
-  // var_bitset e;
-  // e.resize(samples[0].size(), false);
-  // for (auto &d : deltas)
-  //   e |= d;
-  // std::cout << "|deltas| = " << deltas.size() << std::endl;
-  // std::cout << "differs = " << e.count() << std::endl;
-
-  timer PT;
-  // try to build the hierarchical clustering tree
-  std::vector<var_bitset> deltas_vec(deltas.begin(), deltas.end());
-  alglib::clusterizerstate s;
-  // alglib::ahcreport rep;
-  alglib::kmeansreport rep;
-  alglib::ae_int_t disttype;
-  // alglib::real_2d_array xy = "[[1, 2, 1, 2], [6, 7, 6, 7], [7, 6, 7, 6]]";
-  alglib::real_2d_array xy;
-  xy.setlength(deltas_vec.size(), deltas_vec[0].size());
-  for (size_t i = 0; i < deltas_vec.size(); i++)
-    for (size_t j = 0; j < deltas_vec[i].size(); j++)
-      xy(i, j) = deltas_vec[i][j] ? 1 : 0;
-
-  alglib::clusterizercreate(s);
-  disttype = 2;
-  alglib::clusterizersetpoints(s, xy, disttype);
-  // alglib::clusterizerrunahc(s, rep);
-  alglib::clusterizerrunkmeans(s, 2, rep);
-  // std::cout << rep.c.tostring() << std::endl;
-  printf("%s\n", rep.cidx.tostring().c_str()); // EXPECTED: [[1,2],[0,3]]
-
-  PT.show_duration("build the hierarchical tree ");
 }

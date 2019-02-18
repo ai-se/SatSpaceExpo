@@ -51,8 +51,7 @@ class program {
     return read_model(m, decls, vars);
   }
 
-  bin_tree_node *create_sub_guide_tree(vbitset_vec_t &samples,
-                                       var_bitset &consider);
+  bin_tree_node *create_sub_guide_tree(std::set<var_bitset> deltas);
 
   bool verify_var_bitset(const var_bitset &vbt);
 
@@ -64,5 +63,3 @@ public:
                                  vbitset_vec_t &samples);
   void exp_start_from_samples(vbitset_vec_t &samples);
 };
-
-void random_var_bit_set(var_bitset &r, size_t size);
