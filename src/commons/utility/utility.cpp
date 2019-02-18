@@ -132,3 +132,7 @@ var_bitset truncate_bitset(var_bitset &truncating, var_bitset &mask) {
 
   return res;
 }
+
+size_t hamming_dist(var_bitset &v1, var_bitset &v2) {
+  return (v1 ^ v2).count();
+}

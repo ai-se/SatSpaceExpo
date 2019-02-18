@@ -5,7 +5,7 @@ FILES=$(shell find ./src -type f -name "*.cpp" | grep -v "^./src/tools")
 FILES_OBJECTS=${FILES:.cpp=.o}
 
 # TOOLS_NAMES = $(shell find ./src/tools -type f -name "*.cpp" | sed 's/\.\/src\/tools\///g' | sed 's/\.cpp//g')
-TOOLS_NAMES = zt test
+TOOLS_NAMES = zt test clst_ahc
 TOOLS=${TOOLS_NAMES:%=./src/tools/%.cpp}
 TOOLS_OBJECTS=${TOOLS_NAMES:%=./src/tools/%.o}
 TOOLS_BINARIES=${TOOLS_NAMES:%=./bin/%}
@@ -15,7 +15,7 @@ all: $(TOOLS_BINARIES)
 
 .PHONY: clean
 clean:
-	find ./src -name "*.o" -exec rm {} +
+	find ./src -path ./src/alglib -prune -o -name "*.o" -exec rm {} +
 
 $(TOOLS_OBJECTS): $(TOOLS)
 	$(CC) $(CFLAGS) -c $(subst .o,.cpp,$@) -o $@

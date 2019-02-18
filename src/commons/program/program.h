@@ -62,6 +62,7 @@ public:
   btree create_mutate_guide_tree(vbitset_vec_t &samples);
   void mutate_the_seed_with_tree(btree &tree, var_bitset &seed,
                                  vbitset_vec_t &samples);
+  void exp_start_from_samples(vbitset_vec_t &samples);
 };
 
 void random_var_bit_set(var_bitset &r, size_t size);

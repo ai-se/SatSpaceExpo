@@ -1,4 +1,6 @@
 #include "program.h"
+#include "alglib/dataanalysis.h"
+#include "alglib/stdafx.h"
 #include "commons/utility/utility.h"
 #include <algorithm>
 #include <boost/range/irange.hpp>
@@ -6,6 +8,7 @@
 #include <fstream>
 #include <iostream>
 #include <math.h>
+#include <sstream>
 #include <z3++.h>
 
 cpset_t operator-(const cpset_t &A, const cpset_t &B) {
@@ -215,7 +218,7 @@ bool program::verify_var_bitset(const var_bitset &vbt) {
     }
     if (!pass)
       return false;
-  }
+  } // end for ith clause
   return true;
 }
 
@@ -340,21 +343,21 @@ btree program::create_mutate_guide_tree(vbitset_vec_t &samples) {
       deltas.insert(samples[i] ^ samples[j]);
   std::cout << deltas.size() << " " << samples.size() << " "
             << samples.size() * samples.size() << std::endl;
-  // abort();
-  vbitset_vec_t dd;
-  dd.assign(deltas.begin(), deltas.end());
-  auto base = samples[rand() % samples.size()];
-  int tt = 0;
-  for (auto &delta1 : deltas) {
-    // auto delta1 = dd[rand() % deltas.size()];
-    // auto delta2 = dd[rand() % deltas.size()];
-    auto out = base ^ (delta1);
-    if (verify_var_bitset(out))
-      tt++;
-  }
-  std::cout << tt << " " << (deltas.size());
+  for (auto &d : deltas)
+    std::cout << d.count() << " ";
   std::cout << std::endl;
-  abort();
+
+  // vbitset_vec_t dd;
+  // dd.assign(deltas.begin(), deltas.end());
+  // auto base = samples[rand() % samples.size()];
+  // int tt = 0;
+  // for (auto &delta1 : deltas) {
+  //   // auto delta1 = dd[rand() % deltas.size()];
+  //   // auto delta2 = dd[rand() % deltas.size()];
+  //   auto out = base ^ (delta1);
+  //   if (verify_var_bitset(out))
+  //     tt++;
+  // }
 
   var_bitset mask = locate_diffs(samples);
   btree res;
@@ -418,4 +421,48 @@ void program::mutate_the_seed_with_tree(btree &tree, var_bitset &seed,
       std::cout << '.';
   });
   std::cout << P << std::endl;
+}
+
+/**
+ * this is just for the experiments
+ * starting fromt the samples,
+ * what can we do?
+ */
+void program::exp_start_from_samples(vbitset_vec_t &samples) {
+  // get the deltas
+  std::set<var_bitset> deltas;
+  for (size_t i = 0; i < samples.size(); i++)
+    for (size_t j = i + 1; j < samples.size(); j++)
+      deltas.insert(samples[i] ^ samples[j]);
+
+  // var_bitset e;
+  // e.resize(samples[0].size(), false);
+  // for (auto &d : deltas)
+  //   e |= d;
+  // std::cout << "|deltas| = " << deltas.size() << std::endl;
+  // std::cout << "differs = " << e.count() << std::endl;
+
+  timer PT;
+  // try to build the hierarchical clustering tree
+  std::vector<var_bitset> deltas_vec(deltas.begin(), deltas.end());
+  alglib::clusterizerstate s;
+  // alglib::ahcreport rep;
+  alglib::kmeansreport rep;
+  alglib::ae_int_t disttype;
+  // alglib::real_2d_array xy = "[[1, 2, 1, 2], [6, 7, 6, 7], [7, 6, 7, 6]]";
+  alglib::real_2d_array xy;
+  xy.setlength(deltas_vec.size(), deltas_vec[0].size());
+  for (size_t i = 0; i < deltas_vec.size(); i++)
+    for (size_t j = 0; j < deltas_vec[i].size(); j++)
+      xy(i, j) = deltas_vec[i][j] ? 1 : 0;
+
+  alglib::clusterizercreate(s);
+  disttype = 2;
+  alglib::clusterizersetpoints(s, xy, disttype);
+  // alglib::clusterizerrunahc(s, rep);
+  alglib::clusterizerrunkmeans(s, 2, rep);
+  // std::cout << rep.c.tostring() << std::endl;
+  printf("%s\n", rep.cidx.tostring().c_str()); // EXPECTED: [[1,2],[0,3]]
+
+  PT.show_duration("build the hierarchical tree ");
 }

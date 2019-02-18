@@ -28,21 +28,18 @@ typedef std::vector<var_bitset> vbitset_vec_t;
  * // RUN something
  * std::cout << t1.duration() << std::endl; // e.g. 3.223s
  */
-struct timer
-{
+struct timer {
   struct timespec start_time, end_time;
   timer() { clock_gettime(CLOCK_REALTIME, &start_time); }
 
-  double duration()
-  {
+  double duration() {
     clock_gettime(CLOCK_REALTIME, &end_time);
     struct timespec *a = &start_time;
     struct timespec *b = &end_time;
     return (b->tv_sec - a->tv_sec) + 1.0e-9 * (b->tv_nsec - a->tv_nsec);
   }
 
-  void show_duration(std::string name)
-  {
+  void show_duration(std::string name) {
     std::cout << name << "<<< " << duration() << " sec(s)." << std::endl;
   }
 };
@@ -66,3 +63,4 @@ var_bitset locate_diffs(vbitset_vec_t &inputs);
 std::vector<size_t> sort_indexes(const std::vector<double> &v);
 
 var_bitset truncate_bitset(var_bitset &truncating, var_bitset &mask);
+size_t hamming_dist(var_bitset &v1, var_bitset &v2);
