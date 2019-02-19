@@ -54,6 +54,7 @@ double std_dev(std::vector<int> v, double avg);
 double std_dev(std::vector<int> v);
 
 std::set<int> random_pickup(std::set<int> src, int cnt);
+std::vector<size_t> rnd_pick_idx(size_t length, int cnt);
 std::set<int> first_N_elements(std::set<int> src, int cnt);
 
 void print_progress(double percentage);

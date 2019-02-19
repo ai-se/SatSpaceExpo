@@ -264,8 +264,13 @@ bin_tree_node *program::create_sub_guide_tree(std::set<var_bitset> deltas) {
 
   subroot->left = create_sub_guide_tree(ldeltas);
   subroot->right = create_sub_guide_tree(rdeltas);
+
   subroot->left->parent = subroot;
   subroot->right->parent = subroot;
+
+  subroot->left->path = subroot->right->path = subroot->path;
+  subroot->left->path += '0';
+  subroot->right->path += '1';
   return subroot;
 }
 
@@ -276,11 +281,12 @@ btree program::create_mutate_guide_tree(vbitset_vec_t &samples) {
       deltas.insert(samples[i] ^ samples[j]);
   btree res;
   res.root = create_sub_guide_tree(deltas);
+  res.root->path = "r";
+  res.record_node_address();
   return res;
 }
 
-void program::mutate_the_seed_with_tree(btree &tree, var_bitset &seed,
-                                        vbitset_vec_t &samples) {
+void program::mutate_the_seed_with_tree(btree &tree, var_bitset &seed) {
   if (!tree.node_union_inter_delta_set) {
     tree.node_union_inter_delta_set = true;
     // marking the union and intersection var_bitste for each tree node
@@ -302,6 +308,7 @@ void program::mutate_the_seed_with_tree(btree &tree, var_bitset &seed,
       tree.root->should_verify -= seed.test(i) ? true_match[v] : false_match[v];
   }
 
+  timer P2;
   tree.traverse(TRA_T_PRE_ORDER, [&](bin_tree_node *node) {
     if (node == tree.root) // already done
       return;
@@ -318,4 +325,24 @@ void program::mutate_the_seed_with_tree(btree &tree, var_bitset &seed,
   // END of creating memo
 
   // the mutation
+  int cc = 0;
+  timer P3;
+  for (size_t i = 0; i < 1000; i++) {
+    auto idx = rnd_pick_idx(tree.all_node_ps.size(), 2);
+    auto gen = seed ^ (tree.all_node_ps[idx[0]]->intersection_delta |
+                       tree.all_node_ps[idx[1]]->intersection_delta);
+    if (verify_var_bitset(gen, tree.find_share_parent(idx)->should_verify))
+      cc += 1;
+  }
+  P3.show_duration("with verfication clauses domain reduction ");
+
+  // timer P4;
+  // for (size_t i = 0; i < 1000; i++) {
+  //   auto idx = rnd_pick_idx(tree.all_node_ps.size(), 2);
+  //   auto gen = seed ^ (tree.all_node_ps[idx[0]]->intersection_delta |
+  //                      tree.all_node_ps[idx[1]]->intersection_delta);
+  //   if (verify_var_bitset(gen, all_clause_ps))
+  //     cc += 1;
+  // }
+  // P4.show_duration("without verf reduction ");
 }

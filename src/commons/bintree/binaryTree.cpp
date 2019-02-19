@@ -1,5 +1,6 @@
 #include "binaryTree.h"
 #include <algorithm>
+#include <exception>
 
 void btree::destroy_tree(bin_tree_node *node) {
   if (node != NULL) {
@@ -43,4 +44,39 @@ int btree::get_depth() { return get_sub_depth(root); }
 
 void btree::traverse(TRA_T order, std::function<void(bin_tree_node *)> visit) {
   visting_util(order, root, visit);
-};
+}
+
+void btree::record_node_address() {
+  traverse(TRA_T_PRE_ORDER,
+           [&](bin_tree_node *node) { all_node_ps.push_back(node); });
+}
+
+bin_tree_node *btree::find_share_parent(std::vector<size_t> idx) {
+  // figure out hash for idx. memorized
+  // https://stackoverflow.com/questions/20511347/a-good-hash-function-for-a-vector
+  std::size_t hash = idx.size();
+  for (size_t i : idx) {
+    hash ^= i + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+  }
+  if (parent_memo.count(hash) > 0)
+    return parent_memo[hash];
+
+  bin_tree_node *cursor = root;
+  size_t i = 1;
+  try {
+    while (i++ > 0) {
+      char o = all_node_ps[idx[0]]->path.at(i);
+      for (size_t x : idx)
+        if (all_node_ps[x]->path.at(i) != o)
+          throw;
+      if (o == '0')
+        cursor = cursor->left;
+      else
+        cursor = cursor->right;
+    } // end repeat
+  } catch (...) {
+  }
+
+  parent_memo.insert(std::make_pair(hash, cursor));
+  return cursor;
+}
