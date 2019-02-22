@@ -1,5 +1,9 @@
+#pragma GCC diagnostic ignored "-Wreorder"
+
+#include "commons/utility/utility.h"
 #include <fstream>
 #include <map>
+#include <sat/sat_solver.h>
 #include <string.h>
 #include <unordered_map>
 #include <unordered_set>
@@ -9,8 +13,6 @@
 class QuickSampler {
   std::string input_file;
 
-  struct timespec start_time;
-  double solver_time = 0.0;
   int max_samples;
   double max_time;
 
@@ -22,6 +24,7 @@ class QuickSampler {
   int flips = 0;
   int samples = 0;
   int solver_calls = 0;
+  timer clock;
 
   std::ofstream results_file;
 
@@ -31,10 +34,11 @@ public:
         max_time(max_time) {}
 
   void run() {
-    clock_gettime(CLOCK_REALTIME, &start_time);
-    srand(start_time.tv_sec);
+    clock.startnow();
     parse_cnf();
-    results_file.open(input_file + ".samples");
+    results_file.open("samples/" +
+                      input_file.substr(input_file.find_last_of("/") + 1) +
+                      ".qs.samples");
     while (true) {
       opt.push();
       for (int v : ind) {
@@ -49,21 +53,7 @@ public:
       opt.pop();
 
       sample(m);
-      print_stats(false);
     }
-  }
-
-  void print_stats(bool simple) {
-    struct timespec end;
-    clock_gettime(CLOCK_REALTIME, &end);
-    double elapsed = duration(&start_time, &end);
-    std::cout << "Samples " << samples << '\n';
-    std::cout << "Execution time " << elapsed << '\n';
-    if (simple)
-      return;
-    std::cout << "Solver time: " << solver_time << '\n';
-    std::cout << "Epochs " << epochs << ", Flips " << flips << ", Unsat "
-              << unsat_vars.size() << ", Calls " << solver_calls << '\n';
   }
 
   void parse_cnf() {
@@ -125,7 +115,6 @@ public:
   void sample(z3::model m) {
     std::unordered_set<std::string> initial_mutations;
     std::string m_string = model_string(m);
-    std::cout << m_string << " STARTING\n";
     output(m_string, 0);
     opt.push();
     for (size_t i = 0; i < ind.size(); ++i) {
@@ -151,7 +140,6 @@ public:
         std::string new_string = model_string(new_model);
         if (initial_mutations.find(new_string) == initial_mutations.end()) {
           initial_mutations.insert(new_string);
-          // std::cout << new_string << '\n';
           std::unordered_map<std::string, int> new_mutations;
           new_mutations[new_string] = 1;
           output(new_string, 1);
@@ -179,14 +167,11 @@ public:
             mutations[it.first] = it.second;
           }
         } else {
-          // std::cout << new_string << " repeated\n";
         }
       } else {
-        std::cout << "unsat\n";
         unsat_vars.insert(i);
       }
       opt.pop();
-      print_stats(true);
     }
     epochs += 1;
     opt.pop();
@@ -194,32 +179,24 @@ public:
 
   void output(std::string sample, int nmut) {
     samples += 1;
-    results_file << nmut << ": " << sample << '\n';
+    results_file << sample << '\n';
   }
 
   void finish() {
-    print_stats(false);
     results_file.close();
     exit(0);
   }
 
   bool solve() {
-    struct timespec start;
-    clock_gettime(CLOCK_REALTIME, &start);
-    double elapsed = duration(&start_time, &start);
+    double elapsed = clock.duration();
     if (elapsed > max_time) {
-      std::cout << "Stopping: timeout\n";
       finish();
     }
     if (samples >= max_samples) {
-      std::cout << "Stopping: samples\n";
       finish();
     }
 
     z3::check_result result = opt.check();
-    struct timespec end;
-    clock_gettime(CLOCK_REALTIME, &end);
-    solver_time += duration(&start, &end);
     solver_calls += 1;
 
     return result == z3::sat;
@@ -240,38 +217,66 @@ public:
     return s;
   }
 
-  double duration(struct timespec *a, struct timespec *b) {
-    return (b->tv_sec - a->tv_sec) + 1.0e-9 * (b->tv_nsec - a->tv_nsec);
-  }
-
   z3::expr literal(int v) {
     return c.constant(c.str_symbol(std::to_string(v).c_str()), c.bool_sort());
+  }
+
+  bool check_sample(sat::solver &solver, std::string &line) {
+    solver.user_push();
+    int k = 0;
+    while (!in.eof()) {
+      sat::literal_vector lits;
+      lits.reset();
+      if (c == '0') {
+        lits.push_back(sat::literal(indsup[k], true));
+      } else if (c == '1') {
+        lits.push_back(sat::literal(indsup[k], false));
+      } else {
+        printf("#%c,%d#", c, c);
+        abort();
+      }
+      solver.mk_clause(lits.size(), lits.c_ptr());
+
+      in >> c;
+      ++k;
+    }
+    lbool r = solver.check();
+    bool result = false;
+    switch (r) {
+    case l_true:
+      result = true;
+      break;
+    case l_undef:
+      std::cout << "unknown\n";
+      break;
+    case l_false:
+      break;
+    }
+
+    solver.user_pop(1);
+    return result;
   }
 };
 
 int main(int argc, char *argv[]) {
-  int max_samples = 10000000;
+  int max_samples = 1000;
   double max_time = 7200.0;
-  if (argc < 2) {
-    std::cout << "Argument required: input file\n";
-    abort();
+
+  std::string model = "Benchmarks/polynomial.sk_7_25.cnf";
+  for (int i = 0; i < argc; i++) {
+    if (!strcmp(argv[i], "L"))
+      model = "Benchmarks/enqueueSeqSK.sk_10_42.cnf";
+    if (!strcmp(argv[i], "test"))
+      model = "Benchmarks/test.cnf";
+    if (!strcmp(argv[i], "M"))
+      model = "Benchmarks/ActivityService.sk_11_27.cnf";
+    if (!strcmp(argv[i], "-m"))
+      model = argv[i + 1];
+    if (!strcmp(argv[i], "-i"))
+      model = benchmark_models[atoi(argv[i + 1])];
   }
-  bool arg_samples = false;
-  bool arg_time = false;
-  for (int i = 1; i < argc; ++i) {
-    if (strcmp(argv[i], "-n") == 0)
-      arg_samples = true;
-    else if (strcmp(argv[i], "-t") == 0)
-      arg_time = true;
-    else if (arg_samples) {
-      arg_samples = false;
-      max_samples = atoi(argv[i]);
-    } else if (arg_time) {
-      arg_time = false;
-      max_time = atof(argv[i]);
-    }
-  }
-  QuickSampler s(argv[argc - 1], max_samples, max_time);
-  s.run();
+
+  QuickSampler qs(model, max_samples, max_time);
+  qs.run();
   return 0;
 }

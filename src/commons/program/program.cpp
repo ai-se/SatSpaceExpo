@@ -121,8 +121,8 @@ program::program(std::string input_file) {
   }
   // end..
 
-  std::cout << "INFO : |vars| = " << vars_num << std::endl;
-  std::cout << "INIT : Loading " << input_file << " done." << std::endl;
+  // std::cout << "INFO : |vars| = " << vars_num << std::endl;
+  // std::cout << "INIT : Loading " << input_file << " done." << std::endl;
 }
 
 vset_t program::get_clauses_defined_vars(cpset_t &css) {
@@ -316,6 +316,7 @@ void program::mutate_the_seed_with_tree(btree &tree, var_bitset &seed) {
     node->should_verify =
         node->parent->should_verify; // substraction starting from the parent
     auto further_sub = node->union_delta ^ node->parent->union_delta;
+    // std::cout << further_sub.count() << std::endl;
     for (var_t v : vars) {
       size_t i = var_bit_id[v];
       if (further_sub.test(i))
@@ -334,7 +335,8 @@ void program::mutate_the_seed_with_tree(btree &tree, var_bitset &seed) {
     if (verify_var_bitset(gen, tree.find_share_parent(idx)->should_verify))
       cc += 1;
   }
-  P3.show_duration("with verfication clauses domain reduction ");
+  // P2.show_duration("with verfication clauses domain reduction ");
+  std::cout << P2.duration();
 
   // timer P4;
   // for (size_t i = 0; i < 1000; i++) {

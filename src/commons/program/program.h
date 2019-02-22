@@ -21,7 +21,6 @@ std::istream &operator>>(std::istream &is, vset_t &obj);
 std::ostream &operator<<(std::ostream &os, const vset_t &obj);
 
 class program {
-  int vars_num;
   z3::context c;
   std::vector<clause_t> clauses;
   std::map<var_t, cpset_t> vars2clauses_map;
@@ -57,6 +56,7 @@ class program {
   bool verify_var_bitset(const var_bitset &vbt, cpset_t &toverify);
 
 public:
+  int vars_num;
   program(std::string input_file);
   vbitset_vec_t gen_N_models(int N);
   btree create_mutate_guide_tree(vbitset_vec_t &samples);
