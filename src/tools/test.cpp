@@ -92,5 +92,7 @@ int main(int argc, char *argv[]) {
   test_solver(model);
   // test_udg(argc, argv);
   // test_bit_op();
+  // for (auto m : benchmark_models)
+  //   std::cout << m << " ";
   return 0;
 }

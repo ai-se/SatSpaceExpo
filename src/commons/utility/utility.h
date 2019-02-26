@@ -75,7 +75,7 @@ struct timer {
   }
 
   void show_duration(std::string name) {
-    std::cout << name << "<<< " << duration() << " sec(s)." << std::endl;
+    std::cout << name << " <<< " << duration() << " sec(s)." << std::endl;
   }
 };
 
