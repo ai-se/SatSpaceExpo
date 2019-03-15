@@ -1,6 +1,4 @@
 #include "program.h"
-#include "alglib/dataanalysis.h"
-#include "alglib/stdafx.h"
 #include "commons/utility/utility.h"
 #include <algorithm>
 #include <boost/range/irange.hpp>
@@ -73,7 +71,16 @@ program::program(std::string input_file) {
   std::string line;
   while (getline(f, line)) {
     if (line.find("c ind ") == 0) {
-      // TODO is independent var valid?
+      std::istringstream iss(line);
+      std::string s;
+      iss >> s;
+      iss >> s;
+      int v;
+      while (!iss.eof()) {
+        iss >> v;
+        if (v)
+          indv.insert(v);
+      }
     } else if (line.find("p cnf") == 0) {
       // std::istringstream iss(line);
       // std::string s_dump;
@@ -123,21 +130,6 @@ program::program(std::string input_file) {
 
   // std::cout << "INFO : |vars| = " << vars_num << std::endl;
   // std::cout << "INIT : Loading " << input_file << " done." << std::endl;
-}
-
-vset_t program::get_clauses_defined_vars(cpset_t &css) {
-  vset_t res;
-  for (auto &each_clause_p : css)
-    for (var_t i : each_clause_p->avs)
-      res.insert(i);
-  return res;
-}
-
-cpset_t program::get_vars_defined_clauses(vset_t &vs) {
-  cpset_t res;
-  for (var_t v : vs)
-    res = res + vars2clauses_map[v];
-  return res;
 }
 
 Z3_lbool program::model_of_v(z3::model &model, var_t v, decls_t &decls) {
@@ -227,79 +219,7 @@ bool program::verify_var_bitset(const var_bitset &vbt, cpset_t &toverify) {
   return true;
 }
 
-bin_tree_node *program::create_sub_guide_tree(std::set<var_bitset> deltas) {
-  bin_tree_node *subroot = new bin_tree_node;
-  subroot->deltas = std::move(deltas);
-  // TODO set leaf condition here!
-  if (subroot->deltas.size() < 10)
-    return subroot;
-
-  // run alglib k-means++ to separte the deltas into two groups
-  alglib::clusterizerstate s; // alglib::ahcreport rep;
-  alglib::kmeansreport rep;
-  alglib::ae_int_t disttype = 2;
-  alglib::real_2d_array xy;
-  xy.setlength(subroot->deltas.size(), subroot->deltas.begin()->size());
-
-  size_t di = 0;
-  for (auto &d : subroot->deltas) {
-    for (size_t j = 0; j < d.size(); j++)
-      xy(di, j) = d.test(j) ? 1 : 0;
-    di++;
-  }
-
-  alglib::clusterizercreate(s);
-  alglib::clusterizersetpoints(s, xy, disttype);
-  alglib::clusterizerrunkmeans(s, 2, rep);
-  // END of k-menas++. result stored in rep.cidx
-
-  std::set<var_bitset> ldeltas, rdeltas;
-  di = 0;
-  for (auto &d : subroot->deltas) {
-    if (rep.cidx[di++] == 1)
-      ldeltas.insert(d);
-    else
-      rdeltas.insert(d);
-  }
-
-  subroot->left = create_sub_guide_tree(ldeltas);
-  subroot->right = create_sub_guide_tree(rdeltas);
-
-  subroot->left->parent = subroot;
-  subroot->right->parent = subroot;
-
-  subroot->left->path = subroot->right->path = subroot->path;
-  subroot->left->path += '0';
-  subroot->right->path += '1';
-  return subroot;
-}
-
-btree program::create_mutate_guide_tree(vbitset_vec_t &samples) {
-  std::set<var_bitset> deltas;
-  for (size_t i = 0; i < samples.size(); i++)
-    for (size_t j = i + 1; j < samples.size(); j++)
-      deltas.insert(samples[i] ^ samples[j]);
-  btree res;
-  res.root = create_sub_guide_tree(deltas);
-  res.root->path = "r";
-  res.record_node_address();
-  return res;
-}
-
 void program::mutate_the_seed_with_tree(btree &tree, var_bitset &seed) {
-  if (!tree.node_union_inter_delta_set) {
-    tree.node_union_inter_delta_set = true;
-    // marking the union and intersection var_bitste for each tree node
-    tree.traverse(TRA_T_POST_ORDER, [&](bin_tree_node *node) {
-      node->union_delta.resize(vars_num, false);
-      node->intersection_delta.resize(vars_num, true);
-      for (auto &d : node->deltas) {
-        node->union_delta |= d;
-        node->intersection_delta &= d;
-      }
-    });
-  } // end of setting union and intersection for each node
-
   // create the fast verification memo, set the root first.
   tree.root->should_verify = all_clause_ps;
   for (var_t v : vars) {
@@ -308,7 +228,6 @@ void program::mutate_the_seed_with_tree(btree &tree, var_bitset &seed) {
       tree.root->should_verify -= seed.test(i) ? true_match[v] : false_match[v];
   }
 
-  timer P2;
   tree.traverse(TRA_T_PRE_ORDER, [&](bin_tree_node *node) {
     if (node == tree.root) // already done
       return;
@@ -327,24 +246,54 @@ void program::mutate_the_seed_with_tree(btree &tree, var_bitset &seed) {
 
   // the mutation
   int cc = 0;
-  timer P3;
-  for (size_t i = 0; i < 1000; i++) {
+  for (size_t i = 0; i < 50; i++) {
     auto idx = rnd_pick_idx(tree.all_node_ps.size(), 2);
     auto gen = seed ^ (tree.all_node_ps[idx[0]]->intersection_delta |
                        tree.all_node_ps[idx[1]]->intersection_delta);
     if (verify_var_bitset(gen, tree.find_share_parent(idx)->should_verify))
       cc += 1;
   }
-  // P2.show_duration("with verfication clauses domain reduction ");
-  std::cout << P2.duration();
+  std::cout << cc << "/" << 50 << "|";
+}
 
-  // timer P4;
-  // for (size_t i = 0; i < 1000; i++) {
-  //   auto idx = rnd_pick_idx(tree.all_node_ps.size(), 2);
-  //   auto gen = seed ^ (tree.all_node_ps[idx[0]]->intersection_delta |
-  //                      tree.all_node_ps[idx[1]]->intersection_delta);
+void program::solve(vbitset_vec_t &samples) {
+  // std::map<var_bitset, int> deltas;
+  // for (size_t i = 0; i < samples.size(); i++)
+  //   for (size_t j = i + 1; j < samples.size(); j++) {
+  //     var_bitset d = samples[i] ^ samples[j];
+  //     if (deltas.find(d) != deltas.end())
+  //       deltas[d] += 1;
+  //     else
+  //       deltas[d] = 1;
+  //   }
+
+  // std::vector<var_bitset> deltas_vec;
+
+  // for (auto &D : deltas) {
+  //   if (D.second > 13)
+  //     deltas_vec.push_back(D.first);
+  // }
+
+  // int cc = 0;
+  // std::set<var_bitset> ALL;
+  // for (int i = 0; i < 100; i++) {
+  //   std::cout << i << " " << cc << std::endl;
+  //   // rand pick up two elements
+  //   auto ee = rnd_pick_idx(deltas_vec.size(), 2);
+  //   auto gen = samples[rand() % samples.size()] ^
+  //              (deltas_vec[ee[0]] & deltas_vec[ee[1]]);
+  //   if (!ALL.count(gen))
+  //     ALL.insert(gen);
+  //   else
+  //     continue;
   //   if (verify_var_bitset(gen, all_clause_ps))
   //     cc += 1;
   // }
-  // P4.show_duration("without verf reduction ");
+  // std::cout << cc / 100.0 << std::endl;
+  // return;
+
+  btree T = btree(samples);
+  for (int i = 0; i < 1; i++)
+    mutate_the_seed_with_tree(T, samples[rand() % samples.size()]);
+  std::cout << std::endl;
 }

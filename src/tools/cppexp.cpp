@@ -1,5 +1,6 @@
 // Example program
 #include <iostream>
+#include <set>
 #include <string>
 #include <vector>
 
@@ -16,6 +17,13 @@ void print_vec(const std::vector<int> &vec) {
     std::cout << ' ' << x;
   }
   std::cout << '\n';
+}
+
+std::vector<int *> func(std::set<int> s) {
+  std::vector<int *> res;
+  for (int d : s)
+    res.push_back(&d);
+  return res;
 }
 
 int main() {
@@ -37,12 +45,23 @@ int main() {
   print_vec(tail);
   std::cout << "+++++" << std::endl;
 
-  std::string path1, path2;
-  path1 = path2 = "r110";
-  path1 += '0';
-  path2 += '1';
-  std::cout << (path1.at(29)) << std::endl;
-  std::cout << path1 << std::endl;
-  std::cout << path2 << std::endl;
+  // std::string path1, path2;
+  // path1 = path2 = "r110";
+  // path1 += '0';
+  // path2 += '1';
+  // std::cout << (path1.at(29)) << std::endl;
+  // std::cout << path1 << std::endl;
+  // std::cout << path2 << std::endl;
+  // std::cout << "++++" << std::endl;
+
+  std::set<int> E{1, 2, 3, 4};
+  std::vector<int *> addrs = func(E);
+
+  for (int *x : addrs)
+    std::cout << *x << std::endl;
+  std::cout << "+++++" << std::endl;
+
+  double e = atof("223.53");
+  std::cout << e << std::endl;
   return 0;
 }

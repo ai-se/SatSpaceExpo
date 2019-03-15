@@ -43,7 +43,7 @@ void test_solver(std::string model) {
   program p_test(model);
 
   vbitset_vec_t samples;
-  /* load samples for file */
+
   std::ifstream loading_file;
   loading_file.open("memo/" + model.substr(model.find_last_of("/") + 1) +
                     ".memo");
@@ -53,10 +53,8 @@ void test_solver(std::string model) {
   loading_file.close();
   std::cout << " | " << model.substr(model.find_last_of("/") + 1) << " | "
             << p_test.vars_num << " | ";
-  btree T = p_test.create_mutate_guide_tree(samples);
-  p_test.mutate_the_seed_with_tree(T, samples[rand() % samples.size()]);
-  std::cout << "| " << std::endl;
-  // p_test.exp_start_from_samples(samples);
+
+  p_test.solve(samples);
 }
 
 void test_bit_op() {
