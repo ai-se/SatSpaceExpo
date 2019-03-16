@@ -33,11 +33,16 @@ struct program {
   std::vector<clause_t> clauses;
   vset_t vars; // all variables
   vset_t indv;
+  timer solver_clock;
+  int global_sampled;
 
   program(std::string input_file);
-  void solve(vbitset_vec_t &samples);
-  void mutate_the_seed_with_tree(btree &tree, var_bitset &seed);
+  std::set<var_bitset> solve(vbitset_vec_t &samples, std::ofstream &ofs);
+  void mutate_the_seed_with_tree(btree &tree, var_bitset &seed,
+                                 std::set<var_bitset> &results_container,
+                                 std::ofstream &ofs);
 
+  // Tools
   Z3_lbool model_of_v(z3::model &model, var_t v, decls_t &decls);
   void dont_gen_m_again(z3::optimize &opt, z3::model &m, exprs_t &exprs,
                         decls_t &decls, const vset_t &considered_vars);
@@ -47,12 +52,11 @@ struct program {
   }
   void frozen_parial_of_m(z3::optimize &opt, z3::model &m, decls_t &decls,
                           exprs_t &exprs, vset_t &to_fronzen_vars);
-
   var_bitset read_model(z3::model &m, decls_t &decls, vset_t &printing_vars);
   var_bitset read_model(z3::model &m, decls_t &decls) {
     return read_model(m, decls, vars);
   }
-
   vbitset_vec_t gen_N_models(int N);
   bool verify_var_bitset(const var_bitset &vbt, cpset_t &toverify);
+  // End of tools
 };

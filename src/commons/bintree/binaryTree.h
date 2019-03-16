@@ -27,18 +27,19 @@ bin_tree_node *create_sub_guide_tree(std::set<var_bitset *> delta_ps,
 
 class btree {
   void destroy_tree(bin_tree_node *node);
-  std::map<size_t, bin_tree_node *> parent_memo;
-  std::vector<var_bitset> deltas;
-  std::vector<double> delta_inst_weight; // probability to be sampled
+  std::map<size_t, bin_tree_node *> parent_memo; // caching for delta parents
+  std::vector<double> accmu_inst_weight;         // probability to be sampled
   std::map<var_bitset *, bin_tree_node *> delta_at;
+  // std::vector<bin_tree_node *> all_node_ps;
 
 public:
   bin_tree_node *root;
-  std::vector<bin_tree_node *> all_node_ps;
+  std::vector<var_bitset> deltas;
 
   btree(vbitset_vec_t &samples);
   int get_depth();
   void traverse(TRA_T order, std::function<void(bin_tree_node *)> visit);
-  bin_tree_node *find_share_parent(std::vector<size_t> idx);
+  std::vector<size_t> rnd_pick_idx_based_on_probability(size_t cnt);
+  bin_tree_node *find_share_parent(std::vector<size_t> delta_idx);
   ~btree() { destroy_tree(root); }
 };

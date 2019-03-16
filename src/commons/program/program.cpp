@@ -219,7 +219,9 @@ bool program::verify_var_bitset(const var_bitset &vbt, cpset_t &toverify) {
   return true;
 }
 
-void program::mutate_the_seed_with_tree(btree &tree, var_bitset &seed) {
+void program::mutate_the_seed_with_tree(btree &tree, var_bitset &seed,
+                                        std::set<var_bitset> &results_container,
+                                        std::ofstream &ofs) {
   // create the fast verification memo, set the root first.
   tree.root->should_verify = all_clause_ps;
   for (var_t v : vars) {
@@ -235,7 +237,7 @@ void program::mutate_the_seed_with_tree(btree &tree, var_bitset &seed) {
     node->should_verify =
         node->parent->should_verify; // substraction starting from the parent
     auto further_sub = node->union_delta ^ node->parent->union_delta;
-    // std::cout << further_sub.count() << std::endl;
+
     for (var_t v : vars) {
       size_t i = var_bit_id[v];
       if (further_sub.test(i))
@@ -246,17 +248,26 @@ void program::mutate_the_seed_with_tree(btree &tree, var_bitset &seed) {
 
   // the mutation
   int cc = 0;
-  for (size_t i = 0; i < 50; i++) {
-    auto idx = rnd_pick_idx(tree.all_node_ps.size(), 2);
-    auto gen = seed ^ (tree.all_node_ps[idx[0]]->intersection_delta |
-                       tree.all_node_ps[idx[1]]->intersection_delta);
-    if (verify_var_bitset(gen, tree.find_share_parent(idx)->should_verify))
+  for (size_t i = 0; i < 100; i++) {
+    global_sampled++;
+    auto idx = tree.rnd_pick_idx_based_on_probability(rand() % 2 + 2); // 2 or 3
+    auto mask = tree.deltas[idx[0]];
+    for (auto idxi : idx)
+      mask |= tree.deltas[idxi];
+    auto gen = seed ^ mask;
+    if (verify_var_bitset(gen, tree.find_share_parent(idx)->should_verify)) {
+      results_container.insert(gen);
+      ofs << gen << std::endl;
       cc += 1;
+    }
   }
-  std::cout << cc << "/" << 50 << "|";
+  ofs << "# " << solver_clock.duration() << " " << results_container.size()
+      << " / " << global_sampled << std::endl;
+  // std::cout << cc << std::endl;
 }
 
-void program::solve(vbitset_vec_t &samples) {
+std::set<var_bitset> program::solve(vbitset_vec_t &samples,
+                                    std::ofstream &ofs) {
   // std::map<var_bitset, int> deltas;
   // for (size_t i = 0; i < samples.size(); i++)
   //   for (size_t j = i + 1; j < samples.size(); j++) {
@@ -277,7 +288,6 @@ void program::solve(vbitset_vec_t &samples) {
   // int cc = 0;
   // std::set<var_bitset> ALL;
   // for (int i = 0; i < 100; i++) {
-  //   std::cout << i << " " << cc << std::endl;
   //   // rand pick up two elements
   //   auto ee = rnd_pick_idx(deltas_vec.size(), 2);
   //   auto gen = samples[rand() % samples.size()] ^
@@ -292,8 +302,13 @@ void program::solve(vbitset_vec_t &samples) {
   // std::cout << cc / 100.0 << std::endl;
   // return;
 
+  solver_clock.startnow();
+  global_sampled = 0;
   btree T = btree(samples);
-  for (int i = 0; i < 1; i++)
-    mutate_the_seed_with_tree(T, samples[rand() % samples.size()]);
-  std::cout << std::endl;
+  std::set<var_bitset> results;
+  for (int i = 0; i < 100; i++)
+    mutate_the_seed_with_tree(T, samples[rand() % samples.size()], results,
+                              ofs);
+  std::cout << "found valid unqiue # " << results.size() << std::endl;
+  return results;
 }

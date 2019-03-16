@@ -48,11 +48,11 @@ void btree::traverse(TRA_T order, std::function<void(bin_tree_node *)> visit) {
   visting_util(order, root, visit);
 }
 
-bin_tree_node *btree::find_share_parent(std::vector<size_t> idx) {
+bin_tree_node *btree::find_share_parent(std::vector<size_t> delta_idx) {
   // figure out hash for idx. memorized
   // https://stackoverflow.com/questions/20511347/a-good-hash-function-for-a-vector
-  std::size_t hash = idx.size();
-  for (size_t i : idx) {
+  std::size_t hash = delta_idx.size();
+  for (size_t i : delta_idx) {
     hash ^= i + 0x9e3779b9 + (hash << 6) + (hash >> 2);
   }
   if (parent_memo.count(hash) > 0)
@@ -62,9 +62,9 @@ bin_tree_node *btree::find_share_parent(std::vector<size_t> idx) {
   size_t i = 1;
   try {
     while (i++ > 0) {
-      char o = all_node_ps[idx[0]]->path.at(i);
-      for (size_t x : idx)
-        if (all_node_ps[x]->path.at(i) != o)
+      char o = delta_at[&deltas[delta_idx[0]]]->path.at(i);
+      for (size_t x : delta_idx)
+        if (delta_at[&deltas[delta_idx[x]]]->path.at(i) != o)
           throw;
       if (o == '0')
         cursor = cursor->left;
@@ -146,9 +146,11 @@ btree::btree(vbitset_vec_t &samples) {
     total_deltas += pair.second;
   }
 
+  accmu_inst_weight.push_back(0);
   for (auto &pair : delta_cnt)
-    delta_inst_weight.push_back(pair.second /
-                                static_cast<double>(total_deltas));
+    accmu_inst_weight.push_back(accmu_inst_weight.back() +
+                                pair.second /
+                                    static_cast<double>(total_deltas));
 
   // build the tree recursively
   std::set<var_bitset *> tmp_ds;
@@ -159,8 +161,8 @@ btree::btree(vbitset_vec_t &samples) {
 
   // record_info_after_built
   root->path = "r";
-  traverse(TRA_T_PRE_ORDER,
-           [&](bin_tree_node *node) { all_node_ps.push_back(node); });
+  // traverse(TRA_T_PRE_ORDER,
+  //          [&](bin_tree_node *node) { all_node_ps.push_back(node); });
 
   traverse(TRA_T_PRE_ORDER, [&](bin_tree_node *node) {
     if (!node->left && !node->right) {
@@ -179,4 +181,17 @@ btree::btree(vbitset_vec_t &samples) {
       node->intersection_delta &= *d;
     }
   });
+}
+
+std::vector<size_t> btree::rnd_pick_idx_based_on_probability(size_t cnt) {
+  std::set<size_t> idx;
+  while (idx.size() < cnt) {
+    double r = (double)rand() / RAND_MAX;
+    size_t index = std::lower_bound(accmu_inst_weight.begin(),
+                                    accmu_inst_weight.end(), r) -
+                   accmu_inst_weight.begin() - 1;
+    idx.insert(index);
+  }
+
+  return std::vector<size_t>(idx.begin(), idx.end());
 }

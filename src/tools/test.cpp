@@ -41,6 +41,8 @@ void pre_memo(std::string model) {
 
 void test_solver(std::string model) {
   program p_test(model);
+  std::cout << " | " << model.substr(model.find_last_of("/") + 1) << " | "
+            << p_test.vars_num << " | " << std::endl;
 
   vbitset_vec_t samples;
 
@@ -51,10 +53,14 @@ void test_solver(std::string model) {
   while (getline(loading_file, line))
     samples.push_back(var_bitset(line));
   loading_file.close();
-  std::cout << " | " << model.substr(model.find_last_of("/") + 1) << " | "
-            << p_test.vars_num << " | ";
+  std::cout << "Loading samples done." << std::endl;
 
-  p_test.solve(samples);
+  timer P1;
+  std::ofstream r_ofs;
+  r_ofs.open("memo/" + model.substr(model.find_last_of("/") + 1) +
+             ".me.valid2");
+  p_test.solve(samples, r_ofs);
+  P1.show_duration("sampling requires");
 }
 
 void test_bit_op() {
