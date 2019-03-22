@@ -24,8 +24,7 @@ typedef std::vector<var_bitset> vbitset_vec_t;
 static std::vector<std::string> benchmark_models{
     "Benchmarks/Blasted_Real/blasted_case47.cnf", // 0
     "Benchmarks/Blasted_Real/blasted_case110.cnf",
-    "Benchmarks/V7/s820a_7_4.cnf",
-    "Benchmarks/V15/s820a_15_7.cnf",
+    "Benchmarks/V7/s820a_7_4.cnf", "Benchmarks/V15/s820a_15_7.cnf",
     "Benchmarks/V3/s1238a_3_2.cnf",
     "Benchmarks/V3/s1196a_3_2.cnf", // 5
     "Benchmarks/V15/s832a_15_7.cnf",
@@ -33,25 +32,18 @@ static std::vector<std::string> benchmark_models{
     "Benchmarks/Blasted_Real/blasted_squaring16.cnf",
     "Benchmarks/Blasted_Real/blasted_squaring7.cnf",
     "Benchmarks/70.sk_3_40.cnf", // 10
-    "Benchmarks/ProcessBean.sk_8_64.cnf",
-    "Benchmarks/56.sk_6_38.cnf",
-    "Benchmarks/35.sk_3_52.cnf",
-    "Benchmarks/80.sk_2_48.cnf",
+    "Benchmarks/ProcessBean.sk_8_64.cnf", "Benchmarks/56.sk_6_38.cnf",
+    "Benchmarks/35.sk_3_52.cnf", "Benchmarks/80.sk_2_48.cnf",
     "Benchmarks/7.sk_4_50.cnf", // 15
-    "Benchmarks/doublyLinkedList.sk_8_37.cnf",
-    "Benchmarks/19.sk_3_48.cnf",
-    "Benchmarks/29.sk_3_45.cnf",
-    "Benchmarks/isolateRightmost.sk_7_481.cnf",
+    "Benchmarks/doublyLinkedList.sk_8_37.cnf", "Benchmarks/19.sk_3_48.cnf",
+    "Benchmarks/29.sk_3_45.cnf", "Benchmarks/isolateRightmost.sk_7_481.cnf",
     "Benchmarks/17.sk_3_45.cnf", // 20
-    "Benchmarks/81.sk_5_51.cnf",
-    "Benchmarks/LoginService2.sk_23_36.cnf",
-    "Benchmarks/sort.sk_8_52.cnf",
-    "Benchmarks/parity.sk_11_11.cnf",
+    "Benchmarks/81.sk_5_51.cnf", "Benchmarks/LoginService2.sk_23_36.cnf",
+    "Benchmarks/sort.sk_8_52.cnf", "Benchmarks/parity.sk_11_11.cnf",
     "Benchmarks/77.sk_3_44.cnf", // 25
-    "Benchmarks/20.sk_1_51.cnf",
-    "Benchmarks/enqueueSeqSK.sk_10_42.cnf",
+    "Benchmarks/20.sk_1_51.cnf", "Benchmarks/enqueueSeqSK.sk_10_42.cnf",
     "Benchmarks/karatsuba.sk_7_41.cnf",
-    "Benchmarks/diagStencilClean.sk_41_36.cnf",
+    // "Benchmarks/diagStencilClean.sk_41_36.cnf",
     "Benchmarks/tutorial3.sk_4_31.cnf"};
 
 /**
@@ -90,6 +82,7 @@ double std_dev(std::vector<int> v);
 
 std::set<int> random_pickup(std::set<int> src, int cnt);
 std::vector<size_t> rnd_pick_idx(size_t length, int cnt);
+size_t hash_sizet_vec(std::vector<size_t> input);
 std::set<int> first_N_elements(std::set<int> src, int cnt);
 
 void print_progress(double percentage);

@@ -16,7 +16,7 @@
  **/
 int main(int argc, char *argv[]) {
   std::string model = "Benchmarks/polynomial.sk_7_25.cnf";
-  double max_time = 200; // max time for simulating the whole processdure
+  double max_time = 200; // max time for checking progress
 
   for (int i = 0; i < argc; i++) {
     if (!strcmp(argv[i], "L"))
@@ -81,7 +81,7 @@ int main(int argc, char *argv[]) {
       iss >> trans_str; // overall_sample#
       ofs << trans_str << std::endl;
 
-      if (dur > max_time)
+      if (P1.duration() > max_time)
         break;
 
       continue;
@@ -90,7 +90,8 @@ int main(int argc, char *argv[]) {
     opt.push();
     auto curr = pg.indv.begin();
     for (size_t i = 0; i < line.length(); i++) {
-      opt.add(line[i] == '1' ? exprs.at(*curr) : !exprs.at(*curr));
+      if (pg.vars.count(*curr))
+        opt.add(line[i] == '1' ? exprs.at(*curr) : !exprs.at(*curr));
       curr++;
     }
     if (opt.check() == z3::sat) {

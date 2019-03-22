@@ -23,6 +23,12 @@ cpset_t &operator-=(cpset_t &lhs, const cpset_t &rhs) {
   return lhs;
 }
 
+cpset_t &operator+=(cpset_t &lhs, const cpset_t &rhs) {
+  for (auto i : rhs)
+    lhs.insert(i);
+  return lhs;
+}
+
 cpset_t operator+(const cpset_t &A, const cpset_t &B) {
   cpset_t sum;
   for (auto &i : A)
@@ -132,6 +138,19 @@ program::program(std::string input_file) {
   // std::cout << "INIT : Loading " << input_file << " done." << std::endl;
 }
 
+cpset_t program::related_cluases(var_bitset &indicator) {
+  cpset_t res;
+  size_t i = 0;
+  for (var_t v : vars) {
+    if (!indicator.test(i)) {
+      auto toadd = vars2clauses_map.at(v);
+      res.insert(toadd.begin(), toadd.end());
+    }
+    i++;
+  }
+  return res;
+}
+
 Z3_lbool program::model_of_v(z3::model &model, var_t v, decls_t &decls) {
   z3::expr b = model.get_const_interp(decls.at(v));
   return b.bool_value(); // Z3_L_TRUE(1) Z3_L_UNDEF(0) Z3_L_FALSE(-1)
@@ -152,6 +171,17 @@ void program::frozen_parial_of_m(z3::optimize &opt, z3::model &m,
                                  vset_t &to_fronzen_vars) {
   for (var_t v : to_fronzen_vars)
     opt.add(model_of_v(m, v, decls) == Z3_L_TRUE ? exprs.at(v) : !exprs.at(v));
+}
+
+void program::frozen_parial_of_vbit(z3::optimize &opt, var_bitset &v,
+                                    decls_t &decls, exprs_t &exprs,
+                                    var_bitset &to_fronzen_vars) {
+  size_t i = 0;
+  for (var_t var : vars) {
+    if (to_fronzen_vars.test(i))
+      opt.add(v.test(i) ? exprs.at(var) : !exprs.at(var));
+    i++;
+  }
 }
 
 var_bitset program::read_model(z3::model &m, decls_t &decls,
@@ -190,7 +220,7 @@ vbitset_vec_t program::gen_N_models(int N) {
 
   vbitset_vec_t res;
   double total = static_cast<double>(N);
-  std::cout << "Generating " << N << " models" << std::endl;
+  // std::cout << "Generating " << N << " models" << std::endl;
   while (N-- > 0) {
     print_progress(1 - N / total);
     z3::check_result has_correct = opt.check();
@@ -200,7 +230,7 @@ vbitset_vec_t program::gen_N_models(int N) {
     res.push_back(read_model(m, decls));
     dont_gen_m_again(opt, m, exprs, decls);
   }
-  std::cout << std::endl;
+  // std::cout << std::endl;
   return res;
 }
 
@@ -221,94 +251,122 @@ bool program::verify_var_bitset(const var_bitset &vbt, cpset_t &toverify) {
 
 void program::mutate_the_seed_with_tree(btree &tree, var_bitset &seed,
                                         std::set<var_bitset> &results_container,
-                                        std::ofstream &ofs) {
-  // create the fast verification memo, set the root first.
-  tree.root->should_verify = all_clause_ps;
-  for (var_t v : vars) {
-    size_t i = var_bit_id[v];
-    if (!tree.root->union_delta.test(i))
-      tree.root->should_verify -= seed.test(i) ? true_match[v] : false_match[v];
-  }
-
-  tree.traverse(TRA_T_PRE_ORDER, [&](bin_tree_node *node) {
-    if (node == tree.root) // already done
-      return;
-
-    node->should_verify =
-        node->parent->should_verify; // substraction starting from the parent
-    auto further_sub = node->union_delta ^ node->parent->union_delta;
-
-    for (var_t v : vars) {
-      size_t i = var_bit_id[v];
-      if (further_sub.test(i))
-        node->should_verify -= seed.test(i) ? true_match[v] : false_match[v];
-    }
-  });
-  // END of creating memo
-
+                                        vbitset_vec_t &next_samples,
+                                        std::ofstream &ofs, z3::optimize &opt,
+                                        decls_t &decls, exprs_t &exprs) {
   // the mutation
-  int cc = 0;
-  for (size_t i = 0; i < 100; i++) {
+  std::set<size_t> idx_hash_memo;
+  idx_hash_memo.clear();
+  int life = 5;
+  while (life > 0) {
+    size_t prev_found = results_container.size();
     global_sampled++;
-    auto idx = tree.rnd_pick_idx_based_on_probability(rand() % 2 + 2); // 2 or 3
+    auto idx = tree.rnd_pick_idx_based_on_probability(2); // TODO 2 or 3
+    size_t tmp_hash = hash_sizet_vec(idx);
+    if (idx_hash_memo.count(tmp_hash))
+      continue;
+    idx_hash_memo.insert(tmp_hash);
     auto mask = tree.deltas[idx[0]];
     for (auto idxi : idx)
       mask |= tree.deltas[idxi];
     auto gen = seed ^ mask;
-    if (verify_var_bitset(gen, tree.find_share_parent(idx)->should_verify)) {
+    auto parent = tree.find_share_parent(idx);
+    if (verify_var_bitset(gen, parent->should_verify)) {
       results_container.insert(gen);
       ofs << gen << std::endl;
       cc += 1;
+    } else {
+      // fixing via relaxing
+      opt.push();
+      frozen_parial_of_vbit(opt, gen, decls, exprs, mask);
+      size_t trial = 5;
+      while (opt.check() == z3::sat && trial-- > 0) {
+        z3::model m = opt.get_model();
+        auto fix_gen = read_model(m, decls);
+        // if (!results_container.count(fix_gen))
+        //   std::cout << "contribute new " << std::endl;
+        results_container.insert(fix_gen);
+        ofs << fix_gen << std::endl;
+        next_samples.push_back(fix_gen);
+        cc += 1;
+        dont_gen_m_again(opt, m, exprs, decls);
+      }
+      opt.pop();
+
+      // if (trial != 5)
+      //   std::cout << "pass check" << std::endl;
+      // else
+      //   std::cout << "FAIL check" << std::endl;
     }
-  }
-  ofs << "# " << solver_clock.duration() << " " << results_container.size()
-      << " / " << global_sampled << std::endl;
-  // std::cout << cc << std::endl;
+
+    if (results_container.size() == prev_found)
+      life--;
+  } // end for i
 }
 
-std::set<var_bitset> program::solve(vbitset_vec_t &samples,
-                                    std::ofstream &ofs) {
-  // std::map<var_bitset, int> deltas;
-  // for (size_t i = 0; i < samples.size(); i++)
-  //   for (size_t j = i + 1; j < samples.size(); j++) {
-  //     var_bitset d = samples[i] ^ samples[j];
-  //     if (deltas.find(d) != deltas.end())
-  //       deltas[d] += 1;
-  //     else
-  //       deltas[d] = 1;
-  //   }
+std::set<var_bitset> program::solve(vbitset_vec_t &samples, std::ofstream &ofs,
+                                    double max_time) {
+  // create exprs and decls
+  exprs_t exprs;
+  decls_t decls;
+  for (var_t v : vars) {
+    z3::expr l =
+        c.constant(c.str_symbol(std::to_string(v).c_str()), c.bool_sort());
+    exprs.insert(std::make_pair(v, l));
+    decls.insert(std::make_pair(v, l.decl()));
+  }
+  // END create exprs and decls
 
-  // std::vector<var_bitset> deltas_vec;
+  // load the whole model
+  z3::optimize opt(c);
+  for (auto &clause : clauses) {
 
-  // for (auto &D : deltas) {
-  //   if (D.second > 13)
-  //     deltas_vec.push_back(D.first);
-  // }
+    z3::expr_vector V(c);
 
-  // int cc = 0;
-  // std::set<var_bitset> ALL;
-  // for (int i = 0; i < 100; i++) {
-  //   // rand pick up two elements
-  //   auto ee = rnd_pick_idx(deltas_vec.size(), 2);
-  //   auto gen = samples[rand() % samples.size()] ^
-  //              (deltas_vec[ee[0]] & deltas_vec[ee[1]]);
-  //   if (!ALL.count(gen))
-  //     ALL.insert(gen);
-  //   else
-  //     continue;
-  //   if (verify_var_bitset(gen, all_clause_ps))
-  //     cc += 1;
-  // }
-  // std::cout << cc / 100.0 << std::endl;
-  // return;
+    for (var_t v : clause.vs)
+      V.push_back(v > 0 ? exprs.at(v) : !exprs.at(-v));
+    opt.add(mk_or(V));
+  }
+  // END load the whole model
 
   solver_clock.startnow();
   global_sampled = 0;
-  btree T = btree(samples);
   std::set<var_bitset> results;
-  for (int i = 0; i < 100; i++)
-    mutate_the_seed_with_tree(T, samples[rand() % samples.size()], results,
-                              ofs);
+
+  vbitset_vec_t S = samples;
+  // while (true) {
+  while (solver_clock.duration() < max_time) {
+    std::cout << results.size() << std::endl;
+    btree tree = btree(S);
+    // create the fast verification memo
+    tree.traverse(TRA_T_POST_ORDER, [&](bin_tree_node *node) {
+      if (!node->left && !node->right) { // the leaves
+        for (var_bitset *dp : node->delta_ps) {
+          auto delta = *dp;
+          for (var_t v : vars)
+            if (delta.test(var_bit_id[v]))
+              node->should_verify += vars2clauses_map[v];
+        }
+      } else if (node->left)
+        node->should_verify += node->left->should_verify;
+      else if (node->right)
+        node->should_verify += node->right->should_verify;
+    });
+    // END of creating memo
+    vbitset_vec_t next_samples;
+    for (auto &sam : S) {
+      mutate_the_seed_with_tree(tree, sam, results, next_samples, ofs, opt,
+                                decls, exprs);
+      ofs << "# " << solver_clock.duration() << " " << results.size() << " / "
+          << global_sampled << std::endl;
+    }
+    if (next_samples.empty())
+      break;
+    S.clear();
+    for (auto is : rnd_pick_idx(next_samples.size(), 100))
+      S.push_back(next_samples[is]);
+  }
   std::cout << "found valid unqiue # " << results.size() << std::endl;
+  std::cout << "cc = " << cc << std::endl;
   return results;
 }

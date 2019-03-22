@@ -144,3 +144,12 @@ var_bitset truncate_bitset(var_bitset &truncating, var_bitset &mask) {
 size_t hamming_dist(var_bitset &v1, var_bitset &v2) {
   return (v1 ^ v2).count();
 }
+
+size_t hash_sizet_vec(std::vector<size_t> input) {
+  // https://stackoverflow.com/questions/20511347/a-good-hash-function-for-a-vector
+  std::size_t seed = input.size();
+  for (auto &i : input) {
+    seed ^= i + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+  }
+  return seed;
+}

@@ -14,6 +14,7 @@
 
 cpset_t operator-(const cpset_t &A, const cpset_t &B);
 cpset_t &operator-=(cpset_t &lhs, const cpset_t &rhs);
+cpset_t &operator+=(cpset_t &lhs, const cpset_t &rhs);
 cpset_t operator+(const cpset_t &A, const cpset_t &B); // the union
 
 vset_t operator-(const vset_t &A, const vset_t &B);
@@ -35,12 +36,17 @@ struct program {
   vset_t indv;
   timer solver_clock;
   int global_sampled;
+  int cc = 0;
 
   program(std::string input_file);
-  std::set<var_bitset> solve(vbitset_vec_t &samples, std::ofstream &ofs);
+  std::set<var_bitset> solve(vbitset_vec_t &samples, std::ofstream &ofs,
+                             double max_time);
   void mutate_the_seed_with_tree(btree &tree, var_bitset &seed,
                                  std::set<var_bitset> &results_container,
-                                 std::ofstream &ofs);
+                                 vbitset_vec_t &next_samples,
+                                 std::ofstream &ofs, z3::optimize &opt,
+                                 decls_t &decls, exprs_t &exprs);
+  cpset_t related_cluases(var_bitset &indicator);
 
   // Tools
   Z3_lbool model_of_v(z3::model &model, var_t v, decls_t &decls);
@@ -52,6 +58,9 @@ struct program {
   }
   void frozen_parial_of_m(z3::optimize &opt, z3::model &m, decls_t &decls,
                           exprs_t &exprs, vset_t &to_fronzen_vars);
+  void frozen_parial_of_vbit(z3::optimize &opt, var_bitset &v, decls_t &decls,
+                             exprs_t &exprs, var_bitset &to_fronzen_vars);
+
   var_bitset read_model(z3::model &m, decls_t &decls, vset_t &printing_vars);
   var_bitset read_model(z3::model &m, decls_t &decls) {
     return read_model(m, decls, vars);

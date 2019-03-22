@@ -41,3 +41,5 @@ tools/cppexp.cpp
 .vscode/
 memo/
 samples/
+plots/*.csv
+plots/*.info
