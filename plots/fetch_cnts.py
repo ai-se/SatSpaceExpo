@@ -1,4 +1,7 @@
 import glob
+import pickle
+import pdb
+import sys
 
 benchmark_models = ["Benchmarks/Blasted_Real/blasted_case47.cnf",
                     "Benchmarks/Blasted_Real/blasted_case110.cnf",
@@ -31,34 +34,97 @@ benchmark_models = ["Benchmarks/Blasted_Real/blasted_case47.cnf",
                     "Benchmarks/karatsuba.sk_7_41.cnf",
                     "Benchmarks/tutorial3.sk_4_31.cnf"]
 
-for model in benchmark_models:
-    M = model[model.rfind('/') + 1:]
-    try:
-        infile = open('../memo/' + M + '.qs.valid2', 'r')
-    except:
-        continue
+index = 0
+for i, arg in enumerate(sys.argv):
+    if arg == '-i':
+        index = int(sys.argv[i + 1])
+model = benchmark_models[index]
+M = model[model.rfind('/') + 1:]
 
-    outfile = open(M + '.qs.csv', 'w')
+
+"""
+dumping the list of info into "M***.INFO"
+info format: [me/qs, model, time, uniqueSolutionCount, flippedBitsCount]
+"""
+INFO = list()
+
+try:
+    infile = open('../memo/' + M + '.me.valid2', 'r')
+    stats = dict()
+    unique_bits = 0
+
+    # get the init unique bit
+    tmp_str = ""
+
+    for line in infile.readlines():
+        if not line.startswith('#'):
+            tmp_str = line
+        if len(tmp_str) >= 1:
+            break
+    changing = [False for _ in range(len(tmp_str))]
+    flips = 0
+    infile.close()
+
+    infile = open('../memo/' + M + '.me.valid2', 'r')
+
     for line in infile.readlines():
         if line.startswith('#'):
             components = line.split(' ')
-            outfile.write(components[1] + "," + components[2]+"\n")
-    infile.close()
-    outfile.close()
-    print(M + " QS parse done.")
+            time = float(components[1])
+            unique_s = int(components[2])
+            flips = flips
+            INFO.append(["me", M, time, unique_s, flips])
+        else:
+            for t, l, u, i in zip(tmp_str, line, changing, range(len(tmp_str))):
+                if u or t == l:
+                    continue
+                else:
+                    changing[i] = True
+                    flips += 1
 
-for model in benchmark_models:
-    M = model[model.rfind('/') + 1:]
-    try:
-        infile = open('../memo/' + M + '.me.valid2', 'r')
-    except:
-        continue
-
-    outfile = open(M + '.me.csv', 'w')
-    for line in infile.readlines():
-        if line.startswith('#'):
-            components = line.split(' ')
-            outfile.write(components[1] + "," + components[2]+"\n")
     infile.close()
-    outfile.close()
     print(M + " ME parse done.")
+except:
+    pass
+
+
+try:
+    infile = open('../memo/' + M + '.qs.valid2', 'r')
+    stats = dict()
+    unique_bits = 0
+
+    # get the init unique bit
+    tmp_str = ""
+
+    for line in infile.readlines():
+        if not line.startswith('#'):
+            tmp_str = line
+        if len(tmp_str) >= 1:
+            break
+    changing = [False for _ in range(len(tmp_str))]
+    flips = 0
+    infile.close()
+
+    infile = open('../memo/' + M + '.qs.valid2', 'r')
+
+    for line in infile.readlines():
+        if line.startswith('#'):
+            components = line.split(' ')
+            time = float(components[1])
+            unique_s = int(components[2])
+            flips = flips
+            INFO.append(["qs", M, time, unique_s, flips])
+        else:
+            for t, l, u, i in zip(tmp_str, line, changing, range(len(tmp_str))):
+                if u or t == l:
+                    continue
+                else:
+                    changing[i] = True
+                    flips += 1
+
+    infile.close()
+    print(M + " QS parse done.")
+except:
+    pass
+
+pickle.dump(INFO, open(str(index)+".INFO1", 'wb'))

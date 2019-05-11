@@ -70,22 +70,16 @@ void ncd(std::string file, double max_time, std::ofstream &ofs) {
   timer P1;
   std::ifstream infile(file);
   std::string line;
-
-  size_t minCx = UINT_MAX; // max unsigned int
-  size_t maxCxx = 0;
-  std::string concatX = "";
-
-  std::getline(infile, line);
-  size_t unit_l = line.length();
-  int s = 0;
-  int e = 0;
-  double lst_record_time = -1000; // make sure the first start can be recorded
-
+  std::vector<std::string> alls;
+  double ncd;
+  double lst_record_time = -1000;
+  size_t lst_record_size = 0;
   while (std::getline(infile, line)) {
+    if (P1.duration() > max_time)
+      return;
+
     if (line[0] != '#') {
-      concatX += line;
-      minCx = std::min(minCx, compress_string(line));
-      e++;
+      alls.push_back(line);
       continue;
     }
     // otherwise, do recording
@@ -94,11 +88,15 @@ void ncd(std::string file, double max_time, std::ofstream &ofs) {
     double curr_time;
     iss >> ts;
     iss >> curr_time;
-    // skip to record if two milestones are too closed
-    if (curr_time - lst_record_time < 5 * 60) // 5 minutes
-      continue;
 
-    lst_record_time = curr_time;
+    if (curr_time - lst_record_time < 20 ||
+        alls.size() - lst_record_size < 10) // 20 s
+      continue;
+    else {
+      lst_record_time = curr_time;
+      lst_record_size = alls.size();
+    }
+
     ofs << "# " << curr_time; // record time
     iss >> ts;
     ofs << " " << ts; // record valid sample
@@ -106,20 +104,33 @@ void ncd(std::string file, double max_time, std::ofstream &ofs) {
     iss >> ts;
     ofs << " " << ts << " "; // reocrd toal sample
 
+    // calculuate the ncd here. to complex? pick 10% samples
+    std::vector<std::string> tmp_alls;
+    // for (auto i :
+    //      rnd_pick_idx(alls.size(), std::max(10, (int)(alls.size() * 0.1))))
+    for (auto i : rnd_pick_idx(alls.size(), 15))
+      tmp_alls.push_back(alls[i]);
+
+    if (tmp_alls.size() < 1)
+      continue;
+
+    std::string concatX =
+        std::accumulate(tmp_alls.begin(), tmp_alls.end(), std::string(""));
+
     size_t CX = compress_string(concatX);
-    int sample_counter = 0;
-    P1.startnow();
-    do {
-      int i = (rand() % (e - s)) + s;
+    size_t minx = UINT_MAX; // max of unsigned int
+    size_t maxCxx = 0;
+    size_t unit_l = tmp_alls[0].length();
+    for (size_t i = 0; i < tmp_alls.size(); i++) {
+      minx = std::min(minx, compress_string(tmp_alls[i]));
       std::string tmp =
           concatX.substr(0, i * unit_l) + concatX.substr((i + 1) * unit_l);
       maxCxx = std::max(maxCxx, compress_string(tmp));
-    } while (sample_counter++ < (e - s) &&
-             P1.duration() < max_time / 30); // max sample time in secs
+    }
 
-    ofs << static_cast<double>(CX - minCx) / static_cast<double>(maxCxx)
-        << std::endl;
-    s = e + 1;
+    ncd = std::max(ncd, static_cast<double>(CX - minx) /
+                            static_cast<double>(maxCxx));
+    ofs << ncd << std::endl;
   } // end of reading
 }
 
@@ -133,7 +144,7 @@ void ncd(std::string file, double max_time, std::ofstream &ofs) {
 int main(int argc, char *argv[]) {
   std::string model = "Benchmarks/polynomial.sk_7_25.cnf";
   double max_time = 180;
-  std::string extension = "qs.valid";
+  std::string extension = "qs.valid2";
 
   for (int i = 0; i < argc; i++) {
     if (!strcmp(argv[i], "L"))

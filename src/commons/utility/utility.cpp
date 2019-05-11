@@ -67,8 +67,13 @@ std::set<int> random_pickup(std::set<int> src, int cnt) {
 
 std::vector<size_t> rnd_pick_idx(size_t length, int cnt) {
   std::set<size_t> res;
-  while (res.size() < static_cast<size_t>(cnt))
-    res.insert(rand() % length);
+  if (length <= (unsigned int)cnt) {
+    for (size_t i = 0; i < length; i++)
+      res.insert(i);
+  } else {
+    while (res.size() < static_cast<size_t>(cnt))
+      res.insert(rand() % length);
+  }
   std::vector<size_t> resv(res.begin(), res.end());
   return resv;
 }

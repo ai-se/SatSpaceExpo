@@ -1,5 +1,11 @@
 import matplotlib.pyplot as plt
 from matplotlib.pyplot import figure
+from scipy.ndimage.filters import gaussian_filter1d
+import bisect
+import numpy as np
+import pandas as pd
+import pickle
+import pdb
 
 benchmark_models = ["Benchmarks/Blasted_Real/blasted_case47.cnf",
                     "Benchmarks/Blasted_Real/blasted_case110.cnf",
@@ -32,35 +38,92 @@ benchmark_models = ["Benchmarks/Blasted_Real/blasted_case47.cnf",
                     "Benchmarks/karatsuba.sk_7_41.cnf",
                     "Benchmarks/tutorial3.sk_4_31.cnf"]
 
-i = 1
-figure(figsize=(8, 15))
-for model in benchmark_models:
-    M = model[model.rfind('/') + 1:]
-    time, cnt = list(), list()
-    time2, cnt2 = list(), list()
-    try:
-        f1 = open(M + '.qs.csv', 'r')
-        f2 = open(M + '.me.csv', 'r')
-    except:
+
+infos = list()
+names = list()
+# for i in range(29):
+#     with open(str(i) + '.INFO1', 'rb') as f:
+#         info_raw = pickle.load(f)
+
+#     info = pd.DataFrame(info_raw, columns=[
+#                         'method', 'model', 'time', 'usols', 'ubits'])
+#     names.append(info.iloc[0, 1])
+#     infos.append(info)
+
+
+# infos = pd.concat(infos)
+# infos = infos.reset_index()
+# infos['logtime'] = np.log10(infos.time)
+
+# max_U = dict()
+# for i, n in enumerate(names):
+#     max_U[n] = max(
+#         (infos.loc[(infos['model'] == n) & (infos['method'] == 'me')]).ubits)
+# infos.maxU = infos.model.map(max_U)
+# infos['u_ratio'] = infos.ubits/infos.maxU
+
+# worthy = infos[infos['method'] == 'me']
+# qs = infos[infos['method'] == 'qs']
+
+# for name in names:
+#     W = worthy[worthy.model == name]
+#     Q = qs[qs.model == name]
+#     xw = bisect.bisect_left(W.u_ratio.tolist(), 0.9)
+#     xq = bisect.bisect_right(Q.u_ratio.tolist(), 0.9)
+#     try:
+#         print(Q.iloc[xq, 3] / W.iloc[xw, 3]-1, "\t", Q.iloc[xq, 3])
+#     except:
+#         print(Q.iloc[Q.shape[0]-1, 3] / W.iloc[W.shape[0]-1, 3] -
+#               1, "\t", Q.iloc[Q.shape[0]-1, 3])
+
+
+for benchmark_t in benchmark_models:
+    benchmark = benchmark_t[benchmark_t.rfind('/')+1:]
+    # me_info = pd.DataFrame(columns=['time', 'samples', 'ncd'])
+    # qs_info = pd.DataFrame(columns=['time', 'samples', 'ncd'])
+    me_info, qs_info = list(), list()
+    with open(f'../memo/{benchmark}.me.report', 'r') as f:
+        for line in f.readlines():
+            if line[0] != '#':
+                continue
+            splits = line[:-1].split(' ')
+            time, samples, ncd = float(splits[1]), int(
+                splits[2]), float(splits[4])
+            me_info.append([time, samples, ncd])
+
+    with open(f'../memo/{benchmark}.qs.report', 'r') as f:
+        for line in f.readlines():
+            if line[0] != '#':
+                continue
+            splits = line[:-1].split(' ')
+            time, samples, ncd = float(splits[1]), int(
+                splits[2]), float(splits[4])
+            qs_info.append([time, samples, ncd])
+
+    ME = pd.DataFrame(me_info, columns=['time', 'samples', 'ncd'])
+    QS = pd.DataFrame(qs_info, columns=['time', 'samples', 'ncd'])
+
+    # ME.plot(x='time', y='ncd')
+    # QS.plot(x='time', y='ncd')
+    # plt.plot(ME.time, ME.ncd, label='WORTHY')
+    # plt.plot(QS.time, QS.ncd, label='QS')
+    # plt.semilogx()
+    # plt.legend()
+    # plt.title(benchmark)
+    # plt.show()
+    # # break
+    if not ME.shape[0] or not QS.shape[0]:
         continue
-    for line in f1.readlines():
-        X = line.split(',')
-        time.append(float(X[0]))
-        cnt.append(int(X[1]))
-
-    for line in f2.readlines():
-        X = line.split(',')
-        time2.append(float(X[0]))
-        cnt2.append(int(X[1]))
-
-    f1.close()
-    f2.close()
-    plt.subplot(10, 3, i)
-    i += 1
-    plt.scatter(time, cnt, s=0.03, label='qs')
-    plt.scatter(time2, cnt2, s=0.03, label='me')
-    plt.legend()
-    # plt.title(M)
-
-plt.subplots_adjust(wspace=0.2, hspace=0.2)
-plt.show()
+    startat = min(min(ME.ncd), min(QS.ncd))
+    endat = max(max(ME.ncd), max(QS.ncd))
+    print(benchmark, end=' ', flush=True)
+    for r in [0.95]:
+        splitting = (endat - startat) * r + startat
+        # id1 = bisect.bisect_left(ME.ncd, splitting)
+        id2 = bisect.bisect_left(QS.ncd, splitting)
+        # if id1 >= ME.shape[0]:
+        id1 = ME.shape[0] - 1
+        if id2 >= QS.shape[0]:
+            id2 = QS.shape[0] - 1
+        print(ME.iloc[id1, 1], QS.iloc[id2, 1], '?', end=' ', flush=True)
+    print()

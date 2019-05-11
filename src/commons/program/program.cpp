@@ -279,21 +279,22 @@ void program::mutate_the_seed_with_tree(btree &tree, var_bitset &seed,
       // fixing via relaxing
       opt.push();
       frozen_parial_of_vbit(opt, gen, decls, exprs, mask);
-      size_t trial = 5;
-      while (opt.check() == z3::sat && trial-- > 0) {
+      size_t trial = 0;
+      while (opt.check() == z3::sat && trial++ < 5) {
         z3::model m = opt.get_model();
         auto fix_gen = read_model(m, decls);
         // if (!results_container.count(fix_gen))
         //   std::cout << "contribute new " << std::endl;
         results_container.insert(fix_gen);
         ofs << fix_gen << std::endl;
-        next_samples.push_back(fix_gen);
+        if (trial == 1)
+          next_samples.push_back(fix_gen);
         cc += 1;
         dont_gen_m_again(opt, m, exprs, decls);
       }
       opt.pop();
 
-      // if (trial != 5)
+      // if (trial != 0)
       //   std::cout << "pass check" << std::endl;
       // else
       //   std::cout << "FAIL check" << std::endl;
@@ -360,8 +361,11 @@ std::set<var_bitset> program::solve(vbitset_vec_t &samples, std::ofstream &ofs,
       ofs << "# " << solver_clock.duration() << " " << results.size() << " / "
           << global_sampled << std::endl;
     }
+
     if (next_samples.empty())
       break;
+
+    next_samples.insert(next_samples.end(), S.begin(), S.end());
     S.clear();
     for (auto is : rnd_pick_idx(next_samples.size(), 100))
       S.push_back(next_samples[is]);
