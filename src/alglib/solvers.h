@@ -1,5 +1,5 @@
 /*************************************************************************
-ALGLIB 3.14.0 (source code generated 2018-06-16)
+ALGLIB 3.16.0 (source code generated 2019-12-19)
 Copyright (c) Sergey Bochkanov (ALGLIB project).
 
 >>> SOURCE LICENSE >>>
@@ -97,6 +97,7 @@ typedef struct
     ae_int_t repnmv;
     ae_int_t repterminationtype;
     ae_bool running;
+    ae_bool userterminationneeded;
     ae_vector tmpd;
     ae_vector tmpx;
     rcommstate rstate;
@@ -2583,6 +2584,8 @@ OUTPUT PARAMETERS:
                     *  7    rounding errors prevent further progress,
                             X contains best point found so far.
                             (sometimes returned on singular systems)
+                    *  8    user requested termination via calling
+                            linlsqrrequesttermination()
                 * Rep.IterationsCount contains iterations count
                 * NMV countains number of matrix-vector calculations
 
@@ -2606,6 +2609,52 @@ provided to MinCGOptimize().
      Copyright 30.11.2011 by Bochkanov Sergey
 *************************************************************************/
 void linlsqrsetxrep(const linlsqrstate &state, const bool needxrep, const xparams _xparams = alglib::xdefault);
+
+
+/*************************************************************************
+This function is used to peek into LSQR solver and get  current  iteration
+counter. You can safely "peek" into the solver from another thread.
+
+INPUT PARAMETERS:
+    S           -   solver object
+
+RESULT:
+    iteration counter, in [0,INF)
+
+  -- ALGLIB --
+     Copyright 21.05.2018 by Bochkanov Sergey
+*************************************************************************/
+ae_int_t linlsqrpeekiterationscount(const linlsqrstate &s, const xparams _xparams = alglib::xdefault);
+
+
+/*************************************************************************
+This subroutine submits request for termination of the running solver.  It
+can be called from some other thread which wants LSQR solver to  terminate
+(obviously, the  thread  running  LSQR  solver can not request termination
+because it is already busy working on LSQR).
+
+As result, solver  stops  at  point  which  was  "current  accepted"  when
+termination  request  was  submitted  and returns error code 8 (successful
+termination).  Such   termination   is  a smooth  process  which  properly
+deallocates all temporaries.
+
+INPUT PARAMETERS:
+    State   -   solver structure
+
+NOTE: calling this function on solver which is NOT running  will  have  no
+      effect.
+
+NOTE: multiple calls to this function are possible. First call is counted,
+      subsequent calls are silently ignored.
+
+NOTE: solver clears termination flag on its start, it means that  if  some
+      other thread will request termination too soon, its request will went
+      unnoticed.
+
+  -- ALGLIB --
+     Copyright 08.10.2014 by Bochkanov Sergey
+*************************************************************************/
+void linlsqrrequesttermination(const linlsqrstate &state, const xparams _xparams = alglib::xdefault);
 #endif
 
 #if defined(AE_COMPILE_POLYNOMIALSOLVER) || !defined(AE_PARTIAL_BUILD)
@@ -2938,6 +2987,61 @@ OUTPUT PARAMETERS
      Copyright 26.12.2017 by Bochkanov Sergey
 *************************************************************************/
 void sparsecholeskysolvesks(const sparsematrix &a, const ae_int_t n, const bool isupper, const real_1d_array &b, sparsesolverreport &rep, real_1d_array &x, const xparams _xparams = alglib::xdefault);
+
+
+/*************************************************************************
+Sparse linear solver for A*x=b with general (nonsymmetric) N*N sparse real
+matrix A, N*1 vectors x and b.
+
+This solver converts input matrix to CRS format, performs LU factorization
+and uses sparse triangular solvers to get solution of the original system.
+
+INPUT PARAMETERS
+    A       -   sparse matrix, must be NxN exactly, any storage format
+    N       -   size of A, N>0
+    B       -   array[0..N-1], right part
+
+OUTPUT PARAMETERS
+    X       -   array[N], it contains:
+                * rep.terminationtype>0    =>  solution
+                * rep.terminationtype=-3   =>  filled by zeros
+    Rep     -   solver report, following fields are set:
+                * rep.terminationtype - solver status; >0 for success,
+                  set to -3 on failure (degenerate system).
+
+  -- ALGLIB --
+     Copyright 26.12.2017 by Bochkanov Sergey
+*************************************************************************/
+void sparsesolve(const sparsematrix &a, const ae_int_t n, const real_1d_array &b, real_1d_array &x, sparsesolverreport &rep, const xparams _xparams = alglib::xdefault);
+
+
+/*************************************************************************
+Sparse linear solver for A*x=b with general (nonsymmetric) N*N sparse real
+matrix A given by its LU factorization, N*1 vectors x and b.
+
+IMPORTANT: this solver requires input matrix  to  be  in  the  CRS  sparse
+           storage format. An exception will  be  generated  if  you  pass
+           matrix in some other format (HASH or SKS).
+
+INPUT PARAMETERS
+    A       -   LU factorization of the sparse matrix, must be NxN exactly
+                in CRS storage format
+    P, Q    -   pivot indexes from LU factorization
+    N       -   size of A, N>0
+    B       -   array[0..N-1], right part
+
+OUTPUT PARAMETERS
+    X       -   array[N], it contains:
+                * rep.terminationtype>0    =>  solution
+                * rep.terminationtype=-3   =>  filled by zeros
+    Rep     -   solver report, following fields are set:
+                * rep.terminationtype - solver status; >0 for success,
+                  set to -3 on failure (degenerate system).
+
+  -- ALGLIB --
+     Copyright 26.12.2017 by Bochkanov Sergey
+*************************************************************************/
+void sparselusolve(const sparsematrix &a, const integer_1d_array &p, const integer_1d_array &q, const ae_int_t n, const real_1d_array &b, real_1d_array &x, sparsesolverreport &rep, const xparams _xparams = alglib::xdefault);
 #endif
 
 #if defined(AE_COMPILE_LINCG) || !defined(AE_PARTIAL_BUILD)
@@ -3477,6 +3581,8 @@ void linlsqrsetxrep(linlsqrstate* state,
      ae_bool needxrep,
      ae_state *_state);
 void linlsqrrestart(linlsqrstate* state, ae_state *_state);
+ae_int_t linlsqrpeekiterationscount(linlsqrstate* s, ae_state *_state);
+void linlsqrrequesttermination(linlsqrstate* state, ae_state *_state);
 void _linlsqrstate_init(void* _p, ae_state *_state, ae_bool make_automatic);
 void _linlsqrstate_init_copy(void* _dst, void* _src, ae_state *_state, ae_bool make_automatic);
 void _linlsqrstate_clear(void* _p);
@@ -3544,6 +3650,20 @@ void sparsecholeskysolvesks(sparsematrix* a,
      /* Real    */ ae_vector* b,
      sparsesolverreport* rep,
      /* Real    */ ae_vector* x,
+     ae_state *_state);
+void sparsesolve(sparsematrix* a,
+     ae_int_t n,
+     /* Real    */ ae_vector* b,
+     /* Real    */ ae_vector* x,
+     sparsesolverreport* rep,
+     ae_state *_state);
+void sparselusolve(sparsematrix* a,
+     /* Integer */ ae_vector* p,
+     /* Integer */ ae_vector* q,
+     ae_int_t n,
+     /* Real    */ ae_vector* b,
+     /* Real    */ ae_vector* x,
+     sparsesolverreport* rep,
      ae_state *_state);
 void _sparsesolverreport_init(void* _p, ae_state *_state, ae_bool make_automatic);
 void _sparsesolverreport_init_copy(void* _dst, void* _src, ae_state *_state, ae_bool make_automatic);

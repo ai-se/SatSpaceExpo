@@ -1,5 +1,5 @@
 /*************************************************************************
-ALGLIB 3.14.0 (source code generated 2018-06-16)
+ALGLIB 3.16.0 (source code generated 2019-12-19)
 Copyright (c) Sergey Bochkanov (ALGLIB project).
 
 >>> SOURCE LICENSE >>>
@@ -1169,8 +1169,6 @@ void autogkintegrate(autogkstate &state,
         _ALGLIB_CALLBACK_EXCEPTION_GUARD_END
     lbl_no_callback:
         alglib_impl::ae_assert(ae_false, "ALGLIB: unexpected error in 'autogkintegrate()'", &_alglib_env_state);
-    lbl_user_exception:
-        alglib_impl::ae_assert(ae_false, "ALGLIB: exception generated in user callback", &_alglib_env_state);
     }
     alglib_impl::ae_state_clear(&_alglib_env_state);
 }

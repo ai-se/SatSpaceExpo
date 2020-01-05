@@ -1,5 +1,5 @@
 /*************************************************************************
-ALGLIB 3.14.0 (source code generated 2018-06-16)
+ALGLIB 3.16.0 (source code generated 2019-12-19)
 Copyright (c) Sergey Bochkanov (ALGLIB project).
 
 >>> SOURCE LICENSE >>>
@@ -74,6 +74,66 @@ typedef struct
     ae_bool isactivesetchanged;
 } convexquadraticmodel;
 #endif
+#if defined(AE_COMPILE_OPTGUARDAPI) || !defined(AE_PARTIAL_BUILD)
+typedef struct
+{
+    ae_bool nonc0suspected;
+    ae_bool nonc0test0positive;
+    ae_int_t nonc0fidx;
+    double nonc0lipschitzc;
+    ae_bool nonc1suspected;
+    ae_bool nonc1test0positive;
+    ae_bool nonc1test1positive;
+    ae_int_t nonc1fidx;
+    double nonc1lipschitzc;
+    ae_bool badgradsuspected;
+    ae_int_t badgradfidx;
+    ae_int_t badgradvidx;
+    ae_vector badgradxbase;
+    ae_matrix badgraduser;
+    ae_matrix badgradnum;
+} optguardreport;
+typedef struct
+{
+    ae_bool positive;
+    ae_int_t fidx;
+    ae_vector x0;
+    ae_vector d;
+    ae_int_t n;
+    ae_vector stp;
+    ae_vector f;
+    ae_int_t cnt;
+    ae_int_t stpidxa;
+    ae_int_t stpidxb;
+} optguardnonc0report;
+typedef struct
+{
+    ae_bool positive;
+    ae_int_t fidx;
+    ae_vector x0;
+    ae_vector d;
+    ae_int_t n;
+    ae_vector stp;
+    ae_vector f;
+    ae_int_t cnt;
+    ae_int_t stpidxa;
+    ae_int_t stpidxb;
+} optguardnonc1test0report;
+typedef struct
+{
+    ae_bool positive;
+    ae_int_t fidx;
+    ae_int_t vidx;
+    ae_vector x0;
+    ae_vector d;
+    ae_int_t n;
+    ae_vector stp;
+    ae_vector g;
+    ae_int_t cnt;
+    ae_int_t stpidxa;
+    ae_int_t stpidxb;
+} optguardnonc1test1report;
+#endif
 #if defined(AE_COMPILE_OPTSERV) || !defined(AE_PARTIAL_BUILD)
 typedef struct
 {
@@ -96,6 +156,75 @@ typedef struct
     ae_matrix bufw;
     ae_vector tmp;
 } precbuflowrank;
+typedef struct
+{
+    ae_int_t n;
+    ae_int_t k;
+    ae_bool checksmoothness;
+    ae_vector dcur;
+    ae_int_t enqueuedcnt;
+    ae_vector enqueuedstp;
+    ae_vector enqueuedx;
+    ae_vector enqueuedfunc;
+    ae_matrix enqueuedjac;
+    ae_vector sortedstp;
+    ae_vector sortedidx;
+    ae_int_t sortedcnt;
+    double probingstp;
+    ae_vector probingf;
+    ae_int_t probingnvalues;
+    double probingstepmax;
+    double probingstepscale;
+    ae_int_t probingnstepsstored;
+    ae_vector probingsteps;
+    ae_matrix probingvalues;
+    ae_matrix probingslopes;
+    rcommstate probingrcomm;
+    ae_bool linesearchspoiled;
+    ae_bool linesearchstarted;
+    double nonc0currentrating;
+    double nonc1currentrating;
+    ae_bool badgradhasxj;
+    optguardreport rep;
+    double nonc0strrating;
+    double nonc0lngrating;
+    optguardnonc0report nonc0strrep;
+    optguardnonc0report nonc0lngrep;
+    double nonc1test0strrating;
+    double nonc1test0lngrating;
+    optguardnonc1test0report nonc1test0strrep;
+    optguardnonc1test0report nonc1test0lngrep;
+    double nonc1test1strrating;
+    double nonc1test1lngrating;
+    optguardnonc1test1report nonc1test1strrep;
+    optguardnonc1test1report nonc1test1lngrep;
+    ae_bool needfij;
+    ae_vector x;
+    ae_vector fi;
+    ae_matrix j;
+    rcommstate rstateg0;
+    ae_vector xbase;
+    ae_vector fbase;
+    ae_vector fm;
+    ae_vector fc;
+    ae_vector fp;
+    ae_vector jm;
+    ae_vector jc;
+    ae_vector jp;
+    ae_matrix jbaseusr;
+    ae_matrix jbasenum;
+    ae_vector stp;
+    ae_vector bufr;
+    ae_vector f;
+    ae_vector g;
+    ae_vector deltax;
+    ae_vector tmpidx;
+    ae_vector bufi;
+    ae_vector xu;
+    ae_vector du;
+    ae_vector f0;
+    ae_matrix j0;
+} smoothnessmonitor;
 #endif
 #if defined(AE_COMPILE_SNNLS) || !defined(AE_PARTIAL_BUILD)
 typedef struct
@@ -246,6 +375,238 @@ typedef struct
     ae_int_t repncupdates;
 } qqpbuffers;
 #endif
+#if defined(AE_COMPILE_LPQPSERV) || !defined(AE_PARTIAL_BUILD)
+#endif
+#if defined(AE_COMPILE_VIPMSOLVER) || !defined(AE_PARTIAL_BUILD)
+typedef struct
+{
+    ae_int_t n;
+    ae_int_t m;
+    ae_vector x;
+    ae_vector g;
+    ae_vector w;
+    ae_vector t;
+    ae_vector p;
+    ae_vector y;
+    ae_vector z;
+    ae_vector v;
+    ae_vector s;
+    ae_vector q;
+} vipmvars;
+typedef struct
+{
+    ae_int_t n;
+    ae_int_t nmain;
+    double regeps;
+    double epsp;
+    double epsd;
+    double epsgap;
+    ae_bool islinear;
+    ae_vector scl;
+    ae_vector invscl;
+    ae_vector xorigin;
+    double targetscale;
+    ae_vector c;
+    ae_matrix denseh;
+    sparsematrix sparseh;
+    ae_int_t hkind;
+    ae_vector bndl;
+    ae_vector bndu;
+    ae_vector rawbndl;
+    ae_vector rawbndu;
+    ae_vector hasbndl;
+    ae_vector hasbndu;
+    ae_matrix denseafull;
+    ae_matrix denseamain;
+    sparsematrix sparseafull;
+    sparsematrix sparseamain;
+    sparsematrix combinedaslack;
+    ae_vector ascales;
+    ae_vector b;
+    ae_vector r;
+    ae_vector hasr;
+    ae_int_t mdense;
+    ae_int_t msparse;
+    vipmvars current;
+    vipmvars trial;
+    vipmvars deltaaff;
+    vipmvars deltacorr;
+    double errp2;
+    double errd2;
+    double errpinf;
+    double errdinf;
+    ae_int_t repiterationscount;
+    ae_int_t repncholesky;
+    ae_int_t factorizationtype;
+    ae_bool factorizationpoweredup;
+    ae_bool factorizationpresent;
+    ae_vector diagginvz;
+    ae_vector diagzinvg;
+    ae_vector diagtinvs;
+    ae_vector diagsinvt;
+    ae_vector diagvinvw;
+    ae_vector diagpinvq;
+    ae_vector diagqinvp;
+    ae_vector diagd;
+    ae_vector diage;
+    ae_matrix factdensehaug;
+    ae_vector factdh;
+    ae_vector factdz;
+    ae_vector factinvdz;
+    ae_vector facteffectivee;
+    sparsematrix factsparsekkttmpl;
+    sparsematrix factsparsekkt;
+    ae_vector factsparsekktpivp;
+    ae_vector factsparsekktpivq;
+    ae_vector rhsrho;
+    ae_vector rhsnu;
+    ae_vector rhstau;
+    ae_vector rhsalpha;
+    ae_vector rhssigma;
+    ae_vector rhsbeta;
+    ae_vector rhsgammaz;
+    ae_vector rhsgammas;
+    ae_vector rhsgammaw;
+    ae_vector rhsgammaq;
+    ae_vector rhsalphacap;
+    ae_vector rhsbetacap;
+    ae_vector rhsnucap;
+    ae_vector rhstaucap;
+    ae_vector deltaxy;
+    ae_vector tmphx;
+    ae_vector tmpax;
+    ae_vector tmpaty;
+    ae_vector dummyr;
+    ae_vector tmp0;
+    ae_vector tmp1;
+    ae_vector tmp2;
+    ae_matrix tmpr2;
+    ae_vector evalprogressg;
+    ae_vector tmpi;
+    sparsematrix tmpsparse0;
+    sparsematrix tmpsparse1;
+} vipmstate;
+#endif
+#if defined(AE_COMPILE_NLCSQP) || !defined(AE_PARTIAL_BUILD)
+typedef struct
+{
+    ae_int_t algokind;
+    vipmstate ipmsolver;
+    ae_vector curb;
+    ae_vector curbndl;
+    ae_vector curbndu;
+    ae_vector cural;
+    ae_vector curau;
+    sparsematrix sparserawlc;
+    sparsematrix sparseefflc;
+    ae_vector d0;
+    ae_matrix h;
+    ae_matrix densedummy;
+    sparsematrix sparsedummy;
+    ae_vector tmp0;
+    ae_vector tmp1;
+    ae_vector tmp2;
+    ae_vector sk;
+    ae_vector yk;
+    ae_vector hasbndl;
+    ae_vector hasbndu;
+    ae_vector hasal;
+    ae_vector hasau;
+    ae_matrix activea;
+    ae_vector activerhs;
+    ae_vector activeidx;
+    ae_int_t activesetsize;
+} minsqpsubsolver;
+typedef struct
+{
+    ae_vector sclagtmp0;
+    ae_vector sclagtmp1;
+} minsqptmplagrangian;
+typedef struct
+{
+    ae_vector mftmp0;
+} minsqptmpmerit;
+typedef struct
+{
+    ae_int_t n;
+    ae_int_t nec;
+    ae_int_t nic;
+    ae_int_t nlec;
+    ae_int_t nlic;
+    ae_vector d;
+    ae_vector dx;
+    ae_vector stepkx;
+    ae_vector stepkxc;
+    ae_vector stepkxn;
+    ae_vector stepkfi;
+    ae_vector stepkfic;
+    ae_vector stepkfin;
+    ae_matrix stepkj;
+    ae_matrix stepkjc;
+    ae_matrix stepkjn;
+    ae_vector lagmult;
+    ae_vector dummylagmult;
+    minsqptmpmerit tmpmerit;
+    minsqptmplagrangian tmplagrangianfg;
+    ae_vector stepklaggrad;
+    ae_vector stepknlaggrad;
+    ae_int_t status;
+    rcommstate rmeritphasestate;
+} minsqpmeritphasestate;
+typedef struct
+{
+    ae_int_t n;
+    ae_int_t nec;
+    ae_int_t nic;
+    ae_int_t nlec;
+    ae_int_t nlic;
+    ae_vector s;
+    ae_matrix scaledcleic;
+    ae_vector lcsrcidx;
+    ae_vector hasbndl;
+    ae_vector hasbndu;
+    ae_vector scaledbndl;
+    ae_vector scaledbndu;
+    double epsx;
+    ae_int_t maxits;
+    ae_vector x;
+    ae_vector fi;
+    ae_matrix j;
+    double f;
+    ae_bool needfij;
+    ae_bool xupdated;
+    minsqpmeritphasestate meritstate;
+    double trustrad;
+    ae_int_t fstagnationcnt;
+    ae_vector step0x;
+    ae_vector stepkx;
+    ae_vector backupx;
+    ae_vector step0fi;
+    ae_vector stepkfi;
+    ae_vector backupfi;
+    ae_matrix step0j;
+    ae_matrix stepkj;
+    ae_bool haslagmult;
+    ae_vector meritlagmult;
+    ae_vector dummylagmult;
+    ae_vector fscales;
+    minsqpsubsolver subsolver;
+    minsqptmpmerit tmpmerit;
+    ae_int_t repsimplexiterations;
+    ae_int_t repsimplexiterations1;
+    ae_int_t repsimplexiterations2;
+    ae_int_t repsimplexiterations3;
+    ae_int_t repiterationscount;
+    ae_int_t repterminationtype;
+    double repbcerr;
+    ae_int_t repbcidx;
+    double replcerr;
+    ae_int_t replcidx;
+    double repnlcerr;
+    ae_int_t repnlcidx;
+    rcommstate rstate;
+} minsqpstate;
+#endif
 #if defined(AE_COMPILE_MINLBFGS) || !defined(AE_PARTIAL_BUILD)
 typedef struct
 {
@@ -274,6 +635,7 @@ typedef struct
     ae_vector work;
     double fold;
     double trimthreshold;
+    ae_vector xbase;
     ae_int_t prectype;
     double gammak;
     ae_matrix denseh;
@@ -290,6 +652,7 @@ typedef struct
     double fp1;
     double fp2;
     ae_vector autobuf;
+    ae_vector invs;
     ae_vector x;
     double f;
     ae_vector g;
@@ -301,15 +664,16 @@ typedef struct
     rcommstate rstate;
     ae_int_t repiterationscount;
     ae_int_t repnfev;
-    ae_int_t repvaridx;
     ae_int_t repterminationtype;
     linminstate lstate;
+    ae_int_t smoothnessguardlevel;
+    smoothnessmonitor smonitor;
+    ae_vector lastscaleused;
 } minlbfgsstate;
 typedef struct
 {
     ae_int_t iterationscount;
     ae_int_t nfev;
-    ae_int_t varidx;
     ae_int_t terminationtype;
 } minlbfgsreport;
 #endif
@@ -331,6 +695,8 @@ typedef struct
     ae_vector sclsftbndu;
     ae_vector sclsftxc;
     ae_matrix sclsftcleic;
+    ae_vector cidx;
+    ae_vector cscales;
     ae_matrix exa;
     ae_vector exb;
     ae_vector exxc;
@@ -341,6 +707,7 @@ typedef struct
     qqpsettings qqpsettingsuser;
     qqpbuffers qqpbuf;
     ae_vector nulcest;
+    ae_vector tmpg;
     ae_vector tmp0;
     ae_matrix tmp2;
     ae_vector modelg;
@@ -364,81 +731,6 @@ typedef struct
     ae_int_t repnwrkf;
     ae_int_t repnmv;
 } qpdenseaulbuffers;
-#endif
-#if defined(AE_COMPILE_MINCG) || !defined(AE_PARTIAL_BUILD)
-typedef struct
-{
-    ae_int_t n;
-    double epsg;
-    double epsf;
-    double epsx;
-    ae_int_t maxits;
-    double stpmax;
-    double suggestedstep;
-    ae_bool xrep;
-    ae_bool drep;
-    ae_int_t cgtype;
-    ae_int_t prectype;
-    ae_vector diagh;
-    ae_vector diaghl2;
-    ae_matrix vcorr;
-    ae_int_t vcnt;
-    ae_vector s;
-    double diffstep;
-    ae_int_t nfev;
-    ae_int_t mcstage;
-    ae_int_t k;
-    ae_vector xk;
-    ae_vector dk;
-    ae_vector xn;
-    ae_vector dn;
-    ae_vector d;
-    double fold;
-    double stp;
-    double curstpmax;
-    ae_vector yk;
-    double lastgoodstep;
-    double lastscaledstep;
-    ae_int_t mcinfo;
-    ae_bool innerresetneeded;
-    ae_bool terminationneeded;
-    double trimthreshold;
-    ae_int_t rstimer;
-    ae_vector x;
-    double f;
-    ae_vector g;
-    ae_bool needf;
-    ae_bool needfg;
-    ae_bool xupdated;
-    ae_bool algpowerup;
-    ae_bool lsstart;
-    ae_bool lsend;
-    ae_bool userterminationneeded;
-    double teststep;
-    rcommstate rstate;
-    ae_int_t repiterationscount;
-    ae_int_t repnfev;
-    ae_int_t repvaridx;
-    ae_int_t repterminationtype;
-    ae_int_t debugrestartscount;
-    linminstate lstate;
-    double fbase;
-    double fm2;
-    double fm1;
-    double fp1;
-    double fp2;
-    double betahs;
-    double betady;
-    ae_vector work0;
-    ae_vector work1;
-} mincgstate;
-typedef struct
-{
-    ae_int_t iterationscount;
-    ae_int_t nfev;
-    ae_int_t varidx;
-    ae_int_t terminationtype;
-} mincgreport;
 #endif
 #if defined(AE_COMPILE_MINBLEIC) || !defined(AE_PARTIAL_BUILD)
 typedef struct
@@ -467,7 +759,6 @@ typedef struct
     ae_bool steepestdescentstep;
     ae_bool boundedstep;
     ae_bool userterminationneeded;
-    double teststep;
     rcommstate rstate;
     ae_vector ugc;
     ae_vector cgc;
@@ -529,6 +820,11 @@ typedef struct
     ae_vector bufrho;
     ae_vector buftheta;
     ae_int_t bufsize;
+    double teststep;
+    ae_int_t smoothnessguardlevel;
+    smoothnessmonitor smonitor;
+    ae_vector lastscaleused;
+    ae_vector invs;
 } minbleicstate;
 typedef struct
 {
@@ -572,6 +868,7 @@ typedef struct
     qqpsettings qqpsettingsuser;
     qpbleicsettings qpbleicsettingsuser;
     qpdenseaulsettings qpdenseaulsettingsuser;
+    double veps;
     ae_bool dbgskipconstraintnormalization;
     ae_int_t algokind;
     ae_int_t akind;
@@ -591,26 +888,34 @@ typedef struct
     ae_vector xorigin;
     ae_vector startx;
     ae_bool havex;
-    ae_matrix cleic;
-    ae_int_t nec;
-    ae_int_t nic;
-    sparsematrix scleic;
-    ae_int_t snec;
-    ae_int_t snic;
+    ae_matrix densec;
+    sparsematrix sparsec;
+    ae_vector cl;
+    ae_vector cu;
+    ae_int_t mdense;
+    ae_int_t msparse;
     ae_vector xs;
     ae_int_t repinneriterationscount;
     ae_int_t repouteriterationscount;
     ae_int_t repncholesky;
     ae_int_t repnmv;
     ae_int_t repterminationtype;
+    ae_vector replagbc;
+    ae_vector replaglc;
     ae_vector effectives;
     ae_vector tmp0;
     ae_matrix ecleic;
+    ae_vector elaglc;
+    ae_vector elagmlt;
+    ae_vector elagidx;
     ae_matrix dummyr2;
+    sparsematrix dummysparse;
+    ae_matrix tmpr2;
     ae_bool qpbleicfirstcall;
     qpbleicbuffers qpbleicbuf;
     qqpbuffers qqpbuf;
     qpdenseaulbuffers qpdenseaulbuf;
+    vipmstate vsolver;
 } minqpstate;
 typedef struct
 {
@@ -619,7 +924,390 @@ typedef struct
     ae_int_t nmv;
     ae_int_t ncholesky;
     ae_int_t terminationtype;
+    ae_vector lagbc;
+    ae_vector laglc;
 } minqpreport;
+#endif
+#if defined(AE_COMPILE_REVISEDDUALSIMPLEX) || !defined(AE_PARTIAL_BUILD)
+typedef struct
+{
+    double pivottol;
+    double perturbmag;
+    ae_int_t maxtrfage;
+    ae_int_t trftype;
+    ae_int_t ratiotest;
+    ae_int_t pricing;
+    ae_int_t shifting;
+} dualsimplexsettings;
+typedef struct
+{
+    ae_int_t ns;
+    ae_int_t m;
+    ae_vector idx;
+    ae_vector nidx;
+    ae_vector isbasic;
+    ae_int_t trftype;
+    ae_bool isvalidtrf;
+    ae_int_t trfage;
+    ae_matrix denselu;
+    sparsematrix sparsel;
+    sparsematrix sparseu;
+    sparsematrix sparseut;
+    ae_vector rowpermbwd;
+    ae_vector colpermbwd;
+    ae_vector densepfieta;
+    ae_vector densemu;
+    ae_vector rk;
+    ae_vector dk;
+    ae_vector dseweights;
+    ae_bool dsevalid;
+    double eminu;
+    ae_vector wtmp0;
+    ae_vector wtmp1;
+    ae_vector wtmp2;
+    ae_vector nrs;
+    ae_vector tcinvidx;
+    ae_matrix denselu2;
+    ae_vector densep2;
+    ae_vector densep2c;
+    sparsematrix sparselu1;
+    sparsematrix sparselu2;
+    sluv2buffer lubuf2;
+    ae_vector tmpi;
+    ae_vector utmp0;
+    ae_vector utmpi;
+    sparsematrix sparseludbg;
+} dualsimplexbasis;
+typedef struct
+{
+    ae_int_t ns;
+    ae_int_t m;
+    ae_vector rawc;
+    ae_vector bndl;
+    ae_vector bndu;
+    ae_vector bndt;
+    ae_vector xa;
+    ae_vector d;
+    ae_int_t state;
+    ae_vector xb;
+    ae_vector bndlb;
+    ae_vector bndub;
+    ae_vector bndtb;
+    ae_vector effc;
+    ae_vector colscales;
+} dualsimplexsubproblem;
+typedef struct
+{
+    ae_vector varscales;
+    ae_vector rowscales;
+    ae_vector rawbndl;
+    ae_vector rawbndu;
+    ae_int_t ns;
+    ae_int_t m;
+    sparsematrix a;
+    sparsematrix at;
+    dualsimplexbasis basis;
+    dualsimplexsubproblem primary;
+    dualsimplexsubproblem phase1;
+    dualsimplexsubproblem phase3;
+    ae_vector repx;
+    ae_vector repy;
+    ae_vector repdx;
+    ae_vector repstats;
+    double repf;
+    double repprimalerror;
+    double repdualerror;
+    ae_int_t repterminationtype;
+    ae_int_t repiterationscount;
+    ae_int_t repiterationscount1;
+    ae_int_t repiterationscount2;
+    ae_int_t repiterationscount3;
+    ae_vector possibleflips;
+    ae_int_t possibleflipscnt;
+    ae_vector dfctmp0;
+    ae_vector dfctmp1;
+    ae_vector dfctmp2;
+    ae_vector ustmpi;
+    ae_vector tmp0;
+    ae_vector tmp1;
+    ae_vector tmp2;
+    ae_vector alphar;
+    ae_vector rhor;
+    ae_vector tau;
+    ae_vector alphaq;
+    ae_vector alphaqim;
+    ae_vector eligibleset;
+    ae_vector harrisset;
+} dualsimplexstate;
+#endif
+#if defined(AE_COMPILE_MINLP) || !defined(AE_PARTIAL_BUILD)
+typedef struct
+{
+    ae_int_t n;
+    ae_int_t algokind;
+    ae_vector s;
+    ae_vector c;
+    ae_vector bndl;
+    ae_vector bndu;
+    ae_int_t m;
+    sparsematrix a;
+    ae_vector al;
+    ae_vector au;
+    ae_vector xs;
+    ae_vector ys;
+    ae_vector cs;
+    double repf;
+    double repprimalerror;
+    double repdualerror;
+    ae_int_t repiterationscount;
+    ae_int_t repterminationtype;
+    dualsimplexstate dss;
+    ae_vector adddtmpi;
+    ae_vector adddtmpr;
+} minlpstate;
+typedef struct
+{
+    double f;
+    ae_vector y;
+    ae_vector stats;
+    double primalerror;
+    double dualerror;
+    ae_int_t iterationscount;
+    ae_int_t terminationtype;
+} minlpreport;
+#endif
+#if defined(AE_COMPILE_NLCSLP) || !defined(AE_PARTIAL_BUILD)
+typedef struct
+{
+    dualsimplexstate dss;
+    dualsimplexsettings dsssettings;
+    dualsimplexbasis lastbasis;
+    ae_bool basispresent;
+    ae_matrix curd;
+    ae_int_t curdcnt;
+    ae_vector curb;
+    ae_vector curbndl;
+    ae_vector curbndu;
+    ae_vector cural;
+    ae_vector curau;
+    sparsematrix sparserawlc;
+    sparsematrix sparseefflc;
+    ae_int_t hessiantype;
+    ae_matrix h;
+    ae_matrix curhd;
+    ae_matrix densedummy;
+    sparsematrix sparsedummy;
+    ae_vector tmp0;
+    ae_vector tmp1;
+    ae_vector sk;
+    ae_vector yk;
+} minslpsubsolver;
+typedef struct
+{
+    ae_vector sclagtmp0;
+    ae_vector sclagtmp1;
+} minslptmplagrangian;
+typedef struct
+{
+    ae_vector mftmp0;
+} minslptmpmerit;
+typedef struct
+{
+    ae_bool usecorrection;
+    ae_vector d;
+    ae_vector dx;
+    ae_vector stepkxc;
+    ae_vector stepkxn;
+    ae_vector stepkfic;
+    ae_vector stepkfin;
+    ae_matrix stepkjc;
+    ae_matrix stepkjn;
+    ae_vector dummylagmult;
+    minslptmpmerit tmpmerit;
+    rcommstate rphase13state;
+} minslpphase13state;
+typedef struct
+{
+    ae_vector stepkxn;
+    ae_vector stepkxc;
+    ae_vector stepkfin;
+    ae_vector stepkfic;
+    ae_matrix stepkjn;
+    ae_matrix stepkjc;
+    ae_vector stepklaggrad;
+    ae_vector stepknlaggrad;
+    ae_vector stepknlagmult;
+    ae_vector meritlagmult;
+    minslptmplagrangian tmplagrangianfg;
+    double lastlcerr;
+    ae_int_t lastlcidx;
+    double lastnlcerr;
+    ae_int_t lastnlcidx;
+    ae_vector tmp0;
+    ae_vector d;
+    linminstate mcstate;
+    minslptmpmerit tmpmerit;
+    rcommstate rphase2state;
+} minslpphase2state;
+typedef struct
+{
+    ae_int_t n;
+    ae_int_t nec;
+    ae_int_t nic;
+    ae_int_t nlec;
+    ae_int_t nlic;
+    ae_vector s;
+    ae_matrix scaledcleic;
+    ae_vector lcsrcidx;
+    ae_vector hasbndl;
+    ae_vector hasbndu;
+    ae_vector scaledbndl;
+    ae_vector scaledbndu;
+    double epsx;
+    ae_int_t maxits;
+    ae_int_t hessiantype;
+    ae_vector x;
+    ae_vector fi;
+    ae_matrix j;
+    double f;
+    ae_bool needfij;
+    ae_bool xupdated;
+    minslpphase13state state13;
+    minslpphase2state state2;
+    double trustrad;
+    ae_int_t lpfailurecnt;
+    ae_int_t fstagnationcnt;
+    ae_vector step0x;
+    ae_vector stepkx;
+    ae_vector backupx;
+    ae_vector step0fi;
+    ae_vector stepkfi;
+    ae_vector backupfi;
+    ae_matrix step0j;
+    ae_matrix stepkj;
+    ae_matrix backupj;
+    ae_vector meritlagmult;
+    ae_vector dummylagmult;
+    ae_vector fscales;
+    ae_vector meritfunctionhistory;
+    ae_int_t historylen;
+    minslpsubsolver subsolver;
+    minslptmpmerit tmpmerit;
+    ae_int_t repsimplexiterations;
+    ae_int_t repsimplexiterations1;
+    ae_int_t repsimplexiterations2;
+    ae_int_t repsimplexiterations3;
+    ae_int_t repinneriterationscount;
+    ae_int_t repouteriterationscount;
+    ae_int_t repterminationtype;
+    double repbcerr;
+    ae_int_t repbcidx;
+    double replcerr;
+    ae_int_t replcidx;
+    double repnlcerr;
+    ae_int_t repnlcidx;
+    rcommstate rstate;
+} minslpstate;
+#endif
+#if defined(AE_COMPILE_MINNLC) || !defined(AE_PARTIAL_BUILD)
+typedef struct
+{
+    double stabilizingpoint;
+    double initialinequalitymultiplier;
+    ae_int_t solvertype;
+    ae_int_t prectype;
+    ae_int_t updatefreq;
+    double rho;
+    ae_int_t n;
+    double epsx;
+    ae_int_t maxits;
+    ae_int_t aulitscnt;
+    ae_bool xrep;
+    double stpmax;
+    double diffstep;
+    double teststep;
+    ae_vector s;
+    ae_vector bndl;
+    ae_vector bndu;
+    ae_vector hasbndl;
+    ae_vector hasbndu;
+    ae_int_t nec;
+    ae_int_t nic;
+    ae_matrix cleic;
+    ae_vector lcsrcidx;
+    ae_int_t ng;
+    ae_int_t nh;
+    ae_vector x;
+    double f;
+    ae_vector fi;
+    ae_matrix j;
+    ae_bool needfij;
+    ae_bool needfi;
+    ae_bool xupdated;
+    rcommstate rstate;
+    rcommstate rstateaul;
+    rcommstate rstateslp;
+    ae_vector scaledbndl;
+    ae_vector scaledbndu;
+    ae_matrix scaledcleic;
+    ae_vector xc;
+    ae_vector xstart;
+    ae_vector xbase;
+    ae_vector fbase;
+    ae_vector dfbase;
+    ae_vector fm2;
+    ae_vector fm1;
+    ae_vector fp1;
+    ae_vector fp2;
+    ae_vector dfm1;
+    ae_vector dfp1;
+    ae_vector bufd;
+    ae_vector bufc;
+    ae_vector tmp0;
+    ae_matrix bufw;
+    ae_matrix bufz;
+    ae_vector xk;
+    ae_vector xk1;
+    ae_vector gk;
+    ae_vector gk1;
+    double gammak;
+    ae_bool xkpresent;
+    minlbfgsstate auloptimizer;
+    minlbfgsreport aulreport;
+    ae_vector nubc;
+    ae_vector nulc;
+    ae_vector nunlc;
+    ae_bool userterminationneeded;
+    minslpstate slpsolverstate;
+    minsqpstate sqpsolverstate;
+    ae_int_t smoothnessguardlevel;
+    smoothnessmonitor smonitor;
+    ae_vector lastscaleused;
+    ae_int_t repinneriterationscount;
+    ae_int_t repouteriterationscount;
+    ae_int_t repnfev;
+    ae_int_t repterminationtype;
+    double repbcerr;
+    ae_int_t repbcidx;
+    double replcerr;
+    ae_int_t replcidx;
+    double repnlcerr;
+    ae_int_t repnlcidx;
+    ae_int_t repdbgphase0its;
+} minnlcstate;
+typedef struct
+{
+    ae_int_t iterationscount;
+    ae_int_t nfev;
+    ae_int_t terminationtype;
+    double bcerr;
+    ae_int_t bcidx;
+    double lcerr;
+    ae_int_t lcidx;
+    double nlcerr;
+    ae_int_t nlcidx;
+    ae_int_t dbgphase0its;
+} minnlcreport;
 #endif
 #if defined(AE_COMPILE_MINBC) || !defined(AE_PARTIAL_BUILD)
 typedef struct
@@ -642,7 +1330,6 @@ typedef struct
     ae_bool needfg;
     ae_bool xupdated;
     ae_bool userterminationneeded;
-    double teststep;
     rcommstate rstate;
     ae_vector xc;
     ae_vector ugc;
@@ -689,6 +1376,11 @@ typedef struct
     ae_vector bufrho;
     ae_vector buftheta;
     ae_int_t bufsize;
+    double teststep;
+    ae_int_t smoothnessguardlevel;
+    smoothnessmonitor smonitor;
+    ae_vector lastscaleused;
+    ae_vector invs;
 } minbcstate;
 typedef struct
 {
@@ -697,193 +1389,6 @@ typedef struct
     ae_int_t varidx;
     ae_int_t terminationtype;
 } minbcreport;
-#endif
-#if defined(AE_COMPILE_NLCSLP) || !defined(AE_PARTIAL_BUILD)
-typedef struct
-{
-    ae_int_t n;
-    ae_int_t nec;
-    ae_int_t nic;
-    ae_int_t nlec;
-    ae_int_t nlic;
-    ae_matrix scaledcleic;
-    ae_vector hasbndl;
-    ae_vector hasbndu;
-    ae_vector scaledbndl;
-    ae_vector scaledbndu;
-    double epsx;
-    ae_int_t maxits;
-    ae_vector x;
-    ae_vector fi;
-    ae_matrix j;
-    double f;
-    ae_bool needfij;
-    ae_bool xupdated;
-    double trustrad;
-    double deltamax;
-    ae_matrix h;
-    ae_matrix curd;
-    ae_int_t curdcnt;
-    minbleicstate blcsolver;
-    minbleicreport blcrep;
-    ae_vector curbndl;
-    ae_vector curbndu;
-    ae_matrix curlc;
-    ae_vector curlct;
-    ae_int_t primarylccnt;
-    ae_vector b;
-    ae_vector d;
-    linminstate mcstate;
-    ae_int_t mcstage;
-    double stp;
-    double nu;
-    ae_int_t mcinfo;
-    ae_int_t mcnfev;
-    double descentanddecreasegain;
-    double descentgain;
-    double currentgain;
-    ae_int_t fstagnationcnt;
-    ae_int_t xstagnationcnt;
-    ae_vector prevx;
-    ae_vector step0x;
-    ae_vector step1x;
-    ae_vector stepkx;
-    ae_vector stepkxn;
-    ae_vector step0fi;
-    ae_vector step1fi;
-    ae_vector stepkfi;
-    ae_vector stepkfin;
-    ae_matrix step0j;
-    ae_matrix step1j;
-    ae_matrix stepkj;
-    ae_matrix stepkjn;
-    double stepklagval;
-    double stepknlagval;
-    ae_vector stepklaggrad;
-    ae_vector stepknlaggrad;
-    ae_vector stepklagmult;
-    double step0meritf;
-    double step1meritf;
-    double stepkmeritf;
-    double step0meritdf;
-    double step1meritdf;
-    double stepkmeritdf;
-    ae_vector maxlag;
-    ae_vector rho;
-    ae_vector d0;
-    double stp0;
-    ae_vector tmp0;
-    ae_vector tmp1;
-    ae_vector tmp2;
-    ae_vector tmp3;
-    ae_vector tmp4;
-    ae_vector sk;
-    ae_vector yk;
-    ae_vector sclagtmp0;
-    ae_vector sclagtmp1;
-    ae_vector dlmtmp0;
-    ae_vector dlmtmp1;
-    ae_vector dlmtmp2;
-    ae_vector dlmtmp3;
-    ae_vector dlmtmpsvy;
-    ae_vector dlmtmpb;
-    ae_vector dlmtmpg;
-    ae_vector dlmtmpxd;
-    ae_vector dlmtmpqrnorms;
-    ae_matrix dlmtmplag;
-    ae_matrix dlmtmpqr;
-    ae_vector dlmtmplagidx;
-    ae_int_t repinneriterationscount;
-    ae_int_t repouteriterationscount;
-    ae_int_t repterminationtype;
-    rcommstate rstate;
-} minslpstate;
-#endif
-#if defined(AE_COMPILE_MINNLC) || !defined(AE_PARTIAL_BUILD)
-typedef struct
-{
-    double stabilizingpoint;
-    double initialinequalitymultiplier;
-    ae_int_t solvertype;
-    ae_int_t prectype;
-    ae_int_t updatefreq;
-    double rho;
-    ae_int_t n;
-    double epsx;
-    ae_int_t maxits;
-    ae_int_t aulitscnt;
-    ae_bool xrep;
-    double stpmax;
-    double diffstep;
-    double teststep;
-    ae_vector s;
-    ae_vector bndl;
-    ae_vector bndu;
-    ae_vector hasbndl;
-    ae_vector hasbndu;
-    ae_int_t nec;
-    ae_int_t nic;
-    ae_matrix cleic;
-    ae_int_t ng;
-    ae_int_t nh;
-    ae_vector x;
-    double f;
-    ae_vector fi;
-    ae_matrix j;
-    ae_bool needfij;
-    ae_bool needfi;
-    ae_bool xupdated;
-    rcommstate rstate;
-    rcommstate rstateaul;
-    rcommstate rstateslp;
-    ae_vector scaledbndl;
-    ae_vector scaledbndu;
-    ae_matrix scaledcleic;
-    ae_vector xc;
-    ae_vector xstart;
-    ae_vector xbase;
-    ae_vector fbase;
-    ae_vector dfbase;
-    ae_vector fm2;
-    ae_vector fm1;
-    ae_vector fp1;
-    ae_vector fp2;
-    ae_vector dfm1;
-    ae_vector dfp1;
-    ae_vector bufd;
-    ae_vector bufc;
-    ae_vector tmp0;
-    ae_matrix bufw;
-    ae_matrix bufz;
-    ae_vector xk;
-    ae_vector xk1;
-    ae_vector gk;
-    ae_vector gk1;
-    double gammak;
-    ae_bool xkpresent;
-    minlbfgsstate auloptimizer;
-    minlbfgsreport aulreport;
-    ae_vector nubc;
-    ae_vector nulc;
-    ae_vector nunlc;
-    minslpstate slpsolverstate;
-    ae_int_t repinneriterationscount;
-    ae_int_t repouteriterationscount;
-    ae_int_t repnfev;
-    ae_int_t repvaridx;
-    ae_int_t repfuncidx;
-    ae_int_t repterminationtype;
-    ae_int_t repdbgphase0its;
-} minnlcstate;
-typedef struct
-{
-    ae_int_t iterationscount;
-    ae_int_t nfev;
-    ae_int_t varidx;
-    ae_int_t funcidx;
-    ae_int_t terminationtype;
-    ae_int_t dbgphase0its;
-} minnlcreport;
 #endif
 #if defined(AE_COMPILE_MINNS) || !defined(AE_PARTIAL_BUILD)
 typedef struct
@@ -1059,6 +1564,84 @@ typedef struct
     ae_int_t activeconstraints;
 } minasareport;
 #endif
+#if defined(AE_COMPILE_MINCG) || !defined(AE_PARTIAL_BUILD)
+typedef struct
+{
+    ae_int_t n;
+    double epsg;
+    double epsf;
+    double epsx;
+    ae_int_t maxits;
+    double stpmax;
+    double suggestedstep;
+    ae_bool xrep;
+    ae_bool drep;
+    ae_int_t cgtype;
+    ae_int_t prectype;
+    ae_vector diagh;
+    ae_vector diaghl2;
+    ae_matrix vcorr;
+    ae_int_t vcnt;
+    ae_vector s;
+    double diffstep;
+    ae_int_t nfev;
+    ae_int_t mcstage;
+    ae_int_t k;
+    ae_vector xk;
+    ae_vector dk;
+    ae_vector xn;
+    ae_vector dn;
+    ae_vector d;
+    double fold;
+    double stp;
+    double curstpmax;
+    ae_vector yk;
+    double lastgoodstep;
+    double lastscaledstep;
+    ae_int_t mcinfo;
+    ae_bool innerresetneeded;
+    ae_bool terminationneeded;
+    double trimthreshold;
+    ae_vector xbase;
+    ae_int_t rstimer;
+    ae_vector x;
+    double f;
+    ae_vector g;
+    ae_bool needf;
+    ae_bool needfg;
+    ae_bool xupdated;
+    ae_bool algpowerup;
+    ae_bool lsstart;
+    ae_bool lsend;
+    ae_bool userterminationneeded;
+    rcommstate rstate;
+    ae_int_t repiterationscount;
+    ae_int_t repnfev;
+    ae_int_t repterminationtype;
+    ae_int_t debugrestartscount;
+    linminstate lstate;
+    double fbase;
+    double fm2;
+    double fm1;
+    double fp1;
+    double fp2;
+    double betahs;
+    double betady;
+    ae_vector work0;
+    ae_vector work1;
+    ae_vector invs;
+    double teststep;
+    ae_int_t smoothnessguardlevel;
+    smoothnessmonitor smonitor;
+    ae_vector lastscaleused;
+} mincgstate;
+typedef struct
+{
+    ae_int_t iterationscount;
+    ae_int_t nfev;
+    ae_int_t terminationtype;
+} mincgreport;
+#endif
 #if defined(AE_COMPILE_MINLM) || !defined(AE_PARTIAL_BUILD)
 typedef struct
 {
@@ -1144,11 +1727,11 @@ typedef struct
     ae_vector deltaf;
     ae_bool deltaxready;
     ae_bool deltafready;
+    smoothnessmonitor smonitor;
     double teststep;
+    ae_vector lastscaleused;
     ae_int_t repiterationscount;
     ae_int_t repterminationtype;
-    ae_int_t repfuncidx;
-    ae_int_t repvaridx;
     ae_int_t repnfunc;
     ae_int_t repnjac;
     ae_int_t repngrad;
@@ -1177,8 +1760,6 @@ typedef struct
 {
     ae_int_t iterationscount;
     ae_int_t terminationtype;
-    ae_int_t funcidx;
-    ae_int_t varidx;
     ae_int_t nfunc;
     ae_int_t njac;
     ae_int_t ngrad;
@@ -1201,6 +1782,391 @@ namespace alglib
 
 #endif
 
+#if defined(AE_COMPILE_OPTGUARDAPI) || !defined(AE_PARTIAL_BUILD)
+/*************************************************************************
+This structure is used to store  OptGuard  report,  i.e.  report  on   the
+properties of the nonlinear function being optimized with ALGLIB.
+
+After you tell your optimizer to activate OptGuard  this technology starts
+to silently monitor function values and gradients/Jacobians  being  passed
+all around during your optimization session. Depending on specific set  of
+checks enabled OptGuard may perform additional function evaluations  (say,
+about 3*N evaluations if you want to check analytic gradient for errors).
+
+Upon discovering that something strange happens  (function  values  and/or
+gradient components change too sharply and/or unexpectedly) OptGuard  sets
+one of the "suspicion  flags" (without interrupting optimization session).
+After optimization is done, you can examine OptGuard report.
+
+Following report fields can be set:
+* nonc0suspected
+* nonc1suspected
+* badgradsuspected
+
+
+=== WHAT CAN BE DETECTED WITH OptGuard INTEGRITY CHECKER =================
+
+Following  types  of  errors  in your target function (constraints) can be
+caught:
+a) discontinuous functions ("non-C0" part of the report)
+b) functions with discontinuous derivative ("non-C1" part of the report)
+c) errors in the analytic gradient provided by user
+
+These types of errors result in optimizer  stopping  well  before reaching
+solution (most often - right after encountering discontinuity).
+
+Type A errors are usually  coding  errors  during  implementation  of  the
+target function. Most "normal" problems involve continuous functions,  and
+anyway you can't reliably optimize discontinuous function.
+
+Type B errors are either coding errors or (in case code itself is correct)
+evidence of the fact  that  your  problem  is  an  "incorrect"  one.  Most
+optimizers (except for ones provided by MINNS subpackage) do  not  support
+nonsmooth problems.
+
+Type C errors are coding errors which often prevent optimizer from  making
+even one step  or result in optimizing stopping  too  early,  as  soon  as
+actual descent direction becomes too different from one suggested by user-
+supplied gradient.
+
+
+=== WHAT IS REPORTED =====================================================
+
+Following set of report fields deals with discontinuous  target functions,
+ones not belonging to C0 continuity class:
+
+* nonc0suspected - is a flag which is set upon discovering some indication
+  of the discontinuity. If this flag is false, the rest of "non-C0" fields
+  should be ignored
+* nonc0fidx - is an index of the function (0 for  target  function,  1  or
+  higher for nonlinear constraints) which is suspected of being "non-C0"
+* nonc0lipshitzc - a Lipchitz constant for a function which was  suspected
+  of being non-continuous.
+* nonc0test0positive -  set  to  indicate  specific  test  which  detected
+  continuity violation (test #0)
+
+Following set of report fields deals with discontinuous gradient/Jacobian,
+i.e. with functions violating C1 continuity:
+
+* nonc1suspected - is a flag which is set upon discovering some indication
+  of the discontinuity. If this flag is false, the rest of "non-C1" fields
+  should be ignored
+* nonc1fidx - is an index of the function (0 for  target  function,  1  or
+  higher for nonlinear constraints) which is suspected of being "non-C1"
+* nonc1lipshitzc - a Lipchitz constant for a function gradient  which  was
+  suspected of being non-smooth.
+* nonc1test0positive -  set  to  indicate  specific  test  which  detected
+  continuity violation (test #0)
+* nonc1test1positive -  set  to  indicate  specific  test  which  detected
+  continuity violation (test #1)
+
+Following set of report fields deals with errors in the gradient:
+* badgradsuspected - is a flad which is set upon discovering an  error  in
+  the analytic gradient supplied by user
+* badgradfidx - index  of   the  function  with bad gradient (0 for target
+  function, 1 or higher for nonlinear constraints)
+* badgradvidx - index of the variable
+* badgradxbase - location where Jacobian is tested
+* following  matrices  store  user-supplied  Jacobian  and  its  numerical
+  differentiation version (which is assumed to be  free  from  the  coding
+  errors), both of them computed near the initial point:
+  * badgraduser, an array[K,N], analytic Jacobian supplied by user
+  * badgradnum,  an array[K,N], numeric  Jacobian computed by ALGLIB
+  Here K is a total number of  nonlinear  functions  (target  +  nonlinear
+  constraints), N is a variable number.
+  The  element  of  badgraduser[] with index [badgradfidx,badgradvidx]  is
+  assumed to be wrong.
+
+More detailed error log can  be  obtained  from  optimizer  by  explicitly
+requesting reports for tests C0.0, C1.0, C1.1.
+
+  -- ALGLIB --
+     Copyright 19.11.2018 by Bochkanov Sergey
+*************************************************************************/
+class _optguardreport_owner
+{
+public:
+    _optguardreport_owner();
+    _optguardreport_owner(const _optguardreport_owner &rhs);
+    _optguardreport_owner& operator=(const _optguardreport_owner &rhs);
+    virtual ~_optguardreport_owner();
+    alglib_impl::optguardreport* c_ptr();
+    alglib_impl::optguardreport* c_ptr() const;
+protected:
+    alglib_impl::optguardreport *p_struct;
+};
+class optguardreport : public _optguardreport_owner
+{
+public:
+    optguardreport();
+    optguardreport(const optguardreport &rhs);
+    optguardreport& operator=(const optguardreport &rhs);
+    virtual ~optguardreport();
+    ae_bool &nonc0suspected;
+    ae_bool &nonc0test0positive;
+    ae_int_t &nonc0fidx;
+    double &nonc0lipschitzc;
+    ae_bool &nonc1suspected;
+    ae_bool &nonc1test0positive;
+    ae_bool &nonc1test1positive;
+    ae_int_t &nonc1fidx;
+    double &nonc1lipschitzc;
+    ae_bool &badgradsuspected;
+    ae_int_t &badgradfidx;
+    ae_int_t &badgradvidx;
+    real_1d_array badgradxbase;
+    real_2d_array badgraduser;
+    real_2d_array badgradnum;
+
+};
+
+
+/*************************************************************************
+This  structure  is  used  for  detailed   reporting  about  suspected  C0
+continuity violation.
+
+=== WHAT IS TESTED =======================================================
+
+C0 test  studies  function  values (not gradient!)  obtained  during  line
+searches and monitors estimate of the Lipschitz  constant.  Sudden  spikes
+usually indicate that discontinuity was detected.
+
+
+=== WHAT IS REPORTED =====================================================
+
+Actually, report retrieval function returns TWO report structures:
+
+* one for most suspicious point found so far (one with highest  change  in
+  the function value), so called "strongest" report
+* another one for most detailed line search (more function  evaluations  =
+  easier to understand what's going on) which triggered  test #0 criteria,
+  so called "longest" report
+
+In both cases following fields are returned:
+
+* positive - is TRUE  when test flagged suspicious point;  FALSE  if  test
+  did not notice anything (in the latter cases fields below are empty).
+* fidx - is an index of the function (0 for  target  function, 1 or higher
+  for nonlinear constraints) which is suspected of being "non-C1"
+* x0[], d[] - arrays of length N which store initial point  and  direction
+  for line search (d[] can be normalized, but does not have to)
+* stp[], f[] - arrays of length CNT which store step lengths and  function
+  values at these points; f[i] is evaluated in x0+stp[i]*d.
+* stpidxa, stpidxb - we  suspect  that  function  violates  C1  continuity
+  between steps #stpidxa and #stpidxb (usually we have  stpidxb=stpidxa+3,
+  with  most  likely  position  of  the  violation  between  stpidxa+1 and
+  stpidxa+2.
+
+You can plot function values stored in stp[]  and  f[]  arrays  and  study
+behavior of your function by your own eyes, just  to  be  sure  that  test
+correctly reported C1 violation.
+
+  -- ALGLIB --
+     Copyright 19.11.2018 by Bochkanov Sergey
+*************************************************************************/
+class _optguardnonc0report_owner
+{
+public:
+    _optguardnonc0report_owner();
+    _optguardnonc0report_owner(const _optguardnonc0report_owner &rhs);
+    _optguardnonc0report_owner& operator=(const _optguardnonc0report_owner &rhs);
+    virtual ~_optguardnonc0report_owner();
+    alglib_impl::optguardnonc0report* c_ptr();
+    alglib_impl::optguardnonc0report* c_ptr() const;
+protected:
+    alglib_impl::optguardnonc0report *p_struct;
+};
+class optguardnonc0report : public _optguardnonc0report_owner
+{
+public:
+    optguardnonc0report();
+    optguardnonc0report(const optguardnonc0report &rhs);
+    optguardnonc0report& operator=(const optguardnonc0report &rhs);
+    virtual ~optguardnonc0report();
+    ae_bool &positive;
+    ae_int_t &fidx;
+    real_1d_array x0;
+    real_1d_array d;
+    ae_int_t &n;
+    real_1d_array stp;
+    real_1d_array f;
+    ae_int_t &cnt;
+    ae_int_t &stpidxa;
+    ae_int_t &stpidxb;
+
+};
+
+
+/*************************************************************************
+This  structure  is  used  for  detailed   reporting  about  suspected  C1
+continuity violation as flagged by C1 test #0 (OptGuard  has several tests
+for C1 continuity, this report is used by #0).
+
+=== WHAT IS TESTED =======================================================
+
+C1 test #0 studies function values (not gradient!)  obtained  during  line
+searches and monitors behavior of directional  derivative  estimate.  This
+test is less powerful than test #1, but it does  not  depend  on  gradient
+values  and  thus  it  is  more  robust  against  artifacts  introduced by
+numerical differentiation.
+
+
+=== WHAT IS REPORTED =====================================================
+
+Actually, report retrieval function returns TWO report structures:
+
+* one for most suspicious point found so far (one with highest  change  in
+  the directional derivative), so called "strongest" report
+* another one for most detailed line search (more function  evaluations  =
+  easier to understand what's going on) which triggered  test #0 criteria,
+  so called "longest" report
+
+In both cases following fields are returned:
+
+* positive - is TRUE  when test flagged suspicious point;  FALSE  if  test
+  did not notice anything (in the latter cases fields below are empty).
+* fidx - is an index of the function (0 for  target  function, 1 or higher
+  for nonlinear constraints) which is suspected of being "non-C1"
+* x0[], d[] - arrays of length N which store initial point  and  direction
+  for line search (d[] can be normalized, but does not have to)
+* stp[], f[] - arrays of length CNT which store step lengths and  function
+  values at these points; f[i] is evaluated in x0+stp[i]*d.
+* stpidxa, stpidxb - we  suspect  that  function  violates  C1  continuity
+  between steps #stpidxa and #stpidxb (usually we have  stpidxb=stpidxa+3,
+  with  most  likely  position  of  the  violation  between  stpidxa+1 and
+  stpidxa+2.
+
+You can plot function values stored in stp[]  and  f[]  arrays  and  study
+behavior of your function by your own eyes, just  to  be  sure  that  test
+correctly reported C1 violation.
+
+  -- ALGLIB --
+     Copyright 19.11.2018 by Bochkanov Sergey
+*************************************************************************/
+class _optguardnonc1test0report_owner
+{
+public:
+    _optguardnonc1test0report_owner();
+    _optguardnonc1test0report_owner(const _optguardnonc1test0report_owner &rhs);
+    _optguardnonc1test0report_owner& operator=(const _optguardnonc1test0report_owner &rhs);
+    virtual ~_optguardnonc1test0report_owner();
+    alglib_impl::optguardnonc1test0report* c_ptr();
+    alglib_impl::optguardnonc1test0report* c_ptr() const;
+protected:
+    alglib_impl::optguardnonc1test0report *p_struct;
+};
+class optguardnonc1test0report : public _optguardnonc1test0report_owner
+{
+public:
+    optguardnonc1test0report();
+    optguardnonc1test0report(const optguardnonc1test0report &rhs);
+    optguardnonc1test0report& operator=(const optguardnonc1test0report &rhs);
+    virtual ~optguardnonc1test0report();
+    ae_bool &positive;
+    ae_int_t &fidx;
+    real_1d_array x0;
+    real_1d_array d;
+    ae_int_t &n;
+    real_1d_array stp;
+    real_1d_array f;
+    ae_int_t &cnt;
+    ae_int_t &stpidxa;
+    ae_int_t &stpidxb;
+
+};
+
+
+/*************************************************************************
+This  structure  is  used  for  detailed   reporting  about  suspected  C1
+continuity violation as flagged by C1 test #1 (OptGuard  has several tests
+for C1 continuity, this report is used by #1).
+
+=== WHAT IS TESTED =======================================================
+
+C1 test #1 studies individual  components  of  the  gradient  as  recorded
+during line searches. Upon discovering discontinuity in the gradient  this
+test records specific component which was suspected (or  one  with  highest
+indication of discontinuity if multiple components are suspected).
+
+When precise analytic gradient is provided this test is more powerful than
+test #0  which  works  with  function  values  and  ignores  user-provided
+gradient.  However,  test  #0  becomes  more   powerful   when   numerical
+differentiation is employed (in such cases test #1 detects  higher  levels
+of numerical noise and becomes too conservative).
+
+This test also tells specific components of the gradient which violate  C1
+continuity, which makes it more informative than #0, which just tells that
+continuity is violated.
+
+
+=== WHAT IS REPORTED =====================================================
+
+Actually, report retrieval function returns TWO report structures:
+
+* one for most suspicious point found so far (one with highest  change  in
+  the directional derivative), so called "strongest" report
+* another one for most detailed line search (more function  evaluations  =
+  easier to understand what's going on) which triggered  test #1 criteria,
+  so called "longest" report
+
+In both cases following fields are returned:
+
+* positive - is TRUE  when test flagged suspicious point;  FALSE  if  test
+  did not notice anything (in the latter cases fields below are empty).
+* fidx - is an index of the function (0 for  target  function, 1 or higher
+  for nonlinear constraints) which is suspected of being "non-C1"
+* vidx - is an index of the variable in [0,N) with nonsmooth derivative
+* x0[], d[] - arrays of length N which store initial point  and  direction
+  for line search (d[] can be normalized, but does not have to)
+* stp[], g[] - arrays of length CNT which store step lengths and  gradient
+  values at these points; g[i] is evaluated in  x0+stp[i]*d  and  contains
+  vidx-th component of the gradient.
+* stpidxa, stpidxb - we  suspect  that  function  violates  C1  continuity
+  between steps #stpidxa and #stpidxb (usually we have  stpidxb=stpidxa+3,
+  with  most  likely  position  of  the  violation  between  stpidxa+1 and
+  stpidxa+2.
+
+You can plot function values stored in stp[]  and  g[]  arrays  and  study
+behavior of your function by your own eyes, just  to  be  sure  that  test
+correctly reported C1 violation.
+
+  -- ALGLIB --
+     Copyright 19.11.2018 by Bochkanov Sergey
+*************************************************************************/
+class _optguardnonc1test1report_owner
+{
+public:
+    _optguardnonc1test1report_owner();
+    _optguardnonc1test1report_owner(const _optguardnonc1test1report_owner &rhs);
+    _optguardnonc1test1report_owner& operator=(const _optguardnonc1test1report_owner &rhs);
+    virtual ~_optguardnonc1test1report_owner();
+    alglib_impl::optguardnonc1test1report* c_ptr();
+    alglib_impl::optguardnonc1test1report* c_ptr() const;
+protected:
+    alglib_impl::optguardnonc1test1report *p_struct;
+};
+class optguardnonc1test1report : public _optguardnonc1test1report_owner
+{
+public:
+    optguardnonc1test1report();
+    optguardnonc1test1report(const optguardnonc1test1report &rhs);
+    optguardnonc1test1report& operator=(const optguardnonc1test1report &rhs);
+    virtual ~optguardnonc1test1report();
+    ae_bool &positive;
+    ae_int_t &fidx;
+    ae_int_t &vidx;
+    real_1d_array x0;
+    real_1d_array d;
+    ae_int_t &n;
+    real_1d_array stp;
+    real_1d_array g;
+    ae_int_t &cnt;
+    ae_int_t &stpidxa;
+    ae_int_t &stpidxb;
+
+};
+#endif
+
 #if defined(AE_COMPILE_OPTSERV) || !defined(AE_PARTIAL_BUILD)
 
 #endif
@@ -1214,6 +2180,18 @@ namespace alglib
 #endif
 
 #if defined(AE_COMPILE_QQPSOLVER) || !defined(AE_PARTIAL_BUILD)
+
+#endif
+
+#if defined(AE_COMPILE_LPQPSERV) || !defined(AE_PARTIAL_BUILD)
+
+#endif
+
+#if defined(AE_COMPILE_VIPMSOLVER) || !defined(AE_PARTIAL_BUILD)
+
+#endif
+
+#if defined(AE_COMPILE_NLCSQP) || !defined(AE_PARTIAL_BUILD)
 
 #endif
 
@@ -1261,8 +2239,6 @@ TERMINATION CODES
 TerminationType field contains completion code, which can be:
   -8    internal integrity control detected  infinite  or  NAN  values  in
         function/gradient. Abnormal termination signalled.
-  -7    gradient verification failed.
-        See MinLBFGSSetGradientCheck() for more information.
    1    relative function improvement is no more than EpsF.
    2    relative step is no more than EpsX.
    4    gradient norm is no more than EpsG
@@ -1297,7 +2273,6 @@ public:
     virtual ~minlbfgsreport();
     ae_int_t &iterationscount;
     ae_int_t &nfev;
-    ae_int_t &varidx;
     ae_int_t &terminationtype;
 
 };
@@ -1305,94 +2280,6 @@ public:
 
 #if defined(AE_COMPILE_QPDENSEAULSOLVER) || !defined(AE_PARTIAL_BUILD)
 
-#endif
-
-#if defined(AE_COMPILE_MINCG) || !defined(AE_PARTIAL_BUILD)
-/*************************************************************************
-This object stores state of the nonlinear CG optimizer.
-
-You should use ALGLIB functions to work with this object.
-*************************************************************************/
-class _mincgstate_owner
-{
-public:
-    _mincgstate_owner();
-    _mincgstate_owner(const _mincgstate_owner &rhs);
-    _mincgstate_owner& operator=(const _mincgstate_owner &rhs);
-    virtual ~_mincgstate_owner();
-    alglib_impl::mincgstate* c_ptr();
-    alglib_impl::mincgstate* c_ptr() const;
-protected:
-    alglib_impl::mincgstate *p_struct;
-};
-class mincgstate : public _mincgstate_owner
-{
-public:
-    mincgstate();
-    mincgstate(const mincgstate &rhs);
-    mincgstate& operator=(const mincgstate &rhs);
-    virtual ~mincgstate();
-    ae_bool &needf;
-    ae_bool &needfg;
-    ae_bool &xupdated;
-    double &f;
-    real_1d_array g;
-    real_1d_array x;
-
-};
-
-
-/*************************************************************************
-This structure stores optimization report:
-* IterationsCount           total number of inner iterations
-* NFEV                      number of gradient evaluations
-* TerminationType           termination type (see below)
-
-TERMINATION CODES
-
-TerminationType field contains completion code, which can be:
-  -8    internal integrity control detected  infinite  or  NAN  values  in
-        function/gradient. Abnormal termination signalled.
-  -7    gradient verification failed.
-        See MinCGSetGradientCheck() for more information.
-   1    relative function improvement is no more than EpsF.
-   2    relative step is no more than EpsX.
-   4    gradient norm is no more than EpsG
-   5    MaxIts steps was taken
-   7    stopping conditions are too stringent,
-        further improvement is impossible,
-        X contains best point found so far.
-   8    terminated by user who called mincgrequesttermination(). X contains
-        point which was "current accepted" when  termination  request  was
-        submitted.
-
-Other fields of this structure are not documented and should not be used!
-*************************************************************************/
-class _mincgreport_owner
-{
-public:
-    _mincgreport_owner();
-    _mincgreport_owner(const _mincgreport_owner &rhs);
-    _mincgreport_owner& operator=(const _mincgreport_owner &rhs);
-    virtual ~_mincgreport_owner();
-    alglib_impl::mincgreport* c_ptr();
-    alglib_impl::mincgreport* c_ptr() const;
-protected:
-    alglib_impl::mincgreport *p_struct;
-};
-class mincgreport : public _mincgreport_owner
-{
-public:
-    mincgreport();
-    mincgreport(const mincgreport &rhs);
-    mincgreport& operator=(const mincgreport &rhs);
-    virtual ~mincgreport();
-    ae_int_t &iterationscount;
-    ae_int_t &nfev;
-    ae_int_t &varidx;
-    ae_int_t &terminationtype;
-
-};
 #endif
 
 #if defined(AE_COMPILE_MINBLEIC) || !defined(AE_PARTIAL_BUILD)
@@ -1441,8 +2328,6 @@ TERMINATION CODES
 TerminationType field contains completion code, which can be:
   -8    internal integrity control detected  infinite  or  NAN  values  in
         function/gradient. Abnormal termination signalled.
-  -7    gradient verification failed.
-        See MinBLEICSetGradientCheck() for more information.
   -3    inconsistent constraints. Feasible point is
         either nonexistent or too hard to find. Try to
         restart optimizer with better initial approximation
@@ -1543,6 +2428,12 @@ This structure stores optimization report:
                             (only products calculated as part of iterative
                             process are counted)
 * TerminationType           completion code (see below)
+* LagBC                     Lagrange multipliers for box constraints,
+                            array[N], not filled by QP-BLEIC solver
+* LagLC                     Lagrange multipliers for linear constraints,
+                            array[MSparse+MDense], ignored by QP-BLEIC solver
+
+=== COMPLETION CODES =====================================================
 
 Completion codes:
 * -9    failure of the automatic scale evaluation:  one  of  the  diagonal
@@ -1563,6 +2454,38 @@ Completion codes:
 *  7    stopping conditions are too stringent,
         further improvement is impossible,
         X contains best point found so far.
+
+=== LAGRANGE MULTIPLIERS =================================================
+
+Some  optimizers  report  values of  Lagrange  multipliers  on  successful
+completion (positive completion code):
+* DENSE-IPM-QP and SPARSE-IPM-QP return very precise Lagrange  multipliers
+  as determined during solution process.
+* DENSE-AUL-QP returns approximate Lagrange multipliers  (which  are  very
+  close to "true"  Lagrange  multipliers  except  for  overconstrained  or
+  degenerate problems)
+
+Two arrays of multipliers are returned:
+* LagBC is array[N] which is loaded with multipliers from box constraints;
+  LagBC[i]>0 means that I-th constraint is at the  upper bound, LagBC[I]<0
+  means that I-th constraint is at the lower bound, LagBC[I]=0 means  that
+  I-th box constraint is inactive.
+* LagLC is array[MSparse+MDense] which is  loaded  with  multipliers  from
+  general  linear  constraints  (former  MSparse  elements  corresponds to
+  sparse part of the constraint matrix, latter MDense are  for  the  dense
+  constraints, as was specified by user).
+  LagLC[i]>0 means that I-th constraint at  the  upper  bound,  LagLC[i]<0
+  means that I-th constraint is at the lower bound, LagLC[i]=0 means  that
+  I-th linear constraint is inactive.
+
+On failure (or when optimizer does not support Lagrange multipliers) these
+arrays are zero-filled.
+
+NOTE: methods  from  IPM  family  may  also  return  meaningful   Lagrange
+      multipliers on completion with codes -3 (infeasibility detected) and
+      -4  (unboundedness  detected).   It   is   possible   that   seeming
+      infeasibility/unboundedness of the problem is due to rounding errors
+      In this case last values of Lagrange multipliers are returned.
 *************************************************************************/
 class _minqpreport_owner
 {
@@ -1588,101 +2511,96 @@ public:
     ae_int_t &nmv;
     ae_int_t &ncholesky;
     ae_int_t &terminationtype;
+    real_1d_array lagbc;
+    real_1d_array laglc;
 
 };
 #endif
 
-#if defined(AE_COMPILE_MINBC) || !defined(AE_PARTIAL_BUILD)
+#if defined(AE_COMPILE_REVISEDDUALSIMPLEX) || !defined(AE_PARTIAL_BUILD)
+
+#endif
+
+#if defined(AE_COMPILE_MINLP) || !defined(AE_PARTIAL_BUILD)
 /*************************************************************************
-This object stores nonlinear optimizer state.
-You should use functions provided by MinBC subpackage to work with this
+This object stores linear solver state.
+You should use functions provided by MinLP subpackage to work with this
 object
 *************************************************************************/
-class _minbcstate_owner
+class _minlpstate_owner
 {
 public:
-    _minbcstate_owner();
-    _minbcstate_owner(const _minbcstate_owner &rhs);
-    _minbcstate_owner& operator=(const _minbcstate_owner &rhs);
-    virtual ~_minbcstate_owner();
-    alglib_impl::minbcstate* c_ptr();
-    alglib_impl::minbcstate* c_ptr() const;
+    _minlpstate_owner();
+    _minlpstate_owner(const _minlpstate_owner &rhs);
+    _minlpstate_owner& operator=(const _minlpstate_owner &rhs);
+    virtual ~_minlpstate_owner();
+    alglib_impl::minlpstate* c_ptr();
+    alglib_impl::minlpstate* c_ptr() const;
 protected:
-    alglib_impl::minbcstate *p_struct;
+    alglib_impl::minlpstate *p_struct;
 };
-class minbcstate : public _minbcstate_owner
+class minlpstate : public _minlpstate_owner
 {
 public:
-    minbcstate();
-    minbcstate(const minbcstate &rhs);
-    minbcstate& operator=(const minbcstate &rhs);
-    virtual ~minbcstate();
-    ae_bool &needf;
-    ae_bool &needfg;
-    ae_bool &xupdated;
-    double &f;
-    real_1d_array g;
-    real_1d_array x;
+    minlpstate();
+    minlpstate(const minlpstate &rhs);
+    minlpstate& operator=(const minlpstate &rhs);
+    virtual ~minlpstate();
 
 };
 
 
 /*************************************************************************
 This structure stores optimization report:
-* IterationsCount           number of iterations
-* NFEV                      number of gradient evaluations
-* TerminationType           termination type (see below)
+* f                         target function value
+* y                         dual variables
+* stats                     array[N+M], statuses of box (N) and linear (M)
+                            constraints:
+                            * stats[i]>0  =>  constraint at upper bound
+                                              (also used for free non-basic
+                                              variables set to zero)
+                            * stats[i]<0  =>  constraint at lower bound
+                            * stats[i]=0  =>  constraint is inactive, basic
+                                              variable
+* primalerror               primal feasibility error
+* dualerror                 dual feasibility error
+* iterationscount           iteration count
+* terminationtype           completion code (see below)
 
-TERMINATION CODES
-
-TerminationType field contains completion code, which can be:
-  -8    internal integrity control detected  infinite  or  NAN  values  in
-        function/gradient. Abnormal termination signalled.
-  -7    gradient verification failed.
-        See MinBCSetGradientCheck() for more information.
-  -3    inconsistent constraints.
-   1    relative function improvement is no more than EpsF.
-   2    relative step is no more than EpsX.
-   4    gradient norm is no more than EpsG
-   5    MaxIts steps was taken
-   7    stopping conditions are too stringent,
+Completion codes:
+* -4    LP problem is primal unbounded (dual infeasible)
+* -3    LP problem is primal infeasible (dual unbounded)
+*  1..4 successful completion
+*  5    MaxIts steps was taken
+*  7    stopping conditions are too stringent,
         further improvement is impossible,
         X contains best point found so far.
-   8    terminated by user who called minbcrequesttermination(). X contains
-        point which was "current accepted" when  termination  request  was
-        submitted.
-
-ADDITIONAL FIELDS
-
-There are additional fields which can be used for debugging:
-* DebugEqErr                error in the equality constraints (2-norm)
-* DebugFS                   f, calculated at projection of initial point
-                            to the feasible set
-* DebugFF                   f, calculated at the final point
-* DebugDX                   |X_start-X_final|
 *************************************************************************/
-class _minbcreport_owner
+class _minlpreport_owner
 {
 public:
-    _minbcreport_owner();
-    _minbcreport_owner(const _minbcreport_owner &rhs);
-    _minbcreport_owner& operator=(const _minbcreport_owner &rhs);
-    virtual ~_minbcreport_owner();
-    alglib_impl::minbcreport* c_ptr();
-    alglib_impl::minbcreport* c_ptr() const;
+    _minlpreport_owner();
+    _minlpreport_owner(const _minlpreport_owner &rhs);
+    _minlpreport_owner& operator=(const _minlpreport_owner &rhs);
+    virtual ~_minlpreport_owner();
+    alglib_impl::minlpreport* c_ptr();
+    alglib_impl::minlpreport* c_ptr() const;
 protected:
-    alglib_impl::minbcreport *p_struct;
+    alglib_impl::minlpreport *p_struct;
 };
-class minbcreport : public _minbcreport_owner
+class minlpreport : public _minlpreport_owner
 {
 public:
-    minbcreport();
-    minbcreport(const minbcreport &rhs);
-    minbcreport& operator=(const minbcreport &rhs);
-    virtual ~minbcreport();
+    minlpreport();
+    minlpreport(const minlpreport &rhs);
+    minlpreport& operator=(const minlpreport &rhs);
+    virtual ~minlpreport();
+    double &f;
+    real_1d_array y;
+    integer_1d_array stats;
+    double &primalerror;
+    double &dualerror;
     ae_int_t &iterationscount;
-    ae_int_t &nfev;
-    ae_int_t &varidx;
     ae_int_t &terminationtype;
 
 };
@@ -1729,23 +2647,52 @@ public:
 
 
 /*************************************************************************
-This structure stores optimization report:
-* IterationsCount           total number of inner iterations
-* NFEV                      number of gradient evaluations
-* TerminationType           termination type (see below)
+These fields store optimization report:
+* iterationscount           total number of inner iterations
+* nfev                      number of gradient evaluations
+* terminationtype           termination type (see below)
+
+Scaled constraint violations are reported:
+* bcerr                     maximum violation of the box constraints
+* bcidx                     index of the most violated box  constraint (or
+                            -1, if all box constraints  are  satisfied  or
+                            there is no box constraint)
+* lcerr                     maximum violation of the  linear  constraints,
+                            computed as maximum  scaled  distance  between
+                            final point and constraint boundary.
+* lcidx                     index of the most violated  linear  constraint
+                            (or -1, if all constraints  are  satisfied  or
+                            there is no general linear constraints)
+* nlcerr                    maximum violation of the nonlinear constraints
+* nlcidx                    index of the most violated nonlinear constraint
+                            (or -1, if all constraints  are  satisfied  or
+                            there is no nonlinear constraints)
+
+Violations of box constraints are scaled on per-component basis  according
+to  the  scale  vector s[] as specified by minnlcsetscale(). Violations of
+the general linear  constraints  are  also  computed  using  user-supplied
+variable scaling. Violations of nonlinear constraints are computed "as is"
 
 TERMINATION CODES
 
-TerminationType field contains completion code, which can be:
+TerminationType field contains completion code, which can be either:
+
+=== FAILURE CODE ===
   -8    internal integrity control detected  infinite  or  NAN  values  in
-        function/gradient. Abnormal termination signalled.
-  -7    gradient verification failed.
-        See MinNLCSetGradientCheck() for more information.
+        function/gradient. Abnormal termination signaled.
+  -3    box  constraints  are  infeasible.  Note: infeasibility of non-box
+        constraints does NOT trigger emergency  completion;  you  have  to
+        examine  bcerr/lcerr/nlcerr   to  detect   possibly   inconsistent
+        constraints.
+
+=== SUCCESS CODE ===
    2    relative step is no more than EpsX.
    5    MaxIts steps was taken
    7    stopping conditions are too stringent,
         further improvement is impossible,
         X contains best point found so far.
+   8    user requested algorithm termination via minnlcrequesttermination(),
+        last accepted point is returned
 
 Other fields of this structure are not documented and should not be used!
 *************************************************************************/
@@ -1770,10 +2717,99 @@ public:
     virtual ~minnlcreport();
     ae_int_t &iterationscount;
     ae_int_t &nfev;
-    ae_int_t &varidx;
-    ae_int_t &funcidx;
     ae_int_t &terminationtype;
+    double &bcerr;
+    ae_int_t &bcidx;
+    double &lcerr;
+    ae_int_t &lcidx;
+    double &nlcerr;
+    ae_int_t &nlcidx;
     ae_int_t &dbgphase0its;
+
+};
+#endif
+
+#if defined(AE_COMPILE_MINBC) || !defined(AE_PARTIAL_BUILD)
+/*************************************************************************
+This object stores nonlinear optimizer state.
+You should use functions provided by MinBC subpackage to work with this
+object
+*************************************************************************/
+class _minbcstate_owner
+{
+public:
+    _minbcstate_owner();
+    _minbcstate_owner(const _minbcstate_owner &rhs);
+    _minbcstate_owner& operator=(const _minbcstate_owner &rhs);
+    virtual ~_minbcstate_owner();
+    alglib_impl::minbcstate* c_ptr();
+    alglib_impl::minbcstate* c_ptr() const;
+protected:
+    alglib_impl::minbcstate *p_struct;
+};
+class minbcstate : public _minbcstate_owner
+{
+public:
+    minbcstate();
+    minbcstate(const minbcstate &rhs);
+    minbcstate& operator=(const minbcstate &rhs);
+    virtual ~minbcstate();
+    ae_bool &needf;
+    ae_bool &needfg;
+    ae_bool &xupdated;
+    double &f;
+    real_1d_array g;
+    real_1d_array x;
+
+};
+
+
+/*************************************************************************
+This structure stores optimization report:
+* iterationscount           number of iterations
+* nfev                      number of gradient evaluations
+* terminationtype           termination type (see below)
+
+TERMINATION CODES
+
+terminationtype field contains completion code, which can be:
+  -8    internal integrity control detected  infinite  or  NAN  values  in
+        function/gradient. Abnormal termination signalled.
+  -3    inconsistent constraints.
+   1    relative function improvement is no more than EpsF.
+   2    relative step is no more than EpsX.
+   4    gradient norm is no more than EpsG
+   5    MaxIts steps was taken
+   7    stopping conditions are too stringent,
+        further improvement is impossible,
+        X contains best point found so far.
+   8    terminated by user who called minbcrequesttermination(). X contains
+        point which was "current accepted" when  termination  request  was
+        submitted.
+*************************************************************************/
+class _minbcreport_owner
+{
+public:
+    _minbcreport_owner();
+    _minbcreport_owner(const _minbcreport_owner &rhs);
+    _minbcreport_owner& operator=(const _minbcreport_owner &rhs);
+    virtual ~_minbcreport_owner();
+    alglib_impl::minbcreport* c_ptr();
+    alglib_impl::minbcreport* c_ptr() const;
+protected:
+    alglib_impl::minbcreport *p_struct;
+};
+class minbcreport : public _minbcreport_owner
+{
+public:
+    minbcreport();
+    minbcreport(const minbcreport &rhs);
+    minbcreport& operator=(const minbcreport &rhs);
+    virtual ~minbcreport();
+    ae_int_t &iterationscount;
+    ae_int_t &nfev;
+    ae_int_t &varidx;
+    ae_int_t &terminationtype;
 
 };
 #endif
@@ -1934,6 +2970,91 @@ public:
 };
 #endif
 
+#if defined(AE_COMPILE_MINCG) || !defined(AE_PARTIAL_BUILD)
+/*************************************************************************
+This object stores state of the nonlinear CG optimizer.
+
+You should use ALGLIB functions to work with this object.
+*************************************************************************/
+class _mincgstate_owner
+{
+public:
+    _mincgstate_owner();
+    _mincgstate_owner(const _mincgstate_owner &rhs);
+    _mincgstate_owner& operator=(const _mincgstate_owner &rhs);
+    virtual ~_mincgstate_owner();
+    alglib_impl::mincgstate* c_ptr();
+    alglib_impl::mincgstate* c_ptr() const;
+protected:
+    alglib_impl::mincgstate *p_struct;
+};
+class mincgstate : public _mincgstate_owner
+{
+public:
+    mincgstate();
+    mincgstate(const mincgstate &rhs);
+    mincgstate& operator=(const mincgstate &rhs);
+    virtual ~mincgstate();
+    ae_bool &needf;
+    ae_bool &needfg;
+    ae_bool &xupdated;
+    double &f;
+    real_1d_array g;
+    real_1d_array x;
+
+};
+
+
+/*************************************************************************
+This structure stores optimization report:
+* IterationsCount           total number of inner iterations
+* NFEV                      number of gradient evaluations
+* TerminationType           termination type (see below)
+
+TERMINATION CODES
+
+TerminationType field contains completion code, which can be:
+  -8    internal integrity control detected  infinite  or  NAN  values  in
+        function/gradient. Abnormal termination signalled.
+   1    relative function improvement is no more than EpsF.
+   2    relative step is no more than EpsX.
+   4    gradient norm is no more than EpsG
+   5    MaxIts steps was taken
+   7    stopping conditions are too stringent,
+        further improvement is impossible,
+        X contains best point found so far.
+   8    terminated by user who called mincgrequesttermination(). X contains
+        point which was "current accepted" when  termination  request  was
+        submitted.
+
+Other fields of this structure are not documented and should not be used!
+*************************************************************************/
+class _mincgreport_owner
+{
+public:
+    _mincgreport_owner();
+    _mincgreport_owner(const _mincgreport_owner &rhs);
+    _mincgreport_owner& operator=(const _mincgreport_owner &rhs);
+    virtual ~_mincgreport_owner();
+    alglib_impl::mincgreport* c_ptr();
+    alglib_impl::mincgreport* c_ptr() const;
+protected:
+    alglib_impl::mincgreport *p_struct;
+};
+class mincgreport : public _mincgreport_owner
+{
+public:
+    mincgreport();
+    mincgreport(const mincgreport &rhs);
+    mincgreport& operator=(const mincgreport &rhs);
+    virtual ~mincgreport();
+    ae_int_t &iterationscount;
+    ae_int_t &nfev;
+    ae_int_t &terminationtype;
+
+};
+#endif
+
 #if defined(AE_COMPILE_MINLM) || !defined(AE_PARTIAL_BUILD)
 /*************************************************************************
 Levenberg-Marquardt optimizer.
@@ -1984,9 +3105,6 @@ FIELDS:
 * TerminationType, completetion code:
     * -8    optimizer detected NAN/INF values either in the function itself,
             or in its Jacobian
-    * -7    derivative correctness check failed;
-            see rep.funcidx, rep.varidx for
-            more information.
     * -5    inappropriate solver was used:
             * solver created with minlmcreatefgh() used  on  problem  with
               general linear constraints (set with minlmsetlc() call).
@@ -2026,8 +3144,6 @@ public:
     virtual ~minlmreport();
     ae_int_t &iterationscount;
     ae_int_t &terminationtype;
-    ae_int_t &funcidx;
-    ae_int_t &varidx;
     ae_int_t &nfunc;
     ae_int_t &njac;
     ae_int_t &ngrad;
@@ -2038,6 +3154,10 @@ public:
 #endif
 
 #if defined(AE_COMPILE_CQMODELS) || !defined(AE_PARTIAL_BUILD)
+
+#endif
+
+#if defined(AE_COMPILE_OPTGUARDAPI) || !defined(AE_PARTIAL_BUILD)
 
 #endif
 
@@ -2054,6 +3174,18 @@ public:
 #endif
 
 #if defined(AE_COMPILE_QQPSOLVER) || !defined(AE_PARTIAL_BUILD)
+
+#endif
+
+#if defined(AE_COMPILE_LPQPSERV) || !defined(AE_PARTIAL_BUILD)
+
+#endif
+
+#if defined(AE_COMPILE_VIPMSOLVER) || !defined(AE_PARTIAL_BUILD)
+
+#endif
+
+#if defined(AE_COMPILE_NLCSQP) || !defined(AE_PARTIAL_BUILD)
 
 #endif
 
@@ -2434,6 +3566,309 @@ void minlbfgsoptimize(minlbfgsstate &state,
 
 
 /*************************************************************************
+This  function  activates/deactivates verification  of  the  user-supplied
+analytic gradient.
+
+Upon  activation  of  this  option  OptGuard  integrity  checker  performs
+numerical differentiation of your target function  at  the  initial  point
+(note: future versions may also perform check  at  the  final  point)  and
+compares numerical gradient with analytic one provided by you.
+
+If difference is too large, an error flag is set and optimization  session
+continues. After optimization session is over, you can retrieve the report
+which  stores  both  gradients  and  specific  components  highlighted  as
+suspicious by the OptGuard.
+
+The primary OptGuard report can be retrieved with minlbfgsoptguardresults().
+
+IMPORTANT: gradient check is a high-overhead option which  will  cost  you
+           about 3*N additional function evaluations. In many cases it may
+           cost as much as the rest of the optimization session.
+
+           YOU SHOULD NOT USE IT IN THE PRODUCTION CODE UNLESS YOU WANT TO
+           CHECK DERIVATIVES PROVIDED BY SOME THIRD PARTY.
+
+NOTE: unlike previous incarnation of the gradient checking code,  OptGuard
+      does NOT interrupt optimization even if it discovers bad gradient.
+
+INPUT PARAMETERS:
+    State       -   structure used to store algorithm state
+    TestStep    -   verification step used for numerical differentiation:
+                    * TestStep=0 turns verification off
+                    * TestStep>0 activates verification
+                    You should carefully choose TestStep. Value  which  is
+                    too large (so large that  function  behavior  is  non-
+                    cubic at this scale) will lead  to  false  alarms. Too
+                    short step will result in rounding  errors  dominating
+                    numerical derivative.
+
+                    You may use different step for different parameters by
+                    means of setting scale with minlbfgssetscale().
+
+=== EXPLANATION ==========================================================
+
+In order to verify gradient algorithm performs following steps:
+  * two trial steps are made to X[i]-TestStep*S[i] and X[i]+TestStep*S[i],
+    where X[i] is i-th component of the initial point and S[i] is a  scale
+    of i-th parameter
+  * F(X) is evaluated at these trial points
+  * we perform one more evaluation in the middle point of the interval
+  * we  build  cubic  model using function values and derivatives at trial
+    points and we compare its prediction with actual value in  the  middle
+    point
+
+  -- ALGLIB --
+     Copyright 15.06.2014 by Bochkanov Sergey
+*************************************************************************/
+void minlbfgsoptguardgradient(const minlbfgsstate &state, const double teststep, const xparams _xparams = alglib::xdefault);
+
+
+/*************************************************************************
+This  function  activates/deactivates nonsmoothness monitoring  option  of
+the  OptGuard  integrity  checker. Smoothness  monitor  silently  observes
+solution process and tries to detect ill-posed problems, i.e. ones with:
+a) discontinuous target function (non-C0)
+b) nonsmooth     target function (non-C1)
+
+Smoothness monitoring does NOT interrupt optimization  even if it suspects
+that your problem is nonsmooth. It just sets corresponding  flags  in  the
+OptGuard report which can be retrieved after optimization is over.
+
+Smoothness monitoring is a moderate overhead option which often adds  less
+than 1% to the optimizer running time. Thus, you can use it even for large
+scale problems.
+
+NOTE: OptGuard does  NOT  guarantee  that  it  will  always  detect  C0/C1
+      continuity violations.
+
+      First, minor errors are hard to  catch - say, a 0.0001 difference in
+      the model values at two sides of the gap may be due to discontinuity
+      of the model - or simply because the model has changed.
+
+      Second, C1-violations  are  especially  difficult  to  detect  in  a
+      noninvasive way. The optimizer usually  performs  very  short  steps
+      near the nonsmoothness, and differentiation  usually   introduces  a
+      lot of numerical noise.  It  is  hard  to  tell  whether  some  tiny
+      discontinuity in the slope is due to real nonsmoothness or just  due
+      to numerical noise alone.
+
+      Our top priority was to avoid false positives, so in some rare cases
+      minor errors may went unnoticed (however, in most cases they can  be
+      spotted with restart from different initial point).
+
+INPUT PARAMETERS:
+    state   -   algorithm state
+    level   -   monitoring level:
+                * 0 - monitoring is disabled
+                * 1 - noninvasive low-overhead monitoring; function values
+                      and/or gradients are recorded, but OptGuard does not
+                      try to perform additional evaluations  in  order  to
+                      get more information about suspicious locations.
+
+=== EXPLANATION ==========================================================
+
+One major source of headache during optimization  is  the  possibility  of
+the coding errors in the target function/constraints (or their gradients).
+Such  errors   most   often   manifest   themselves  as  discontinuity  or
+nonsmoothness of the target/constraints.
+
+Another frequent situation is when you try to optimize something involving
+lots of min() and max() operations, i.e. nonsmooth target. Although not  a
+coding error, it is nonsmoothness anyway - and smooth  optimizers  usually
+stop right after encountering nonsmoothness, well before reaching solution.
+
+OptGuard integrity checker helps you to catch such situations: it monitors
+function values/gradients being passed  to  the  optimizer  and  tries  to
+errors. Upon discovering suspicious pair of points it  raises  appropriate
+flag (and allows you to continue optimization). When optimization is done,
+you can study OptGuard result.
+
+  -- ALGLIB --
+     Copyright 21.11.2018 by Bochkanov Sergey
+*************************************************************************/
+void minlbfgsoptguardsmoothness(const minlbfgsstate &state, const ae_int_t level, const xparams _xparams = alglib::xdefault);
+void minlbfgsoptguardsmoothness(const minlbfgsstate &state, const xparams _xparams = alglib::xdefault);
+
+
+/*************************************************************************
+Results of OptGuard integrity check, should be called  after  optimization
+session is over.
+
+=== PRIMARY REPORT =======================================================
+
+OptGuard performs several checks which are intended to catch common errors
+in the implementation of nonlinear function/gradient:
+* incorrect analytic gradient
+* discontinuous (non-C0) target functions (constraints)
+* nonsmooth     (non-C1) target functions (constraints)
+
+Each of these checks is activated with appropriate function:
+* minlbfgsoptguardgradient() for gradient verification
+* minlbfgsoptguardsmoothness() for C0/C1 checks
+
+Following flags are set when these errors are suspected:
+* rep.badgradsuspected, and additionally:
+  * rep.badgradvidx for specific variable (gradient element) suspected
+  * rep.badgradxbase, a point where gradient is tested
+  * rep.badgraduser, user-provided gradient  (stored  as  2D  matrix  with
+    single row in order to make  report  structure  compatible  with  more
+    complex optimizers like MinNLC or MinLM)
+  * rep.badgradnum,   reference    gradient    obtained    via   numerical
+    differentiation (stored as  2D matrix with single row in order to make
+    report structure compatible with more complex optimizers  like  MinNLC
+    or MinLM)
+* rep.nonc0suspected
+* rep.nonc1suspected
+
+=== ADDITIONAL REPORTS/LOGS ==============================================
+
+Several different tests are performed to catch C0/C1 errors, you can  find
+out specific test signaled error by looking to:
+* rep.nonc0test0positive, for non-C0 test #0
+* rep.nonc1test0positive, for non-C1 test #0
+* rep.nonc1test1positive, for non-C1 test #1
+
+Additional information (including line search logs)  can  be  obtained  by
+means of:
+* minlbfgsoptguardnonc1test0results()
+* minlbfgsoptguardnonc1test1results()
+which return detailed error reports, specific points where discontinuities
+were found, and so on.
+
+==========================================================================
+
+INPUT PARAMETERS:
+    state   -   algorithm state
+
+OUTPUT PARAMETERS:
+    rep     -   generic OptGuard report;  more  detailed  reports  can  be
+                retrieved with other functions.
+
+NOTE: false negatives (nonsmooth problems are not identified as  nonsmooth
+      ones) are possible although unlikely.
+
+      The reason  is  that  you  need  to  make several evaluations around
+      nonsmoothness  in  order  to  accumulate  enough  information  about
+      function curvature. Say, if you start right from the nonsmooth point,
+      optimizer simply won't get enough data to understand what  is  going
+      wrong before it terminates due to abrupt changes in the  derivative.
+      It is also  possible  that  "unlucky"  step  will  move  us  to  the
+      termination too quickly.
+
+      Our current approach is to have less than 0.1%  false  negatives  in
+      our test examples  (measured  with  multiple  restarts  from  random
+      points), and to have exactly 0% false positives.
+
+  -- ALGLIB --
+     Copyright 21.11.2018 by Bochkanov Sergey
+*************************************************************************/
+void minlbfgsoptguardresults(const minlbfgsstate &state, optguardreport &rep, const xparams _xparams = alglib::xdefault);
+
+
+/*************************************************************************
+Detailed results of the OptGuard integrity check for nonsmoothness test #0
+
+Nonsmoothness (non-C1) test #0 studies  function  values  (not  gradient!)
+obtained during line searches and monitors  behavior  of  the  directional
+derivative estimate.
+
+This test is less powerful than test #1, but it does  not  depend  on  the
+gradient values and thus it is more robust against artifacts introduced by
+numerical differentiation.
+
+Two reports are returned:
+* a "strongest" one, corresponding  to  line   search  which  had  highest
+  value of the nonsmoothness indicator
+* a "longest" one, corresponding to line search which  had  more  function
+  evaluations, and thus is more detailed
+
+In both cases following fields are returned:
+
+* positive - is TRUE  when test flagged suspicious point;  FALSE  if  test
+  did not notice anything (in the latter cases fields below are empty).
+* x0[], d[] - arrays of length N which store initial point  and  direction
+  for line search (d[] can be normalized, but does not have to)
+* stp[], f[] - arrays of length CNT which store step lengths and  function
+  values at these points; f[i] is evaluated in x0+stp[i]*d.
+* stpidxa, stpidxb - we  suspect  that  function  violates  C1  continuity
+  between steps #stpidxa and #stpidxb (usually we have  stpidxb=stpidxa+3,
+  with  most  likely  position  of  the  violation  between  stpidxa+1 and
+  stpidxa+2.
+
+==========================================================================
+= SHORTLY SPEAKING: build a 2D plot of (stp,f) and look at it -  you  will
+=                   see where C1 continuity is violated.
+==========================================================================
+
+INPUT PARAMETERS:
+    state   -   algorithm state
+
+OUTPUT PARAMETERS:
+    strrep  -   C1 test #0 "strong" report
+    lngrep  -   C1 test #0 "long" report
+
+  -- ALGLIB --
+     Copyright 21.11.2018 by Bochkanov Sergey
+*************************************************************************/
+void minlbfgsoptguardnonc1test0results(const minlbfgsstate &state, optguardnonc1test0report &strrep, optguardnonc1test0report &lngrep, const xparams _xparams = alglib::xdefault);
+
+
+/*************************************************************************
+Detailed results of the OptGuard integrity check for nonsmoothness test #1
+
+Nonsmoothness (non-C1)  test  #1  studies  individual  components  of  the
+gradient computed during line search.
+
+When precise analytic gradient is provided this test is more powerful than
+test #0  which  works  with  function  values  and  ignores  user-provided
+gradient.  However,  test  #0  becomes  more   powerful   when   numerical
+differentiation is employed (in such cases test #1 detects  higher  levels
+of numerical noise and becomes too conservative).
+
+This test also tells specific components of the gradient which violate  C1
+continuity, which makes it more informative than #0, which just tells that
+continuity is violated.
+
+Two reports are returned:
+* a "strongest" one, corresponding  to  line   search  which  had  highest
+  value of the nonsmoothness indicator
+* a "longest" one, corresponding to line search which  had  more  function
+  evaluations, and thus is more detailed
+
+In both cases following fields are returned:
+
+* positive - is TRUE  when test flagged suspicious point;  FALSE  if  test
+  did not notice anything (in the latter cases fields below are empty).
+* vidx - is an index of the variable in [0,N) with nonsmooth derivative
+* x0[], d[] - arrays of length N which store initial point  and  direction
+  for line search (d[] can be normalized, but does not have to)
+* stp[], g[] - arrays of length CNT which store step lengths and  gradient
+  values at these points; g[i] is evaluated in  x0+stp[i]*d  and  contains
+  vidx-th component of the gradient.
+* stpidxa, stpidxb - we  suspect  that  function  violates  C1  continuity
+  between steps #stpidxa and #stpidxb (usually we have  stpidxb=stpidxa+3,
+  with  most  likely  position  of  the  violation  between  stpidxa+1 and
+  stpidxa+2.
+
+==========================================================================
+= SHORTLY SPEAKING: build a 2D plot of (stp,f) and look at it -  you  will
+=                   see where C1 continuity is violated.
+==========================================================================
+
+INPUT PARAMETERS:
+    state   -   algorithm state
+
+OUTPUT PARAMETERS:
+    strrep  -   C1 test #1 "strong" report
+    lngrep  -   C1 test #1 "long" report
+
+  -- ALGLIB --
+     Copyright 21.11.2018 by Bochkanov Sergey
+*************************************************************************/
+void minlbfgsoptguardnonc1test1results(const minlbfgsstate &state, optguardnonc1test1report &strrep, optguardnonc1test1report &lngrep, const xparams _xparams = alglib::xdefault);
+
+
+/*************************************************************************
 L-BFGS algorithm results
 
 INPUT PARAMETERS:
@@ -2446,8 +3881,6 @@ OUTPUT PARAMETERS:
                     * -8    internal integrity control  detected  infinite
                             or NAN values in  function/gradient.  Abnormal
                             termination signalled.
-                    * -7    gradient verification failed.
-                            See MinLBFGSSetGradientCheck() for more information.
                     * -2    rounding errors prevent further improvement.
                             X contains best point found.
                     * -1    incorrect parameters were specified
@@ -2526,585 +3959,10 @@ NOTE: multiple calls to this function are possible. First call is counted,
      Copyright 08.10.2014 by Bochkanov Sergey
 *************************************************************************/
 void minlbfgsrequesttermination(const minlbfgsstate &state, const xparams _xparams = alglib::xdefault);
-
-
-/*************************************************************************
-This  subroutine  turns  on  verification  of  the  user-supplied analytic
-gradient:
-* user calls this subroutine before optimization begins
-* MinLBFGSOptimize() is called
-* prior to  actual  optimization, for each component  of  parameters being
-  optimized X[i] algorithm performs following steps:
-  * two trial steps are made to X[i]-TestStep*S[i] and X[i]+TestStep*S[i],
-    where X[i] is i-th component of the initial point and S[i] is a  scale
-    of i-th parameter
-  * if needed, steps are bounded with respect to constraints on X[]
-  * F(X) is evaluated at these trial points
-  * we perform one more evaluation in the middle point of the interval
-  * we  build  cubic  model using function values and derivatives at trial
-    points and we compare its prediction with actual value in  the  middle
-    point
-  * in case difference between prediction and actual value is higher  than
-    some predetermined threshold, algorithm stops with completion code -7;
-    Rep.VarIdx is set to index of the parameter with incorrect derivative.
-* after verification is over, algorithm proceeds to the actual optimization.
-
-NOTE 1: verification  needs  N (parameters count) gradient evaluations. It
-        is very costly and you should use  it  only  for  low  dimensional
-        problems,  when  you  want  to  be  sure  that  you've   correctly
-        calculated  analytic  derivatives.  You  should  not use it in the
-        production code (unless you want to check derivatives provided  by
-        some third party).
-
-NOTE 2: you  should  carefully  choose  TestStep. Value which is too large
-        (so large that function behaviour is significantly non-cubic) will
-        lead to false alarms. You may use  different  step  for  different
-        parameters by means of setting scale with MinLBFGSSetScale().
-
-NOTE 3: this function may lead to false positives. In case it reports that
-        I-th  derivative was calculated incorrectly, you may decrease test
-        step  and  try  one  more  time  - maybe your function changes too
-        sharply  and  your  step  is  too  large for such rapidly chanding
-        function.
-
-INPUT PARAMETERS:
-    State       -   structure used to store algorithm state
-    TestStep    -   verification step:
-                    * TestStep=0 turns verification off
-                    * TestStep>0 activates verification
-
-  -- ALGLIB --
-     Copyright 24.05.2012 by Bochkanov Sergey
-*************************************************************************/
-void minlbfgssetgradientcheck(const minlbfgsstate &state, const double teststep, const xparams _xparams = alglib::xdefault);
 #endif
 
 #if defined(AE_COMPILE_QPDENSEAULSOLVER) || !defined(AE_PARTIAL_BUILD)
 
-#endif
-
-#if defined(AE_COMPILE_MINCG) || !defined(AE_PARTIAL_BUILD)
-/*************************************************************************
-        NONLINEAR CONJUGATE GRADIENT METHOD
-
-DESCRIPTION:
-The subroutine minimizes function F(x) of N arguments by using one of  the
-nonlinear conjugate gradient methods.
-
-These CG methods are globally convergent (even on non-convex functions) as
-long as grad(f) is Lipschitz continuous in  a  some  neighborhood  of  the
-L = { x : f(x)<=f(x0) }.
-
-
-REQUIREMENTS:
-Algorithm will request following information during its operation:
-* function value F and its gradient G (simultaneously) at given point X
-
-
-USAGE:
-1. User initializes algorithm state with MinCGCreate() call
-2. User tunes solver parameters with MinCGSetCond(), MinCGSetStpMax() and
-   other functions
-3. User calls MinCGOptimize() function which takes algorithm  state   and
-   pointer (delegate, etc.) to callback function which calculates F/G.
-4. User calls MinCGResults() to get solution
-5. Optionally, user may call MinCGRestartFrom() to solve another  problem
-   with same N but another starting point and/or another function.
-   MinCGRestartFrom() allows to reuse already initialized structure.
-
-
-INPUT PARAMETERS:
-    N       -   problem dimension, N>0:
-                * if given, only leading N elements of X are used
-                * if not given, automatically determined from size of X
-    X       -   starting point, array[0..N-1].
-
-OUTPUT PARAMETERS:
-    State   -   structure which stores algorithm state
-
-  -- ALGLIB --
-     Copyright 25.03.2010 by Bochkanov Sergey
-*************************************************************************/
-void mincgcreate(const ae_int_t n, const real_1d_array &x, mincgstate &state, const xparams _xparams = alglib::xdefault);
-void mincgcreate(const real_1d_array &x, mincgstate &state, const xparams _xparams = alglib::xdefault);
-
-
-/*************************************************************************
-The subroutine is finite difference variant of MinCGCreate(). It uses
-finite differences in order to differentiate target function.
-
-Description below contains information which is specific to this function
-only. We recommend to read comments on MinCGCreate() in order to get more
-information about creation of CG optimizer.
-
-INPUT PARAMETERS:
-    N       -   problem dimension, N>0:
-                * if given, only leading N elements of X are used
-                * if not given, automatically determined from size of X
-    X       -   starting point, array[0..N-1].
-    DiffStep-   differentiation step, >0
-
-OUTPUT PARAMETERS:
-    State   -   structure which stores algorithm state
-
-NOTES:
-1. algorithm uses 4-point central formula for differentiation.
-2. differentiation step along I-th axis is equal to DiffStep*S[I] where
-   S[] is scaling vector which can be set by MinCGSetScale() call.
-3. we recommend you to use moderate values of  differentiation  step.  Too
-   large step will result in too large truncation  errors, while too small
-   step will result in too large numerical  errors.  1.0E-6  can  be  good
-   value to start with.
-4. Numerical  differentiation  is   very   inefficient  -   one   gradient
-   calculation needs 4*N function evaluations. This function will work for
-   any N - either small (1...10), moderate (10...100) or  large  (100...).
-   However, performance penalty will be too severe for any N's except  for
-   small ones.
-   We should also say that code which relies on numerical  differentiation
-   is  less  robust  and  precise.  L-BFGS  needs  exact  gradient values.
-   Imprecise  gradient may slow down  convergence,  especially  on  highly
-   nonlinear problems.
-   Thus  we  recommend to use this function for fast prototyping on small-
-   dimensional problems only, and to implement analytical gradient as soon
-   as possible.
-
-  -- ALGLIB --
-     Copyright 16.05.2011 by Bochkanov Sergey
-*************************************************************************/
-void mincgcreatef(const ae_int_t n, const real_1d_array &x, const double diffstep, mincgstate &state, const xparams _xparams = alglib::xdefault);
-void mincgcreatef(const real_1d_array &x, const double diffstep, mincgstate &state, const xparams _xparams = alglib::xdefault);
-
-
-/*************************************************************************
-This function sets stopping conditions for CG optimization algorithm.
-
-INPUT PARAMETERS:
-    State   -   structure which stores algorithm state
-    EpsG    -   >=0
-                The  subroutine  finishes  its  work   if   the  condition
-                |v|<EpsG is satisfied, where:
-                * |.| means Euclidian norm
-                * v - scaled gradient vector, v[i]=g[i]*s[i]
-                * g - gradient
-                * s - scaling coefficients set by MinCGSetScale()
-    EpsF    -   >=0
-                The  subroutine  finishes  its work if on k+1-th iteration
-                the  condition  |F(k+1)-F(k)|<=EpsF*max{|F(k)|,|F(k+1)|,1}
-                is satisfied.
-    EpsX    -   >=0
-                The subroutine finishes its work if  on  k+1-th  iteration
-                the condition |v|<=EpsX is fulfilled, where:
-                * |.| means Euclidian norm
-                * v - scaled step vector, v[i]=dx[i]/s[i]
-                * dx - ste pvector, dx=X(k+1)-X(k)
-                * s - scaling coefficients set by MinCGSetScale()
-    MaxIts  -   maximum number of iterations. If MaxIts=0, the  number  of
-                iterations is unlimited.
-
-Passing EpsG=0, EpsF=0, EpsX=0 and MaxIts=0 (simultaneously) will lead to
-automatic stopping criterion selection (small EpsX).
-
-  -- ALGLIB --
-     Copyright 02.04.2010 by Bochkanov Sergey
-*************************************************************************/
-void mincgsetcond(const mincgstate &state, const double epsg, const double epsf, const double epsx, const ae_int_t maxits, const xparams _xparams = alglib::xdefault);
-
-
-/*************************************************************************
-This function sets scaling coefficients for CG optimizer.
-
-ALGLIB optimizers use scaling matrices to test stopping  conditions  (step
-size and gradient are scaled before comparison with tolerances).  Scale of
-the I-th variable is a translation invariant measure of:
-a) "how large" the variable is
-b) how large the step should be to make significant changes in the function
-
-Scaling is also used by finite difference variant of CG optimizer  -  step
-along I-th axis is equal to DiffStep*S[I].
-
-In   most   optimizers  (and  in  the  CG  too)  scaling is NOT a form  of
-preconditioning. It just  affects  stopping  conditions.  You  should  set
-preconditioner by separate call to one of the MinCGSetPrec...() functions.
-
-There  is  special  preconditioning  mode, however,  which  uses   scaling
-coefficients to form diagonal preconditioning matrix. You  can  turn  this
-mode on, if you want.   But  you should understand that scaling is not the
-same thing as preconditioning - these are two different, although  related
-forms of tuning solver.
-
-INPUT PARAMETERS:
-    State   -   structure stores algorithm state
-    S       -   array[N], non-zero scaling coefficients
-                S[i] may be negative, sign doesn't matter.
-
-  -- ALGLIB --
-     Copyright 14.01.2011 by Bochkanov Sergey
-*************************************************************************/
-void mincgsetscale(const mincgstate &state, const real_1d_array &s, const xparams _xparams = alglib::xdefault);
-
-
-/*************************************************************************
-This function turns on/off reporting.
-
-INPUT PARAMETERS:
-    State   -   structure which stores algorithm state
-    NeedXRep-   whether iteration reports are needed or not
-
-If NeedXRep is True, algorithm will call rep() callback function if  it is
-provided to MinCGOptimize().
-
-  -- ALGLIB --
-     Copyright 02.04.2010 by Bochkanov Sergey
-*************************************************************************/
-void mincgsetxrep(const mincgstate &state, const bool needxrep, const xparams _xparams = alglib::xdefault);
-
-
-/*************************************************************************
-This function sets CG algorithm.
-
-INPUT PARAMETERS:
-    State   -   structure which stores algorithm state
-    CGType  -   algorithm type:
-                * -1    automatic selection of the best algorithm
-                * 0     DY (Dai and Yuan) algorithm
-                * 1     Hybrid DY-HS algorithm
-
-  -- ALGLIB --
-     Copyright 02.04.2010 by Bochkanov Sergey
-*************************************************************************/
-void mincgsetcgtype(const mincgstate &state, const ae_int_t cgtype, const xparams _xparams = alglib::xdefault);
-
-
-/*************************************************************************
-This function sets maximum step length
-
-INPUT PARAMETERS:
-    State   -   structure which stores algorithm state
-    StpMax  -   maximum step length, >=0. Set StpMax to 0.0,  if you don't
-                want to limit step length.
-
-Use this subroutine when you optimize target function which contains exp()
-or  other  fast  growing  functions,  and optimization algorithm makes too
-large  steps  which  leads  to overflow. This function allows us to reject
-steps  that  are  too  large  (and  therefore  expose  us  to the possible
-overflow) without actually calculating function value at the x+stp*d.
-
-  -- ALGLIB --
-     Copyright 02.04.2010 by Bochkanov Sergey
-*************************************************************************/
-void mincgsetstpmax(const mincgstate &state, const double stpmax, const xparams _xparams = alglib::xdefault);
-
-
-/*************************************************************************
-This function allows to suggest initial step length to the CG algorithm.
-
-Suggested  step  length  is used as starting point for the line search. It
-can be useful when you have  badly  scaled  problem,  i.e.  when  ||grad||
-(which is used as initial estimate for the first step) is many  orders  of
-magnitude different from the desired step.
-
-Line search  may  fail  on  such problems without good estimate of initial
-step length. Imagine, for example, problem with ||grad||=10^50 and desired
-step equal to 0.1 Line  search function will use 10^50  as  initial  step,
-then  it  will  decrease step length by 2 (up to 20 attempts) and will get
-10^44, which is still too large.
-
-This function allows us to tell than line search should  be  started  from
-some moderate step length, like 1.0, so algorithm will be able  to  detect
-desired step length in a several searches.
-
-Default behavior (when no step is suggested) is to use preconditioner,  if
-it is available, to generate initial estimate of step length.
-
-This function influences only first iteration of algorithm. It  should  be
-called between MinCGCreate/MinCGRestartFrom() call and MinCGOptimize call.
-Suggested step is ignored if you have preconditioner.
-
-INPUT PARAMETERS:
-    State   -   structure used to store algorithm state.
-    Stp     -   initial estimate of the step length.
-                Can be zero (no estimate).
-
-  -- ALGLIB --
-     Copyright 30.07.2010 by Bochkanov Sergey
-*************************************************************************/
-void mincgsuggeststep(const mincgstate &state, const double stp, const xparams _xparams = alglib::xdefault);
-
-
-/*************************************************************************
-Modification of the preconditioner: preconditioning is turned off.
-
-INPUT PARAMETERS:
-    State   -   structure which stores algorithm state
-
-NOTE:  you  can  change  preconditioner  "on  the  fly",  during algorithm
-iterations.
-
-  -- ALGLIB --
-     Copyright 13.10.2010 by Bochkanov Sergey
-*************************************************************************/
-void mincgsetprecdefault(const mincgstate &state, const xparams _xparams = alglib::xdefault);
-
-
-/*************************************************************************
-Modification  of  the  preconditioner:  diagonal of approximate Hessian is
-used.
-
-INPUT PARAMETERS:
-    State   -   structure which stores algorithm state
-    D       -   diagonal of the approximate Hessian, array[0..N-1],
-                (if larger, only leading N elements are used).
-
-NOTE:  you  can  change  preconditioner  "on  the  fly",  during algorithm
-iterations.
-
-NOTE 2: D[i] should be positive. Exception will be thrown otherwise.
-
-NOTE 3: you should pass diagonal of approximate Hessian - NOT ITS INVERSE.
-
-  -- ALGLIB --
-     Copyright 13.10.2010 by Bochkanov Sergey
-*************************************************************************/
-void mincgsetprecdiag(const mincgstate &state, const real_1d_array &d, const xparams _xparams = alglib::xdefault);
-
-
-/*************************************************************************
-Modification of the preconditioner: scale-based diagonal preconditioning.
-
-This preconditioning mode can be useful when you  don't  have  approximate
-diagonal of Hessian, but you know that your  variables  are  badly  scaled
-(for  example,  one  variable is in [1,10], and another in [1000,100000]),
-and most part of the ill-conditioning comes from different scales of vars.
-
-In this case simple  scale-based  preconditioner,  with H[i] = 1/(s[i]^2),
-can greatly improve convergence.
-
-IMPRTANT: you should set scale of your variables with MinCGSetScale() call
-(before or after MinCGSetPrecScale() call). Without knowledge of the scale
-of your variables scale-based preconditioner will be just unit matrix.
-
-INPUT PARAMETERS:
-    State   -   structure which stores algorithm state
-
-NOTE:  you  can  change  preconditioner  "on  the  fly",  during algorithm
-iterations.
-
-  -- ALGLIB --
-     Copyright 13.10.2010 by Bochkanov Sergey
-*************************************************************************/
-void mincgsetprecscale(const mincgstate &state, const xparams _xparams = alglib::xdefault);
-
-
-/*************************************************************************
-This function provides reverse communication interface
-Reverse communication interface is not documented or recommended to use.
-See below for functions which provide better documented API
-*************************************************************************/
-bool mincgiteration(const mincgstate &state, const xparams _xparams = alglib::xdefault);
-
-
-/*************************************************************************
-This family of functions is used to launcn iterations of nonlinear optimizer
-
-These functions accept following parameters:
-    state   -   algorithm state
-    func    -   callback which calculates function (or merit function)
-                value func at given point x
-    grad    -   callback which calculates function (or merit function)
-                value func and gradient grad at given point x
-    rep     -   optional callback which is called after each iteration
-                can be NULL
-    ptr     -   optional pointer which is passed to func/grad/hess/jac/rep
-                can be NULL
-
-NOTES:
-
-1. This function has two different implementations: one which  uses  exact
-   (analytical) user-supplied  gradient, and one which uses function value
-   only  and  numerically  differentiates  function  in  order  to  obtain
-   gradient.
-
-   Depending  on  the  specific  function  used to create optimizer object
-   (either MinCGCreate()  for analytical gradient  or  MinCGCreateF()  for
-   numerical differentiation) you should  choose  appropriate  variant  of
-   MinCGOptimize() - one which accepts function AND gradient or one  which
-   accepts function ONLY.
-
-   Be careful to choose variant of MinCGOptimize()  which  corresponds  to
-   your optimization scheme! Table below lists different  combinations  of
-   callback (function/gradient) passed  to  MinCGOptimize()  and  specific
-   function used to create optimizer.
-
-
-                  |         USER PASSED TO MinCGOptimize()
-   CREATED WITH   |  function only   |  function and gradient
-   ------------------------------------------------------------
-   MinCGCreateF() |     work                FAIL
-   MinCGCreate()  |     FAIL                work
-
-   Here "FAIL" denotes inappropriate combinations  of  optimizer  creation
-   function and MinCGOptimize() version. Attemps to use  such  combination
-   (for  example,  to create optimizer with  MinCGCreateF()  and  to  pass
-   gradient information to MinCGOptimize()) will lead to  exception  being
-   thrown. Either  you  did  not  pass  gradient when it WAS needed or you
-   passed gradient when it was NOT needed.
-
-  -- ALGLIB --
-     Copyright 20.04.2009 by Bochkanov Sergey
-
-*************************************************************************/
-void mincgoptimize(mincgstate &state,
-    void (*func)(const real_1d_array &x, double &func, void *ptr),
-    void  (*rep)(const real_1d_array &x, double func, void *ptr) = NULL,
-    void *ptr = NULL,
-    const xparams _xparams = alglib::xdefault);
-void mincgoptimize(mincgstate &state,
-    void (*grad)(const real_1d_array &x, double &func, real_1d_array &grad, void *ptr),
-    void  (*rep)(const real_1d_array &x, double func, void *ptr) = NULL,
-    void *ptr = NULL,
-    const xparams _xparams = alglib::xdefault);
-
-
-/*************************************************************************
-Conjugate gradient results
-
-INPUT PARAMETERS:
-    State   -   algorithm state
-
-OUTPUT PARAMETERS:
-    X       -   array[0..N-1], solution
-    Rep     -   optimization report:
-                * Rep.TerminationType completetion code:
-                    * -8    internal integrity control  detected  infinite
-                            or NAN values in  function/gradient.  Abnormal
-                            termination signalled.
-                    * -7    gradient verification failed.
-                            See MinCGSetGradientCheck() for more information.
-                    *  1    relative function improvement is no more than
-                            EpsF.
-                    *  2    relative step is no more than EpsX.
-                    *  4    gradient norm is no more than EpsG
-                    *  5    MaxIts steps was taken
-                    *  7    stopping conditions are too stringent,
-                            further improvement is impossible,
-                            we return best X found so far
-                    *  8    terminated by user
-                * Rep.IterationsCount contains iterations count
-                * NFEV countains number of function calculations
-
-  -- ALGLIB --
-     Copyright 20.04.2009 by Bochkanov Sergey
-*************************************************************************/
-void mincgresults(const mincgstate &state, real_1d_array &x, mincgreport &rep, const xparams _xparams = alglib::xdefault);
-
-
-/*************************************************************************
-Conjugate gradient results
-
-Buffered implementation of MinCGResults(), which uses pre-allocated buffer
-to store X[]. If buffer size is  too  small,  it  resizes  buffer.  It  is
-intended to be used in the inner cycles of performance critical algorithms
-where array reallocation penalty is too large to be ignored.
-
-  -- ALGLIB --
-     Copyright 20.04.2009 by Bochkanov Sergey
-*************************************************************************/
-void mincgresultsbuf(const mincgstate &state, real_1d_array &x, mincgreport &rep, const xparams _xparams = alglib::xdefault);
-
-
-/*************************************************************************
-This  subroutine  restarts  CG  algorithm from new point. All optimization
-parameters are left unchanged.
-
-This  function  allows  to  solve multiple  optimization  problems  (which
-must have same number of dimensions) without object reallocation penalty.
-
-INPUT PARAMETERS:
-    State   -   structure used to store algorithm state.
-    X       -   new starting point.
-
-  -- ALGLIB --
-     Copyright 30.07.2010 by Bochkanov Sergey
-*************************************************************************/
-void mincgrestartfrom(const mincgstate &state, const real_1d_array &x, const xparams _xparams = alglib::xdefault);
-
-
-/*************************************************************************
-This subroutine submits request for termination of running  optimizer.  It
-should be called from user-supplied callback when user decides that it  is
-time to "smoothly" terminate optimization process.  As  result,  optimizer
-stops at point which was "current accepted" when termination  request  was
-submitted and returns error code 8 (successful termination).
-
-INPUT PARAMETERS:
-    State   -   optimizer structure
-
-NOTE: after  request  for  termination  optimizer  may   perform   several
-      additional calls to user-supplied callbacks. It does  NOT  guarantee
-      to stop immediately - it just guarantees that these additional calls
-      will be discarded later.
-
-NOTE: calling this function on optimizer which is NOT running will have no
-      effect.
-
-NOTE: multiple calls to this function are possible. First call is counted,
-      subsequent calls are silently ignored.
-
-  -- ALGLIB --
-     Copyright 08.10.2014 by Bochkanov Sergey
-*************************************************************************/
-void mincgrequesttermination(const mincgstate &state, const xparams _xparams = alglib::xdefault);
-
-
-/*************************************************************************
-
-This  subroutine  turns  on  verification  of  the  user-supplied analytic
-gradient:
-* user calls this subroutine before optimization begins
-* MinCGOptimize() is called
-* prior to  actual  optimization, for each component  of  parameters being
-  optimized X[i] algorithm performs following steps:
-  * two trial steps are made to X[i]-TestStep*S[i] and X[i]+TestStep*S[i],
-    where X[i] is i-th component of the initial point and S[i] is a  scale
-    of i-th parameter
-  * F(X) is evaluated at these trial points
-  * we perform one more evaluation in the middle point of the interval
-  * we  build  cubic  model using function values and derivatives at trial
-    points and we compare its prediction with actual value in  the  middle
-    point
-  * in case difference between prediction and actual value is higher  than
-    some predetermined threshold, algorithm stops with completion code -7;
-    Rep.VarIdx is set to index of the parameter with incorrect derivative.
-* after verification is over, algorithm proceeds to the actual optimization.
-
-NOTE 1: verification  needs  N (parameters count) gradient evaluations. It
-        is very costly and you should use  it  only  for  low  dimensional
-        problems,  when  you  want  to  be  sure  that  you've   correctly
-        calculated  analytic  derivatives.  You  should  not use it in the
-        production code (unless you want to check derivatives provided  by
-        some third party).
-
-NOTE 2: you  should  carefully  choose  TestStep. Value which is too large
-        (so large that function behaviour is significantly non-cubic) will
-        lead to false alarms. You may use  different  step  for  different
-        parameters by means of setting scale with MinCGSetScale().
-
-NOTE 3: this function may lead to false positives. In case it reports that
-        I-th  derivative was calculated incorrectly, you may decrease test
-        step  and  try  one  more  time  - maybe your function changes too
-        sharply  and  your  step  is  too  large for such rapidly chanding
-        function.
-
-INPUT PARAMETERS:
-    State       -   structure used to store algorithm state
-    TestStep    -   verification step:
-                    * TestStep=0 turns verification off
-                    * TestStep>0 activates verification
-
-  -- ALGLIB --
-     Copyright 31.05.2012 by Bochkanov Sergey
-*************************************************************************/
-void mincgsetgradientcheck(const mincgstate &state, const double teststep, const xparams _xparams = alglib::xdefault);
 #endif
 
 #if defined(AE_COMPILE_MINBLEIC) || !defined(AE_PARTIAL_BUILD)
@@ -3279,9 +4137,9 @@ INPUT PARAMETERS:
                 * last element corresponds to the right part.
                 All elements of C (including right part) must be finite.
     CT      -   type of constraints, array[K]:
-                * if CT[i]>0, then I-th constraint is C[i,*]*x >= C[i,n+1]
-                * if CT[i]=0, then I-th constraint is C[i,*]*x  = C[i,n+1]
-                * if CT[i]<0, then I-th constraint is C[i,*]*x <= C[i,n+1]
+                * if CT[i]>0, then I-th constraint is C[i,*]*x >= C[i,n]
+                * if CT[i]=0, then I-th constraint is C[i,*]*x  = C[i,n]
+                * if CT[i]<0, then I-th constraint is C[i,*]*x <= C[i,n]
     K       -   number of equality/inequality constraints, K>=0:
                 * if given, only leading K elements of C/CT are used
                 * if not given, automatically determined from sizes of C/CT
@@ -3527,7 +4385,7 @@ NOTES:
    Here "FAIL" denotes inappropriate combinations  of  optimizer  creation
    function  and  MinBLEICOptimize()  version.   Attemps   to   use   such
    combination (for  example,  to  create optimizer with MinBLEICCreateF()
-   and  to  pass  gradient  information  to  MinCGOptimize()) will lead to
+   and  to  pass  gradient information to MinBLEICOptimize()) will lead to
    exception being thrown. Either  you  did  not pass gradient when it WAS
    needed or you passed gradient when it was NOT needed.
 
@@ -3548,6 +4406,309 @@ void minbleicoptimize(minbleicstate &state,
 
 
 /*************************************************************************
+This  function  activates/deactivates verification  of  the  user-supplied
+analytic gradient.
+
+Upon  activation  of  this  option  OptGuard  integrity  checker  performs
+numerical differentiation of your target function  at  the  initial  point
+(note: future versions may also perform check  at  the  final  point)  and
+compares numerical gradient with analytic one provided by you.
+
+If difference is too large, an error flag is set and optimization  session
+continues. After optimization session is over, you can retrieve the report
+which  stores  both  gradients  and  specific  components  highlighted  as
+suspicious by the OptGuard.
+
+The primary OptGuard report can be retrieved with minbleicoptguardresults().
+
+IMPORTANT: gradient check is a high-overhead option which  will  cost  you
+           about 3*N additional function evaluations. In many cases it may
+           cost as much as the rest of the optimization session.
+
+           YOU SHOULD NOT USE IT IN THE PRODUCTION CODE UNLESS YOU WANT TO
+           CHECK DERIVATIVES PROVIDED BY SOME THIRD PARTY.
+
+NOTE: unlike previous incarnation of the gradient checking code,  OptGuard
+      does NOT interrupt optimization even if it discovers bad gradient.
+
+INPUT PARAMETERS:
+    State       -   structure used to store algorithm state
+    TestStep    -   verification step used for numerical differentiation:
+                    * TestStep=0 turns verification off
+                    * TestStep>0 activates verification
+                    You should carefully choose TestStep. Value  which  is
+                    too large (so large that  function  behavior  is  non-
+                    cubic at this scale) will lead  to  false  alarms. Too
+                    short step will result in rounding  errors  dominating
+                    numerical derivative.
+
+                    You may use different step for different parameters by
+                    means of setting scale with minbleicsetscale().
+
+=== EXPLANATION ==========================================================
+
+In order to verify gradient algorithm performs following steps:
+  * two trial steps are made to X[i]-TestStep*S[i] and X[i]+TestStep*S[i],
+    where X[i] is i-th component of the initial point and S[i] is a  scale
+    of i-th parameter
+  * F(X) is evaluated at these trial points
+  * we perform one more evaluation in the middle point of the interval
+  * we  build  cubic  model using function values and derivatives at trial
+    points and we compare its prediction with actual value in  the  middle
+    point
+
+  -- ALGLIB --
+     Copyright 15.06.2014 by Bochkanov Sergey
+*************************************************************************/
+void minbleicoptguardgradient(const minbleicstate &state, const double teststep, const xparams _xparams = alglib::xdefault);
+
+
+/*************************************************************************
+This  function  activates/deactivates nonsmoothness monitoring  option  of
+the  OptGuard  integrity  checker. Smoothness  monitor  silently  observes
+solution process and tries to detect ill-posed problems, i.e. ones with:
+a) discontinuous target function (non-C0)
+b) nonsmooth     target function (non-C1)
+
+Smoothness monitoring does NOT interrupt optimization  even if it suspects
+that your problem is nonsmooth. It just sets corresponding  flags  in  the
+OptGuard report which can be retrieved after optimization is over.
+
+Smoothness monitoring is a moderate overhead option which often adds  less
+than 1% to the optimizer running time. Thus, you can use it even for large
+scale problems.
+
+NOTE: OptGuard does  NOT  guarantee  that  it  will  always  detect  C0/C1
+      continuity violations.
+
+      First, minor errors are hard to  catch - say, a 0.0001 difference in
+      the model values at two sides of the gap may be due to discontinuity
+      of the model - or simply because the model has changed.
+
+      Second, C1-violations  are  especially  difficult  to  detect  in  a
+      noninvasive way. The optimizer usually  performs  very  short  steps
+      near the nonsmoothness, and differentiation  usually   introduces  a
+      lot of numerical noise.  It  is  hard  to  tell  whether  some  tiny
+      discontinuity in the slope is due to real nonsmoothness or just  due
+      to numerical noise alone.
+
+      Our top priority was to avoid false positives, so in some rare cases
+      minor errors may went unnoticed (however, in most cases they can  be
+      spotted with restart from different initial point).
+
+INPUT PARAMETERS:
+    state   -   algorithm state
+    level   -   monitoring level:
+                * 0 - monitoring is disabled
+                * 1 - noninvasive low-overhead monitoring; function values
+                      and/or gradients are recorded, but OptGuard does not
+                      try to perform additional evaluations  in  order  to
+                      get more information about suspicious locations.
+
+=== EXPLANATION ==========================================================
+
+One major source of headache during optimization  is  the  possibility  of
+the coding errors in the target function/constraints (or their gradients).
+Such  errors   most   often   manifest   themselves  as  discontinuity  or
+nonsmoothness of the target/constraints.
+
+Another frequent situation is when you try to optimize something involving
+lots of min() and max() operations, i.e. nonsmooth target. Although not  a
+coding error, it is nonsmoothness anyway - and smooth  optimizers  usually
+stop right after encountering nonsmoothness, well before reaching solution.
+
+OptGuard integrity checker helps you to catch such situations: it monitors
+function values/gradients being passed  to  the  optimizer  and  tries  to
+errors. Upon discovering suspicious pair of points it  raises  appropriate
+flag (and allows you to continue optimization). When optimization is done,
+you can study OptGuard result.
+
+  -- ALGLIB --
+     Copyright 21.11.2018 by Bochkanov Sergey
+*************************************************************************/
+void minbleicoptguardsmoothness(const minbleicstate &state, const ae_int_t level, const xparams _xparams = alglib::xdefault);
+void minbleicoptguardsmoothness(const minbleicstate &state, const xparams _xparams = alglib::xdefault);
+
+
+/*************************************************************************
+Results of OptGuard integrity check, should be called  after  optimization
+session is over.
+
+=== PRIMARY REPORT =======================================================
+
+OptGuard performs several checks which are intended to catch common errors
+in the implementation of nonlinear function/gradient:
+* incorrect analytic gradient
+* discontinuous (non-C0) target functions (constraints)
+* nonsmooth     (non-C1) target functions (constraints)
+
+Each of these checks is activated with appropriate function:
+* minbleicoptguardgradient() for gradient verification
+* minbleicoptguardsmoothness() for C0/C1 checks
+
+Following flags are set when these errors are suspected:
+* rep.badgradsuspected, and additionally:
+  * rep.badgradvidx for specific variable (gradient element) suspected
+  * rep.badgradxbase, a point where gradient is tested
+  * rep.badgraduser, user-provided gradient  (stored  as  2D  matrix  with
+    single row in order to make  report  structure  compatible  with  more
+    complex optimizers like MinNLC or MinLM)
+  * rep.badgradnum,   reference    gradient    obtained    via   numerical
+    differentiation (stored as  2D matrix with single row in order to make
+    report structure compatible with more complex optimizers  like  MinNLC
+    or MinLM)
+* rep.nonc0suspected
+* rep.nonc1suspected
+
+=== ADDITIONAL REPORTS/LOGS ==============================================
+
+Several different tests are performed to catch C0/C1 errors, you can  find
+out specific test signaled error by looking to:
+* rep.nonc0test0positive, for non-C0 test #0
+* rep.nonc1test0positive, for non-C1 test #0
+* rep.nonc1test1positive, for non-C1 test #1
+
+Additional information (including line search logs)  can  be  obtained  by
+means of:
+* minbleicoptguardnonc1test0results()
+* minbleicoptguardnonc1test1results()
+which return detailed error reports, specific points where discontinuities
+were found, and so on.
+
+==========================================================================
+
+INPUT PARAMETERS:
+    state   -   algorithm state
+
+OUTPUT PARAMETERS:
+    rep     -   generic OptGuard report;  more  detailed  reports  can  be
+                retrieved with other functions.
+
+NOTE: false negatives (nonsmooth problems are not identified as  nonsmooth
+      ones) are possible although unlikely.
+
+      The reason  is  that  you  need  to  make several evaluations around
+      nonsmoothness  in  order  to  accumulate  enough  information  about
+      function curvature. Say, if you start right from the nonsmooth point,
+      optimizer simply won't get enough data to understand what  is  going
+      wrong before it terminates due to abrupt changes in the  derivative.
+      It is also  possible  that  "unlucky"  step  will  move  us  to  the
+      termination too quickly.
+
+      Our current approach is to have less than 0.1%  false  negatives  in
+      our test examples  (measured  with  multiple  restarts  from  random
+      points), and to have exactly 0% false positives.
+
+  -- ALGLIB --
+     Copyright 21.11.2018 by Bochkanov Sergey
+*************************************************************************/
+void minbleicoptguardresults(const minbleicstate &state, optguardreport &rep, const xparams _xparams = alglib::xdefault);
+
+
+/*************************************************************************
+Detailed results of the OptGuard integrity check for nonsmoothness test #0
+
+Nonsmoothness (non-C1) test #0 studies  function  values  (not  gradient!)
+obtained during line searches and monitors  behavior  of  the  directional
+derivative estimate.
+
+This test is less powerful than test #1, but it does  not  depend  on  the
+gradient values and thus it is more robust against artifacts introduced by
+numerical differentiation.
+
+Two reports are returned:
+* a "strongest" one, corresponding  to  line   search  which  had  highest
+  value of the nonsmoothness indicator
+* a "longest" one, corresponding to line search which  had  more  function
+  evaluations, and thus is more detailed
+
+In both cases following fields are returned:
+
+* positive - is TRUE  when test flagged suspicious point;  FALSE  if  test
+  did not notice anything (in the latter cases fields below are empty).
+* x0[], d[] - arrays of length N which store initial point  and  direction
+  for line search (d[] can be normalized, but does not have to)
+* stp[], f[] - arrays of length CNT which store step lengths and  function
+  values at these points; f[i] is evaluated in x0+stp[i]*d.
+* stpidxa, stpidxb - we  suspect  that  function  violates  C1  continuity
+  between steps #stpidxa and #stpidxb (usually we have  stpidxb=stpidxa+3,
+  with  most  likely  position  of  the  violation  between  stpidxa+1 and
+  stpidxa+2.
+
+==========================================================================
+= SHORTLY SPEAKING: build a 2D plot of (stp,f) and look at it -  you  will
+=                   see where C1 continuity is violated.
+==========================================================================
+
+INPUT PARAMETERS:
+    state   -   algorithm state
+
+OUTPUT PARAMETERS:
+    strrep  -   C1 test #0 "strong" report
+    lngrep  -   C1 test #0 "long" report
+
+  -- ALGLIB --
+     Copyright 21.11.2018 by Bochkanov Sergey
+*************************************************************************/
+void minbleicoptguardnonc1test0results(const minbleicstate &state, optguardnonc1test0report &strrep, optguardnonc1test0report &lngrep, const xparams _xparams = alglib::xdefault);
+
+
+/*************************************************************************
+Detailed results of the OptGuard integrity check for nonsmoothness test #1
+
+Nonsmoothness (non-C1)  test  #1  studies  individual  components  of  the
+gradient computed during line search.
+
+When precise analytic gradient is provided this test is more powerful than
+test #0  which  works  with  function  values  and  ignores  user-provided
+gradient.  However,  test  #0  becomes  more   powerful   when   numerical
+differentiation is employed (in such cases test #1 detects  higher  levels
+of numerical noise and becomes too conservative).
+
+This test also tells specific components of the gradient which violate  C1
+continuity, which makes it more informative than #0, which just tells that
+continuity is violated.
+
+Two reports are returned:
+* a "strongest" one, corresponding  to  line   search  which  had  highest
+  value of the nonsmoothness indicator
+* a "longest" one, corresponding to line search which  had  more  function
+  evaluations, and thus is more detailed
+
+In both cases following fields are returned:
+
+* positive - is TRUE  when test flagged suspicious point;  FALSE  if  test
+  did not notice anything (in the latter cases fields below are empty).
+* vidx - is an index of the variable in [0,N) with nonsmooth derivative
+* x0[], d[] - arrays of length N which store initial point  and  direction
+  for line search (d[] can be normalized, but does not have to)
+* stp[], g[] - arrays of length CNT which store step lengths and  gradient
+  values at these points; g[i] is evaluated in  x0+stp[i]*d  and  contains
+  vidx-th component of the gradient.
+* stpidxa, stpidxb - we  suspect  that  function  violates  C1  continuity
+  between steps #stpidxa and #stpidxb (usually we have  stpidxb=stpidxa+3,
+  with  most  likely  position  of  the  violation  between  stpidxa+1 and
+  stpidxa+2.
+
+==========================================================================
+= SHORTLY SPEAKING: build a 2D plot of (stp,f) and look at it -  you  will
+=                   see where C1 continuity is violated.
+==========================================================================
+
+INPUT PARAMETERS:
+    state   -   algorithm state
+
+OUTPUT PARAMETERS:
+    strrep  -   C1 test #1 "strong" report
+    lngrep  -   C1 test #1 "long" report
+
+  -- ALGLIB --
+     Copyright 21.11.2018 by Bochkanov Sergey
+*************************************************************************/
+void minbleicoptguardnonc1test1results(const minbleicstate &state, optguardnonc1test1report &strrep, optguardnonc1test1report &lngrep, const xparams _xparams = alglib::xdefault);
+
+
+/*************************************************************************
 BLEIC results
 
 INPUT PARAMETERS:
@@ -3561,8 +4722,6 @@ OUTPUT PARAMETERS:
                 * -8    internal integrity control  detected  infinite or
                         NAN   values   in   function/gradient.   Abnormal
                         termination signalled.
-                * -7   gradient verification failed.
-                       See MinBLEICSetGradientCheck() for more information.
                 * -3   inconsistent constraints. Feasible point is
                        either nonexistent or too hard to find. Try to
                        restart optimizer with better initial approximation
@@ -3638,57 +4797,6 @@ NOTE: multiple calls to this function are possible. First call is counted,
      Copyright 08.10.2014 by Bochkanov Sergey
 *************************************************************************/
 void minbleicrequesttermination(const minbleicstate &state, const xparams _xparams = alglib::xdefault);
-
-
-/*************************************************************************
-This  subroutine  turns  on  verification  of  the  user-supplied analytic
-gradient:
-* user calls this subroutine before optimization begins
-* MinBLEICOptimize() is called
-* prior to  actual  optimization, for each component  of  parameters being
-  optimized X[i] algorithm performs following steps:
-  * two trial steps are made to X[i]-TestStep*S[i] and X[i]+TestStep*S[i],
-    where X[i] is i-th component of the initial point and S[i] is a  scale
-    of i-th parameter
-  * if needed, steps are bounded with respect to constraints on X[]
-  * F(X) is evaluated at these trial points
-  * we perform one more evaluation in the middle point of the interval
-  * we  build  cubic  model using function values and derivatives at trial
-    points and we compare its prediction with actual value in  the  middle
-    point
-  * in case difference between prediction and actual value is higher  than
-    some predetermined threshold, algorithm stops with completion code -7;
-    Rep.VarIdx is set to index of the parameter with incorrect derivative.
-* after verification is over, algorithm proceeds to the actual optimization.
-
-NOTE 1: verification  needs  N (parameters count) gradient evaluations. It
-        is very costly and you should use  it  only  for  low  dimensional
-        problems,  when  you  want  to  be  sure  that  you've   correctly
-        calculated  analytic  derivatives.  You  should  not use it in the
-        production code (unless you want to check derivatives provided  by
-        some third party).
-
-NOTE 2: you  should  carefully  choose  TestStep. Value which is too large
-        (so large that function behaviour is significantly non-cubic) will
-        lead to false alarms. You may use  different  step  for  different
-        parameters by means of setting scale with MinBLEICSetScale().
-
-NOTE 3: this function may lead to false positives. In case it reports that
-        I-th  derivative was calculated incorrectly, you may decrease test
-        step  and  try  one  more  time  - maybe your function changes too
-        sharply  and  your  step  is  too  large for such rapidly chanding
-        function.
-
-INPUT PARAMETERS:
-    State       -   structure used to store algorithm state
-    TestStep    -   verification step:
-                    * TestStep=0 turns verification off
-                    * TestStep>0 activates verification
-
-  -- ALGLIB --
-     Copyright 15.06.2012 by Bochkanov Sergey
-*************************************************************************/
-void minbleicsetgradientcheck(const minbleicstate &state, const double teststep, const xparams _xparams = alglib::xdefault);
 #endif
 
 #if defined(AE_COMPILE_QPBLEICSOLVER) || !defined(AE_PARTIAL_BUILD)
@@ -3701,21 +4809,47 @@ void minbleicsetgradientcheck(const minbleicstate &state, const double teststep,
 
 The subroutine creates QP optimizer. After initial creation,  it  contains
 default optimization problem with zero quadratic and linear terms  and  no
-constraints. You should set quadratic/linear terms with calls to functions
-provided by MinQP subpackage.
+constraints.
 
-You should also choose appropriate QP solver and set it  and  its stopping
-criteria by means of MinQPSetAlgo??????() function. Then, you should start
-solution process by means of MinQPOptimize() call. Solution itself can  be
-obtained with MinQPResults() function.
+In order to actually solve something you should:
+* set cost vector with minqpsetlinearterm()
+* set variable bounds with minqpsetbc() or minqpsetbcall()
+* specify constraint matrix with one of the following functions:
+  * modern API:
+    * minqpsetlc2()       for sparse two-sided constraints AL <= A*x <= AU
+    * minqpsetlc2dense()  for dense  two-sided constraints AL <= A*x <= AU
+    * minqpsetlc2mixed()  for mixed  two-sided constraints AL <= A*x <= AU
+    * minqpaddlc2dense()  to add one dense row to dense constraint submatrix
+    * minqpaddlc2()       to add one sparse row to sparse constraint submatrix
+  * legacy API:
+    * minqpsetlc()        for dense one-sided equality/inequality constraints
+    * minqpsetlcsparse()  for sparse one-sided equality/inequality constraints
+    * minqpsetlcmixed()   for mixed dense/sparse one-sided equality/inequality constraints
+* choose appropriate QP solver and set it  and  its stopping  criteria  by
+  means of minqpsetalgo??????() function
+* call minqpoptimize() to run the solver and  minqpresults()  to  get  the
+  solution vector and additional information.
 
-Following solvers are recommended:
+Following solvers are recommended for convex and semidefinite problems:
 * QuickQP for dense problems with box-only constraints (or no constraints
   at all)
-* QP-BLEIC for dense/sparse problems with moderate (up to 50) number of
-  general linear constraints
-* DENSE-AUL-QP for dense problems with any (small or large) number of
-  general linear constraints
+* DENSE-IPM-QP for  convex  or  semidefinite  problems  with   medium  (up
+  to several thousands) variable count, dense/sparse  quadratic  term  and
+  any number  (up  to  many  thousands)  of  dense/sparse  general  linear
+  constraints
+* SPARSE-IPM-QP for convex  or  semidefinite  problems  with   large (many
+  thousands) variable count, sparse quadratic term AND linear constraints.
+
+If your problem happens to be nonconvex,  but  either  (a) is  effectively
+convexified under constraints,  or  (b)  has  unique  solution  even  with
+nonconvex target, then you can use:
+* QuickQP for dense nonconvex problems with box-only constraints
+* DENSE-AUL-QP  for   dense   nonconvex   problems  which  are effectively
+  convexified under constraints with up to several thousands of  variables
+  and any (small or large) number of general linear constraints
+* QP-BLEIC for dense/sparse problems with small (up to  several  hundreds)
+  number of general linear  constraints  and  arbitrarily  large  variable
+  count.
 
 INPUT PARAMETERS:
     N       -   problem size
@@ -3748,13 +4882,6 @@ void minqpsetlinearterm(const minqpstate &state, const real_1d_array &b, const x
 /*************************************************************************
 This  function  sets  dense  quadratic  term  for  QP solver. By  default,
 quadratic term is zero.
-
-SUPPORT BY QP SOLVERS:
-
-Dense quadratic term can be handled by following QP solvers:
-* QuickQP
-* BLEIC-QP
-* Dense-AUL-QP
 
 IMPORTANT:
 
@@ -3789,12 +4916,8 @@ This  function  sets  sparse  quadratic  term  for  QP solver. By default,
 quadratic  term  is  zero.  This  function  overrides  previous  calls  to
 minqpsetquadraticterm() or minqpsetquadratictermsparse().
 
-SUPPORT BY QP SOLVERS:
-
-Sparse quadratic term can be handled by following QP solvers:
-* QuickQP
-* BLEIC-QP
-* Dense-AUL-QP (internally converts sparse matrix to dense format)
+NOTE: dense solvers like DENSE-AUL-QP or DENSE-IPM-QP  will  convert  this
+      matrix to dense storage anyway.
 
 IMPORTANT:
 
@@ -3824,9 +4947,11 @@ void minqpsetquadratictermsparse(const minqpstate &state, const sparsematrix &a,
 
 
 /*************************************************************************
-This function sets starting point for QP solver. It is useful to have
-good initial approximation to the solution, because it will increase
-speed of convergence and identification of active constraints.
+This function sets starting point for QP solver. It is useful to have good
+initial approximation to the solution, because it will increase  speed  of
+convergence and identification of active constraints.
+
+NOTE: interior point solvers ignore initial point provided by user.
 
 INPUT PARAMETERS:
     State   -   structure which stores algorithm state
@@ -3926,16 +5051,15 @@ void minqpsetscaleautodiag(const minqpstate &state, const xparams _xparams = alg
 This function tells solver to use BLEIC-based algorithm and sets  stopping
 criteria for the algorithm.
 
-This algorithm is fast  enough  for large-scale  problems  with  following
-properties:
-a) feasible initial point, moderate amount of general linear constraints
-b) arbitrary (can be infeasible) initial point, small  amount  of  general
-   linear constraints (say, hundred or less)
+This algorithm is intended for large-scale  problems,  possibly nonconvex,
+with small number of general linear constraints. Feasible initial point is
+essential for good performance.
 
-If you solve large-scale QP problem with many inequality  constraints  and
-without initial feasibility guarantees, consider  using  DENSE-AUL  solver
-instead. Initial feasibility detection stage by BLEIC may take too long on
-such problems.
+IMPORTANT: when DENSE-IPM (or DENSE-AUL for  nonconvex  problems)  solvers
+           are applicable, their performance is much better than  that  of
+           BLEIC-QP.
+           We recommend  you to use BLEIC only when other solvers can  not
+           be used.
 
 ALGORITHM FEATURES:
 
@@ -3959,7 +5083,7 @@ ALGORITHM LIMITATIONS:
 * This algorithm is inefficient on  problems with hundreds  and  thousands
   of general inequality constraints and infeasible initial point.  Initial
   feasibility detection stage may take too long on such constraint sets.
-  Consider using DENSE-AUL instead.
+  Consider using DENSE-IPM or DENSE-AUL instead.
 * unlike QuickQP solver, this algorithm does not perform Newton steps  and
   does not use Level 3 BLAS. Being general-purpose active set  method,  it
   can activate constraints only one-by-one. Thus, its performance is lower
@@ -4011,8 +5135,18 @@ void minqpsetalgobleic(const minqpstate &state, const double epsg, const double 
 
 
 /*************************************************************************
-This function tells QP solver to use Dense-AUL algorithm and sets stopping
+This function tells QP solver to use DENSE-AUL algorithm and sets stopping
 criteria for the algorithm.
+
+This  algorithm  is  intended  for  non-convex problems with moderate  (up
+to several thousands) variable count and arbitrary number  of  constraints
+which are either (a) effectively convexified under constraints or (b) have
+unique solution even with nonconvex target.
+
+IMPORTANT: when DENSE-IPM solver is applicable, its performance is usually
+           much better than that of DENSE-AUL.
+           We recommend  you to use DENSE-AUL only when other solvers  can
+           not be used.
 
 ALGORITHM FEATURES:
 
@@ -4022,14 +5156,11 @@ ALGORITHM FEATURES:
   problems. Semidefinite and non-convex problems can be solved as long  as
   they  are   bounded  from  below  under  constraints,  although  without
   theoretical guarantees.
-* this solver is better than QP-BLEIC on problems  with  large  number  of
-  general linear constraints. It better handles infeasible initial points.
 
 ALGORITHM OUTLINE:
 
 * this  algorithm   is   an   augmented   Lagrangian   method  with  dense
-  preconditioner (hence  its  name).  It  is  similar  to  barrier/penalty
-  methods, but much more precise and faster.
+  preconditioner (hence  its  name).
 * it performs several outer iterations in order to refine  values  of  the
   Lagrange multipliers. Single outer  iteration  is  a  solution  of  some
   unconstrained optimization problem: first  it  performs  dense  Cholesky
@@ -4086,13 +5217,166 @@ void minqpsetalgodenseaul(const minqpstate &state, const double epsx, const doub
 
 
 /*************************************************************************
+This function tells QP solver to  use  DENSE-IPM  QP  algorithm  and  sets
+stopping criteria for the algorithm.
+
+This  algorithm  is  intended  for convex and semidefinite  problems  with
+moderate (up to several thousands) variable count and arbitrary number  of
+constraints.
+
+IMPORTANT: this algorithm won't work for nonconvex problems, use DENSE-AUL
+           or BLEIC-QP instead. If you try to  run  DENSE-IPM  on  problem
+           with  indefinite  matrix  (matrix having  at least one negative
+           eigenvalue) then depending on circumstances it may  either  (a)
+           stall at some  arbitrary  point,  or  (b)  throw  exception  on
+           failure of Cholesky decomposition.
+
+ALGORITHM FEATURES:
+
+* supports  box  and  dense/sparse  general   linear   equality/inequality
+  constraints
+
+ALGORITHM OUTLINE:
+
+* this  algorithm  is  an  implementation  of  interior  point  method  as
+  formulated by  R.J.Vanderbei, with minor modifications to the  algorithm
+  (damped Newton directions are extensively used)
+* like all interior point methods, this algorithm  tends  to  converge  in
+  roughly same number of iterations (between 15 and 30) independently from
+  the problem dimensionality
+
+ALGORITHM LIMITATIONS:
+
+* because dense Cholesky driver is used, for  N-dimensional  problem  with
+  M dense constaints this algorithm has O(N^2+N*M) memory requirements and
+  O(N^3+N*M^2) running time.
+  Having sparse constraints with Z nonzeros per row  relaxes  storage  and
+  running time down to O(N^2+M*Z) and O(N^3+N*Z^2)
+  From the practical  point  of  view,  it  limits  its  applicability  by
+  several thousands of variables.
+  From  the  other  side,  variables  count  is  the most limiting factor,
+  and dependence on constraint count is  much  more  lower. Assuming  that
+  constraint matrix is sparse, it may handle tens of thousands  of general
+  linear constraints.
+
+INPUT PARAMETERS:
+    State   -   structure which stores algorithm state
+    Eps     -   >=0, stopping criteria. The algorithm stops  when   primal
+                and dual infeasiblities as well as complementarity gap are
+                less than Eps.
+
+IT IS VERY IMPORTANT TO CALL minqpsetscale() WHEN YOU USE THIS  ALGORITHM
+BECAUSE ITS CONVERGENCE PROPERTIES AND STOPPING CRITERIA ARE SCALE-DEPENDENT!
+
+NOTE: Passing EpsX=0 will lead to automatic selection of small epsilon.
+
+===== TRACING IPM SOLVER =================================================
+
+IPM solver supports advanced tracing capabilities. You can trace algorithm
+output by specifying following trace symbols (case-insensitive)  by  means
+of trace_file() call:
+* 'IPM'         - for basic trace of algorithm  steps and decisions.  Only
+                  short scalars (function values and deltas) are  printed.
+                  N-dimensional quantities like search directions are  NOT
+                  printed.
+* 'IPM.DETAILED'- for output of points being visited and search directions
+                  This  symbol  also  implicitly  defines  'IPM'. You  can
+                  control output format by additionally specifying:
+                  * nothing     to output in  6-digit exponential format
+                  * 'PREC.E15'  to output in 15-digit exponential format
+                  * 'PREC.F6'   to output in  6-digit fixed-point format
+
+By default trace is disabled and adds  no  overhead  to  the  optimization
+process. However, specifying any of the symbols adds some  formatting  and
+output-related overhead.
+
+You may specify multiple symbols by separating them with commas:
+>
+> alglib::trace_file("IPM.DETAILED,PREC.F6", "path/to/trace.log")
+>
+
+  -- ALGLIB --
+     Copyright 01.11.2019 by Bochkanov Sergey
+*************************************************************************/
+void minqpsetalgodenseipm(const minqpstate &state, const double eps, const xparams _xparams = alglib::xdefault);
+
+
+/*************************************************************************
+This function tells QP solver to  use  SPARSE-IPM  QP algorithm  and  sets
+stopping criteria for the algorithm.
+
+This  algorithm  is  intended  for convex and semidefinite  problems  with
+large  variable  and  constraint  count  and  sparse  quadratic  term  and
+constraints. It is possible to have  some  limited  set  of  dense  linear
+constraints - they will be handled separately by dense BLAS - but the more
+dense constraints you have, the more time solver needs.
+
+IMPORTANT: internally this solver performs large  and  sparse  (N+M)x(N+M)
+           triangular factorization. So it expects both quadratic term and
+           constraints to be highly sparse. However, its  running  time is
+           influenced by BOTH fill factor and sparsity pattern.
+
+           Generally we expect that no more than few nonzero  elements per
+           row are present. However different sparsity patterns may result
+           in completely different running  times  even  given  same  fill
+           factor.
+
+           In many cases this algorithm outperforms DENSE-IPM by order  of
+           magnitude. However, in some cases you may  get  better  results
+           with DENSE-IPM even when solving sparse task.
+
+IMPORTANT: this algorithm won't work for nonconvex problems, use DENSE-AUL
+           or BLEIC-QP instead. If you try to  run  DENSE-IPM  on  problem
+           with  indefinite  matrix  (matrix having  at least one negative
+           eigenvalue) then depending on circumstances it may  either  (a)
+           stall at some  arbitrary  point,  or  (b)  throw  exception  on
+           failure of Cholesky decomposition.
+
+ALGORITHM FEATURES:
+
+* supports  box  and  dense/sparse  general   linear   equality/inequality
+  constraints
+* specializes on large-scale sparse problems
+
+ALGORITHM OUTLINE:
+
+* this  algorithm  is  an  implementation  of  interior  point  method  as
+  formulated by  R.J.Vanderbei, with minor modifications to the  algorithm
+  (damped Newton directions are extensively used)
+* like all interior point methods, this algorithm  tends  to  converge  in
+  roughly same number of iterations (between 15 and 30) independently from
+  the problem dimensionality
+
+ALGORITHM LIMITATIONS:
+
+* this algorithm may handle moderate number  of dense constraints, usually
+  no more than a thousand of dense ones without losing its efficiency.
+
+INPUT PARAMETERS:
+    State   -   structure which stores algorithm state
+    Eps     -   >=0, stopping criteria. The algorithm stops  when   primal
+                and dual infeasiblities as well as complementarity gap are
+                less than Eps.
+
+IT IS VERY IMPORTANT TO CALL minqpsetscale() WHEN YOU USE THIS  ALGORITHM
+BECAUSE ITS CONVERGENCE PROPERTIES AND STOPPING CRITERIA ARE SCALE-DEPENDENT!
+
+NOTE: Passing EpsX=0 will lead to automatic selection of small epsilon.
+
+  -- ALGLIB --
+     Copyright 01.11.2019 by Bochkanov Sergey
+*************************************************************************/
+void minqpsetalgosparseipm(const minqpstate &state, const double eps, const xparams _xparams = alglib::xdefault);
+
+
+/*************************************************************************
 This function tells solver to use QuickQP  algorithm:  special  extra-fast
 algorithm for problems with box-only constrants. It may  solve  non-convex
 problems as long as they are bounded from below under constraints.
 
 ALGORITHM FEATURES:
-* many times (from 5x to 50x!) faster than BLEIC-based QP solver; utilizes
-  accelerated methods for activation of constraints.
+* several times faster than DENSE-IPM when running on box-only problem
+* utilizes accelerated methods for activation of constraints.
 * supports dense and sparse QP problems
 * supports ONLY box constraints; general linear constraints are NOT
   supported by this solver
@@ -4192,10 +5476,18 @@ void minqpsetalgoquickqp(const minqpstate &state, const double epsg, const doubl
 This function sets box constraints for QP solver
 
 Box constraints are inactive by default (after  initial  creation).  After
-being  set,  they  are  preserved until explicitly turned off with another
-SetBC() call.
+being  set,  they are  preserved until explicitly overwritten with another
+minqpsetbc()  or  minqpsetbcall()  call,  or  partially  overwritten  with
+minqpsetbci() call.
 
-All QP solvers may handle box constraints.
+Following types of constraints are supported:
+
+    DESCRIPTION         CONSTRAINT              HOW TO SPECIFY
+    fixed variable      x[i]=Bnd[i]             BndL[i]=BndU[i]
+    lower bound         BndL[i]<=x[i]           BndU[i]=+INF
+    upper bound         x[i]<=BndU[i]           BndL[i]=-INF
+    range               BndL[i]<=x[i]<=BndU[i]  ...
+    free variable       -                       BndL[I]=-INF, BndU[I]+INF
 
 INPUT PARAMETERS:
     State   -   structure stores algorithm state
@@ -4208,8 +5500,18 @@ INPUT PARAMETERS:
                 very large number or +INF (latter is recommended because
                 it will allow solver to use better algorithm).
 
-NOTE: it is possible to specify BndL[i]=BndU[i]. In this case I-th
-variable will be "frozen" at X[i]=BndL[i]=BndU[i].
+NOTE: infinite values can be specified by means of Double.PositiveInfinity
+      and  Double.NegativeInfinity  (in  C#)  and  alglib::fp_posinf   and
+      alglib::fp_neginf (in C++).
+
+NOTE: you may replace infinities by very small/very large values,  but  it
+      is not recommended because large numbers may introduce large numerical
+      errors in the algorithm.
+
+NOTE: if constraints for all variables are same you may use minqpsetbcall()
+      which allows to specify constraints without using arrays.
+
+NOTE: BndL>BndU will result in QP problem being recognized as infeasible.
 
   -- ALGLIB --
      Copyright 11.01.2011 by Bochkanov Sergey
@@ -4218,26 +5520,88 @@ void minqpsetbc(const minqpstate &state, const real_1d_array &bndl, const real_1
 
 
 /*************************************************************************
+This function sets box constraints for QP solver (all variables  at  once,
+same constraints for all variables)
+
+Box constraints are inactive by default (after  initial  creation).  After
+being  set,  they are  preserved until explicitly overwritten with another
+minqpsetbc()  or  minqpsetbcall()  call,  or  partially  overwritten  with
+minqpsetbci() call.
+
+Following types of constraints are supported:
+
+    DESCRIPTION         CONSTRAINT              HOW TO SPECIFY
+    fixed variable      x[i]=Bnd                BndL=BndU
+    lower bound         BndL<=x[i]              BndU=+INF
+    upper bound         x[i]<=BndU              BndL=-INF
+    range               BndL<=x[i]<=BndU        ...
+    free variable       -                       BndL=-INF, BndU+INF
+
+INPUT PARAMETERS:
+    State   -   structure stores algorithm state
+    BndL    -   lower bound, same for all variables
+    BndU    -   upper bound, same for all variables
+
+NOTE: infinite values can be specified by means of Double.PositiveInfinity
+      and  Double.NegativeInfinity  (in  C#)  and  alglib::fp_posinf   and
+      alglib::fp_neginf (in C++).
+
+NOTE: you may replace infinities by very small/very large values,  but  it
+      is not recommended because large numbers may introduce large numerical
+      errors in the algorithm.
+
+NOTE: BndL>BndU will result in QP problem being recognized as infeasible.
+
+  -- ALGLIB --
+     Copyright 11.01.2011 by Bochkanov Sergey
+*************************************************************************/
+void minqpsetbcall(const minqpstate &state, const double bndl, const double bndu, const xparams _xparams = alglib::xdefault);
+
+
+/*************************************************************************
+This function sets box constraints for I-th variable (other variables are
+not modified).
+
+Following types of constraints are supported:
+
+    DESCRIPTION         CONSTRAINT              HOW TO SPECIFY
+    fixed variable      x[i]=Bnd                BndL=BndU
+    lower bound         BndL<=x[i]              BndU=+INF
+    upper bound         x[i]<=BndU              BndL=-INF
+    range               BndL<=x[i]<=BndU        ...
+    free variable       -                       BndL=-INF, BndU+INF
+
+INPUT PARAMETERS:
+    State   -   structure stores algorithm state
+    BndL    -   lower bound
+    BndU    -   upper bound
+
+NOTE: infinite values can be specified by means of Double.PositiveInfinity
+      and  Double.NegativeInfinity  (in  C#)  and  alglib::fp_posinf   and
+      alglib::fp_neginf (in C++).
+
+NOTE: you may replace infinities by very small/very large values,  but  it
+      is not recommended because large numbers may introduce large numerical
+      errors in the algorithm.
+
+NOTE: BndL>BndU will result in QP problem being recognized as infeasible.
+
+  -- ALGLIB --
+     Copyright 11.01.2011 by Bochkanov Sergey
+*************************************************************************/
+void minqpsetbci(const minqpstate &state, const ae_int_t i, const double bndl, const double bndu, const xparams _xparams = alglib::xdefault);
+
+
+/*************************************************************************
 This function sets dense linear constraints for QP optimizer.
 
 This  function  overrides  results  of  previous  calls  to  minqpsetlc(),
 minqpsetlcsparse() and minqpsetlcmixed().  After  call  to  this  function
-sparse constraints are dropped, and you have only those constraints  which
-were specified in the present call.
+all non-box constraints are dropped, and you have only  those  constraints
+which were specified in the present call.
 
 If you want  to  specify  mixed  (with  dense  and  sparse  terms)  linear
 constraints, you should call minqpsetlcmixed().
-
-SUPPORT BY QP SOLVERS:
-
-Following QP solvers can handle dense linear constraints:
-* BLEIC-QP          -   handles them  with  high  precision,  but  may  be
-                        inefficient for problems with hundreds of constraints
-* Dense-AUL-QP      -   handles them with moderate precision (approx. 10^-6),
-                        may efficiently handle thousands of constraints.
-
-Following QP solvers can NOT handle dense linear constraints:
-* QuickQP           -   can not handle general linear constraints
 
 INPUT PARAMETERS:
     State   -   structure previously allocated with MinQPCreate call.
@@ -4272,30 +5636,11 @@ This function sets sparse linear constraints for QP optimizer.
 
 This  function  overrides  results  of  previous  calls  to  minqpsetlc(),
 minqpsetlcsparse() and minqpsetlcmixed().  After  call  to  this  function
-dense constraints are dropped, and you have only those  constraints  which
-were specified in the present call.
+all non-box constraints are dropped, and you have only  those  constraints
+which were specified in the present call.
 
 If you want  to  specify  mixed  (with  dense  and  sparse  terms)  linear
 constraints, you should call minqpsetlcmixed().
-
-SUPPORT BY QP SOLVERS:
-
-Following QP solvers can handle sparse linear constraints:
-* BLEIC-QP          -   handles them  with  high  precision,  but can  not
-                        utilize their sparsity - sparse constraint  matrix
-                        is silently converted to dense  format.  Thus,  it
-                        may be inefficient for problems with  hundreds  of
-                        constraints.
-* Dense-AUL-QP      -   although this solver uses dense linear algebra  to
-                        calculate   Cholesky   preconditioner,   it    may
-                        efficiently  handle  sparse  constraints.  It  may
-                        solve problems  with  hundreds  and  thousands  of
-                        constraints. The only drawback is  that  precision
-                        of constraint handling is typically within 1E-4...
-                        ..1E-6 range.
-
-Following QP solvers can NOT handle sparse linear constraints:
-* QuickQP           -   can not handle general linear constraints
 
 INPUT PARAMETERS:
     State   -   structure previously allocated with MinQPCreate call.
@@ -4337,27 +5682,19 @@ you  may  represent  them  in  dense  format  without loosing performance.
 Similarly, if you have just a few dense rows, you may store them in sparse
 format with almost same performance.
 
-SUPPORT BY QP SOLVERS:
-
-Following QP solvers can handle mixed dense/sparse linear constraints:
-* BLEIC-QP          -   handles them  with  high  precision,  but can  not
-                        utilize their sparsity - sparse constraint  matrix
-                        is silently converted to dense  format.  Thus,  it
-                        may be inefficient for problems with  hundreds  of
-                        constraints.
-* Dense-AUL-QP      -   although this solver uses dense linear algebra  to
-                        calculate   Cholesky   preconditioner,   it    may
-                        efficiently  handle  sparse  constraints.  It  may
-                        solve problems  with  hundreds  and  thousands  of
-                        constraints. The only drawback is  that  precision
-                        of constraint handling is typically within 1E-4...
-                        ..1E-6 range.
-
-Following QP solvers can NOT handle mixed linear constraints:
-* QuickQP           -   can not handle general linear constraints at all
-
 INPUT PARAMETERS:
     State   -   structure previously allocated with MinQPCreate call.
+    SparseC -   linear constraints, sparse  matrix with dimensions EXACTLY
+                EQUAL TO [SparseK,N+1].  Each  row  of  C  represents  one
+                constraint, either equality or inequality (see below):
+                * first N elements correspond to coefficients,
+                * last element corresponds to the right part.
+                All elements of C (including right part) must be finite.
+    SparseCT-   type of sparse constraints, array[K]:
+                * if SparseCT[i]>0, then I-th constraint is SparseC[i,*]*x >= SparseC[i,n+1]
+                * if SparseCT[i]=0, then I-th constraint is SparseC[i,*]*x  = SparseC[i,n+1]
+                * if SparseCT[i]<0, then I-th constraint is SparseC[i,*]*x <= SparseC[i,n+1]
+    SparseK -   number of sparse equality/inequality constraints, K>=0
     DenseC  -   dense linear constraints, array[K,N+1].
                 Each row of DenseC represents one constraint, either equality
                 or inequality (see below):
@@ -4369,29 +5706,192 @@ INPUT PARAMETERS:
                 * if DenseCT[i]=0, then I-th constraint is DenseC[i,*]*x  = DenseC[i,n+1]
                 * if DenseCT[i]<0, then I-th constraint is DenseC[i,*]*x <= DenseC[i,n+1]
     DenseK  -   number of equality/inequality constraints, DenseK>=0
-    SparseC -   linear  constraints,  sparse  matrix  with  dimensions  at
-                least [SparseK,N+1]. If matrix has  larger  size,  only  leading
-                SPARSEKx(N+1) rectangle is used.
-                Each row of C represents one constraint, either equality
-                or inequality (see below):
-                * first N elements correspond to coefficients,
-                * last element corresponds to the right part.
-                All elements of C (including right part) must be finite.
-    SparseCT-   type of sparse constraints, array[K]:
-                * if SparseCT[i]>0, then I-th constraint is SparseC[i,*]*x >= SparseC[i,n+1]
-                * if SparseCT[i]=0, then I-th constraint is SparseC[i,*]*x  = SparseC[i,n+1]
-                * if SparseCT[i]<0, then I-th constraint is SparseC[i,*]*x <= SparseC[i,n+1]
-    SparseK -   number of sparse equality/inequality constraints, K>=0
 
-NOTE 1: linear (non-bound) constraints are satisfied only approximately  -
+NOTE 1: linear (non-box) constraints  are  satisfied only approximately  -
         there always exists some violation due  to  numerical  errors  and
         algorithmic limitations (BLEIC-QP solver is most  precise,  AUL-QP
         solver is less precise).
 
+NOTE 2: due to backward compatibility reasons SparseC can be  larger  than
+        [SparseK,N+1]. In this case only leading  [SparseK,N+1]  submatrix
+        will be  used.  However,  the  rest  of  ALGLIB  has  more  strict
+        requirements on the input size, so we recommend you to pass sparse
+        term whose size exactly matches algorithm expectations.
+
   -- ALGLIB --
      Copyright 22.08.2016 by Bochkanov Sergey
 *************************************************************************/
-void minqpsetlcmixed(const minqpstate &state, const real_2d_array &densec, const integer_1d_array &densect, const ae_int_t densek, const sparsematrix &sparsec, const integer_1d_array &sparsect, const ae_int_t sparsek, const xparams _xparams = alglib::xdefault);
+void minqpsetlcmixed(const minqpstate &state, const sparsematrix &sparsec, const integer_1d_array &sparsect, const ae_int_t sparsek, const real_2d_array &densec, const integer_1d_array &densect, const ae_int_t densek, const xparams _xparams = alglib::xdefault);
+
+
+/*************************************************************************
+This function provides legacy API for specification of mixed  dense/sparse
+linear constraints.
+
+New conventions used by ALGLIB since release  3.16.0  state  that  set  of
+sparse constraints comes first,  followed  by  set  of  dense  ones.  This
+convention is essential when you talk about things like order of  Lagrange
+multipliers.
+
+However, legacy API accepted mixed  constraints  in  reverse  order.  This
+function is here to simplify situation with code relying on legacy API. It
+simply accepts constraints in one order (old) and passes them to new  API,
+now in correct order.
+
+  -- ALGLIB --
+     Copyright 01.11.2019 by Bochkanov Sergey
+*************************************************************************/
+void minqpsetlcmixedlegacy(const minqpstate &state, const real_2d_array &densec, const integer_1d_array &densect, const ae_int_t densek, const sparsematrix &sparsec, const integer_1d_array &sparsect, const ae_int_t sparsek, const xparams _xparams = alglib::xdefault);
+
+
+/*************************************************************************
+This function sets two-sided linear constraints AL <= A*x <= AU with dense
+constraint matrix A.
+
+NOTE: knowing  that  constraint  matrix  is  dense  helps  some QP solvers
+      (especially modern IPM method) to utilize efficient  dense  Level  3
+      BLAS for dense parts of the problem. If your problem has both  dense
+      and sparse constraints, you  can  use  minqpsetlc2mixed()  function,
+      which will result in dense algebra being applied to dense terms, and
+      sparse sparse linear algebra applied to sparse terms.
+
+INPUT PARAMETERS:
+    State   -   structure previously allocated with minqpcreate() call.
+    A       -   linear constraints, array[K,N]. Each row of  A  represents
+                one  constraint. One-sided  inequality   constraints, two-
+                sided inequality  constraints,  equality  constraints  are
+                supported (see below)
+    AL, AU  -   lower and upper bounds, array[K];
+                * AL[i]=AU[i] => equality constraint Ai*x
+                * AL[i]<AU[i] => two-sided constraint AL[i]<=Ai*x<=AU[i]
+                * AL[i]=-INF  => one-sided constraint Ai*x<=AU[i]
+                * AU[i]=+INF  => one-sided constraint AL[i]<=Ai*x
+                * AL[i]=-INF, AU[i]=+INF => constraint is ignored
+    K       -   number of equality/inequality constraints,  K>=0;  if  not
+                given, inferred from sizes of A, AL, AU.
+
+  -- ALGLIB --
+     Copyright 01.11.2019 by Bochkanov Sergey
+*************************************************************************/
+void minqpsetlc2dense(const minqpstate &state, const real_2d_array &a, const real_1d_array &al, const real_1d_array &au, const ae_int_t k, const xparams _xparams = alglib::xdefault);
+void minqpsetlc2dense(const minqpstate &state, const real_2d_array &a, const real_1d_array &al, const real_1d_array &au, const xparams _xparams = alglib::xdefault);
+
+
+/*************************************************************************
+This  function  sets  two-sided linear  constraints  AL <= A*x <= AU  with
+sparse constraining matrix A. Recommended for large-scale problems.
+
+This  function  overwrites  linear  (non-box)  constraints set by previous
+calls (if such calls were made).
+
+INPUT PARAMETERS:
+    State   -   structure previously allocated with minqpcreate() call.
+    A       -   sparse matrix with size [K,N] (exactly!).
+                Each row of A represents one general linear constraint.
+                A can be stored in any sparse storage format.
+    AL, AU  -   lower and upper bounds, array[K];
+                * AL[i]=AU[i] => equality constraint Ai*x
+                * AL[i]<AU[i] => two-sided constraint AL[i]<=Ai*x<=AU[i]
+                * AL[i]=-INF  => one-sided constraint Ai*x<=AU[i]
+                * AU[i]=+INF  => one-sided constraint AL[i]<=Ai*x
+                * AL[i]=-INF, AU[i]=+INF => constraint is ignored
+    K       -   number  of equality/inequality constraints, K>=0.  If  K=0
+                is specified, A, AL, AU are ignored.
+
+  -- ALGLIB --
+     Copyright 01.11.2019 by Bochkanov Sergey
+*************************************************************************/
+void minqpsetlc2(const minqpstate &state, const sparsematrix &a, const real_1d_array &al, const real_1d_array &au, const ae_int_t k, const xparams _xparams = alglib::xdefault);
+
+
+/*************************************************************************
+This  function  sets  two-sided linear  constraints  AL <= A*x <= AU  with
+mixed constraining matrix A including sparse part (first SparseK rows) and
+dense part (last DenseK rows). Recommended for large-scale problems.
+
+This  function  overwrites  linear  (non-box)  constraints set by previous
+calls (if such calls were made).
+
+This function may be useful if constraint matrix includes large number  of
+both types of rows - dense and sparse. If you have just a few sparse rows,
+you  may  represent  them  in  dense  format  without loosing performance.
+Similarly, if you have just a few dense rows, you may store them in sparse
+format with almost same performance.
+
+INPUT PARAMETERS:
+    State   -   structure previously allocated with minqpcreate() call.
+    SparseA -   sparse matrix with size [K,N] (exactly!).
+                Each row of A represents one general linear constraint.
+                A can be stored in any sparse storage format.
+    SparseK -   number of sparse constraints, SparseK>=0
+    DenseA  -   linear constraints, array[K,N], set of dense constraints.
+                Each row of A represents one general linear constraint.
+    DenseK  -   number of dense constraints, DenseK>=0
+    AL, AU  -   lower and upper bounds, array[SparseK+DenseK], with former
+                SparseK elements corresponding to sparse constraints,  and
+                latter DenseK elements corresponding to dense constraints;
+                * AL[i]=AU[i] => equality constraint Ai*x
+                * AL[i]<AU[i] => two-sided constraint AL[i]<=Ai*x<=AU[i]
+                * AL[i]=-INF  => one-sided constraint Ai*x<=AU[i]
+                * AU[i]=+INF  => one-sided constraint AL[i]<=Ai*x
+                * AL[i]=-INF, AU[i]=+INF => constraint is ignored
+    K       -   number  of equality/inequality constraints, K>=0.  If  K=0
+                is specified, A, AL, AU are ignored.
+
+  -- ALGLIB --
+     Copyright 01.11.2019 by Bochkanov Sergey
+*************************************************************************/
+void minqpsetlc2mixed(const minqpstate &state, const sparsematrix &sparsea, const ae_int_t ksparse, const real_2d_array &densea, const ae_int_t kdense, const real_1d_array &al, const real_1d_array &au, const xparams _xparams = alglib::xdefault);
+
+
+/*************************************************************************
+This function appends two-sided linear constraint  AL <= A*x <= AU  to the
+list of currently present dense constraints.
+
+INPUT PARAMETERS:
+    State   -   structure previously allocated with minqpcreate() call.
+    A       -   linear constraint coefficient, array[N], right side is NOT
+                included.
+    AL, AU  -   lower and upper bounds;
+                * AL=AU    => equality constraint Ai*x
+                * AL<AU    => two-sided constraint AL<=A*x<=AU
+                * AL=-INF  => one-sided constraint Ai*x<=AU
+                * AU=+INF  => one-sided constraint AL<=Ai*x
+                * AL=-INF, AU=+INF => constraint is ignored
+
+  -- ALGLIB --
+     Copyright 19.07.2018 by Bochkanov Sergey
+*************************************************************************/
+void minqpaddlc2dense(const minqpstate &state, const real_1d_array &a, const double al, const double au, const xparams _xparams = alglib::xdefault);
+
+
+/*************************************************************************
+This function appends two-sided linear constraint  AL <= A*x <= AU  to the
+list of currently present sparse constraints.
+
+Constraint is passed in compressed format: as list of non-zero entries  of
+coefficient vector A. Such approach is more efficient than  dense  storage
+for highly sparse constraint vectors.
+
+INPUT PARAMETERS:
+    State   -   structure previously allocated with minqpcreate() call.
+    IdxA    -   array[NNZ], indexes of non-zero elements of A:
+                * can be unsorted
+                * can include duplicate indexes (corresponding entries  of
+                  ValA[] will be summed)
+    ValA    -   array[NNZ], values of non-zero elements of A
+    NNZ     -   number of non-zero coefficients in A
+    AL, AU  -   lower and upper bounds;
+                * AL=AU    => equality constraint A*x
+                * AL<AU    => two-sided constraint AL<=A*x<=AU
+                * AL=-INF  => one-sided constraint A*x<=AU
+                * AU=+INF  => one-sided constraint AL<=A*x
+                * AL=-INF, AU=+INF => constraint is ignored
+
+  -- ALGLIB --
+     Copyright 19.07.2018 by Bochkanov Sergey
+*************************************************************************/
+void minqpaddlc2(const minqpstate &state, const integer_1d_array &idxa, const real_1d_array &vala, const ae_int_t nnz, const double al, const double au, const xparams _xparams = alglib::xdefault);
 
 
 /*************************************************************************
@@ -4403,6 +5903,7 @@ the following functions:
 * minqpsetalgoquickqp()     - for QuickQP solver
 * minqpsetalgobleic()       - for BLEIC-QP solver
 * minqpsetalgodenseaul()    - for Dense-AUL-QP solver
+* minqpsetalgodenseipm()    - for Dense-IPM-QP solver
 
 These functions also allow you to control stopping criteria of the solver.
 If you did not set solver,  MinQP  subpackage  will  automatically  select
@@ -4434,35 +5935,12 @@ OUTPUT PARAMETERS:
     X       -   array[0..N-1], solution.
                 This array is allocated and initialized only when
                 Rep.TerminationType parameter is positive (success).
-    Rep     -   optimization report. You should check Rep.TerminationType,
-                which contains completion code, and you may check  another
-                fields which contain another information  about  algorithm
-                functioning.
-
-                Failure codes returned by algorithm are:
-                * -9    failure of the automatic scale evaluation:  one of
-                        the diagonal elements of  the  quadratic  term  is
-                        non-positive.  Specify variable scales manually!
-                * -5    inappropriate solver was used:
-                        * QuickQP solver for problem with  general  linear
-                          constraints
-                * -4    BLEIC-QP/QuickQP   solver    found   unconstrained
-                        direction  of   negative  curvature  (function  is
-                        unbounded from below even under constraints),   no
-                        meaningful minimum can be found.
-                * -3    inconsistent constraints (or maybe  feasible point
-                        is too  hard  to  find).  If  you  are  sure  that
-                        constraints are feasible, try to restart optimizer
-                        with better initial approximation.
-
-                Completion codes specific for Cholesky algorithm:
-                *  4   successful completion
-
-                Completion codes specific for BLEIC/QuickQP algorithms:
-                *  1   relative function improvement is no more than EpsF.
-                *  2   scaled step is no more than EpsX.
-                *  4   scaled gradient norm is no more than EpsG.
-                *  5   MaxIts steps was taken
+    Rep     -   optimization report, contains:
+                * completion code in Rep.TerminationType (positive  values
+                  denote some kind of success, negative - failures)
+                * Lagrange multipliers - for QP solvers which support then
+                * other statistics
+                See comments on minqpreport structure for more information
 
   -- ALGLIB --
      Copyright 11.01.2011 by Bochkanov Sergey
@@ -4484,209 +5962,74 @@ where array reallocation penalty is too large to be ignored.
 void minqpresultsbuf(const minqpstate &state, real_1d_array &x, minqpreport &rep, const xparams _xparams = alglib::xdefault);
 #endif
 
-#if defined(AE_COMPILE_MINBC) || !defined(AE_PARTIAL_BUILD)
+#if defined(AE_COMPILE_REVISEDDUALSIMPLEX) || !defined(AE_PARTIAL_BUILD)
+
+#endif
+
+#if defined(AE_COMPILE_MINLP) || !defined(AE_PARTIAL_BUILD)
 /*************************************************************************
-                     BOX CONSTRAINED OPTIMIZATION
-          WITH FAST ACTIVATION OF MULTIPLE BOX CONSTRAINTS
+                            LINEAR PROGRAMMING
 
-DESCRIPTION:
-The  subroutine  minimizes  function   F(x) of N arguments subject  to box
-constraints (with some of box constraints actually being equality ones).
+The subroutine creates LP  solver.  After  initial  creation  it  contains
+default optimization problem with zero cost vector and all variables being
+fixed to zero values and no constraints.
 
-This optimizer uses algorithm similar to that of MinBLEIC (optimizer  with
-general linear constraints), but presence of box-only  constraints  allows
-us to use faster constraint activation strategies. On large-scale problems,
-with multiple constraints active at the solution, this  optimizer  can  be
-several times faster than BLEIC.
+In order to actually solve something you should:
+* set cost vector with minlpsetcost()
+* set variable bounds with minlpsetbc() or minlpsetbcall()
+* specify constraint matrix with one of the following functions:
+  [*] minlpsetlc()        for dense one-sided constraints
+  [*] minlpsetlc2dense()  for dense two-sided constraints
+  [*] minlpsetlc2()       for sparse two-sided constraints
+  [*] minlpaddlc2dense()  to add one dense row to constraint matrix
+  [*] minlpaddlc2()       to add one row to constraint matrix (compressed format)
+* call minlpoptimize() to run the solver and  minlpresults()  to  get  the
+  solution vector and additional information.
 
-REQUIREMENTS:
-* user must provide function value and gradient
-* starting point X0 must be feasible or
-  not too far away from the feasible set
-* grad(f) must be Lipschitz continuous on a level set:
-  L = { x : f(x)<=f(x0) }
-* function must be defined everywhere on the feasible set F
+Presently  this  optimizer  supports  only  revised  simplex   method   as
+underlying solver. DSE pricing and bounds flipping ratio  test  (aka  long
+dual step) are supported. Large-scale sparse LU solver with  Forest-Tomlin
+is used internally as linear algebra driver.
 
-USAGE:
-
-Constrained optimization if far more complex than the unconstrained one.
-Here we give very brief outline of the BC optimizer. We strongly recommend
-you to read examples in the ALGLIB Reference Manual and to read ALGLIB User Guide
-on optimization, which is available at http://www.alglib.net/optimization/
-
-1. User initializes algorithm state with MinBCCreate() call
-
-2. USer adds box constraints by calling MinBCSetBC() function.
-
-3. User sets stopping conditions with MinBCSetCond().
-
-4. User calls MinBCOptimize() function which takes algorithm  state and
-   pointer (delegate, etc.) to callback function which calculates F/G.
-
-5. User calls MinBCResults() to get solution
-
-6. Optionally user may call MinBCRestartFrom() to solve another problem
-   with same N but another starting point.
-   MinBCRestartFrom() allows to reuse already initialized structure.
-
+Future releases of ALGLIB may introduce other solvers.
 
 INPUT PARAMETERS:
-    N       -   problem dimension, N>0:
-                * if given, only leading N elements of X are used
-                * if not given, automatically determined from size ofX
-    X       -   starting point, array[N]:
-                * it is better to set X to a feasible point
-                * but X can be infeasible, in which case algorithm will try
-                  to find feasible point first, using X as initial
-                  approximation.
+    N       -   problem size
 
 OUTPUT PARAMETERS:
-    State   -   structure stores algorithm state
+    State   -   optimizer in the default state
 
   -- ALGLIB --
-     Copyright 28.11.2010 by Bochkanov Sergey
+     Copyright 19.07.2018 by Bochkanov Sergey
 *************************************************************************/
-void minbccreate(const ae_int_t n, const real_1d_array &x, minbcstate &state, const xparams _xparams = alglib::xdefault);
-void minbccreate(const real_1d_array &x, minbcstate &state, const xparams _xparams = alglib::xdefault);
+void minlpcreate(const ae_int_t n, minlpstate &state, const xparams _xparams = alglib::xdefault);
 
 
 /*************************************************************************
-The subroutine is finite difference variant of MinBCCreate().  It  uses
-finite differences in order to differentiate target function.
+This function sets cost term for LP solver.
 
-Description below contains information which is specific to  this function
-only. We recommend to read comments on MinBCCreate() in  order  to  get
-more information about creation of BC optimizer.
-
-INPUT PARAMETERS:
-    N       -   problem dimension, N>0:
-                * if given, only leading N elements of X are used
-                * if not given, automatically determined from size of X
-    X       -   starting point, array[0..N-1].
-    DiffStep-   differentiation step, >0
-
-OUTPUT PARAMETERS:
-    State   -   structure which stores algorithm state
-
-NOTES:
-1. algorithm uses 4-point central formula for differentiation.
-2. differentiation step along I-th axis is equal to DiffStep*S[I] where
-   S[] is scaling vector which can be set by MinBCSetScale() call.
-3. we recommend you to use moderate values of  differentiation  step.  Too
-   large step will result in too large truncation  errors, while too small
-   step will result in too large numerical  errors.  1.0E-6  can  be  good
-   value to start with.
-4. Numerical  differentiation  is   very   inefficient  -   one   gradient
-   calculation needs 4*N function evaluations. This function will work for
-   any N - either small (1...10), moderate (10...100) or  large  (100...).
-   However, performance penalty will be too severe for any N's except  for
-   small ones.
-   We should also say that code which relies on numerical  differentiation
-   is  less  robust and precise. CG needs exact gradient values. Imprecise
-   gradient may slow  down  convergence, especially  on  highly  nonlinear
-   problems.
-   Thus  we  recommend to use this function for fast prototyping on small-
-   dimensional problems only, and to implement analytical gradient as soon
-   as possible.
-
-  -- ALGLIB --
-     Copyright 16.05.2011 by Bochkanov Sergey
-*************************************************************************/
-void minbccreatef(const ae_int_t n, const real_1d_array &x, const double diffstep, minbcstate &state, const xparams _xparams = alglib::xdefault);
-void minbccreatef(const real_1d_array &x, const double diffstep, minbcstate &state, const xparams _xparams = alglib::xdefault);
-
-
-/*************************************************************************
-This function sets boundary constraints for BC optimizer.
-
-Boundary constraints are inactive by default (after initial creation).
-They are preserved after algorithm restart with MinBCRestartFrom().
-
-INPUT PARAMETERS:
-    State   -   structure stores algorithm state
-    BndL    -   lower bounds, array[N].
-                If some (all) variables are unbounded, you may specify
-                very small number or -INF.
-    BndU    -   upper bounds, array[N].
-                If some (all) variables are unbounded, you may specify
-                very large number or +INF.
-
-NOTE 1: it is possible to specify BndL[i]=BndU[i]. In this case I-th
-variable will be "frozen" at X[i]=BndL[i]=BndU[i].
-
-NOTE 2: this solver has following useful properties:
-* bound constraints are always satisfied exactly
-* function is evaluated only INSIDE area specified by  bound  constraints,
-  even  when  numerical  differentiation is used (algorithm adjusts  nodes
-  according to boundary constraints)
-
-  -- ALGLIB --
-     Copyright 28.11.2010 by Bochkanov Sergey
-*************************************************************************/
-void minbcsetbc(const minbcstate &state, const real_1d_array &bndl, const real_1d_array &bndu, const xparams _xparams = alglib::xdefault);
-
-
-/*************************************************************************
-This function sets stopping conditions for the optimizer.
+By default, cost term is zero.
 
 INPUT PARAMETERS:
     State   -   structure which stores algorithm state
-    EpsG    -   >=0
-                The  subroutine  finishes  its  work   if   the  condition
-                |v|<EpsG is satisfied, where:
-                * |.| means Euclidian norm
-                * v - scaled gradient vector, v[i]=g[i]*s[i]
-                * g - gradient
-                * s - scaling coefficients set by MinBCSetScale()
-    EpsF    -   >=0
-                The  subroutine  finishes  its work if on k+1-th iteration
-                the  condition  |F(k+1)-F(k)|<=EpsF*max{|F(k)|,|F(k+1)|,1}
-                is satisfied.
-    EpsX    -   >=0
-                The subroutine finishes its work if  on  k+1-th  iteration
-                the condition |v|<=EpsX is fulfilled, where:
-                * |.| means Euclidian norm
-                * v - scaled step vector, v[i]=dx[i]/s[i]
-                * dx - step vector, dx=X(k+1)-X(k)
-                * s - scaling coefficients set by MinBCSetScale()
-    MaxIts  -   maximum number of iterations. If MaxIts=0, the  number  of
-                iterations is unlimited.
-
-Passing EpsG=0, EpsF=0 and EpsX=0 and MaxIts=0 (simultaneously) will lead
-to automatic stopping criterion selection.
-
-NOTE: when SetCond() called with non-zero MaxIts, BC solver may perform
-      slightly more than MaxIts iterations. I.e., MaxIts  sets  non-strict
-      limit on iterations count.
+    C       -   cost term, array[N].
 
   -- ALGLIB --
-     Copyright 28.11.2010 by Bochkanov Sergey
+     Copyright 19.07.2018 by Bochkanov Sergey
 *************************************************************************/
-void minbcsetcond(const minbcstate &state, const double epsg, const double epsf, const double epsx, const ae_int_t maxits, const xparams _xparams = alglib::xdefault);
+void minlpsetcost(const minlpstate &state, const real_1d_array &c, const xparams _xparams = alglib::xdefault);
 
 
 /*************************************************************************
-This function sets scaling coefficients for BC optimizer.
+This function sets scaling coefficients.
 
-ALGLIB optimizers use scaling matrices to test stopping  conditions  (step
-size and gradient are scaled before comparison with tolerances).  Scale of
-the I-th variable is a translation invariant measure of:
+ALGLIB optimizers use scaling matrices to test stopping  conditions and as
+preconditioner.
+
+Scale of the I-th variable is a translation invariant measure of:
 a) "how large" the variable is
-b) how large the step should be to make significant changes in the function
-
-Scaling is also used by finite difference variant of the optimizer  - step
-along I-th axis is equal to DiffStep*S[I].
-
-In  most  optimizers  (and  in  the  BC  too)  scaling is NOT a form of
-preconditioning. It just  affects  stopping  conditions.  You  should  set
-preconditioner  by  separate  call  to  one  of  the  MinBCSetPrec...()
-functions.
-
-There is a special  preconditioning  mode, however,  which  uses   scaling
-coefficients to form diagonal preconditioning matrix. You  can  turn  this
-mode on, if you want.   But  you should understand that scaling is not the
-same thing as preconditioning - these are two different, although  related
-forms of tuning solver.
+b) how large the step should be to make significant changes in the
+   function
 
 INPUT PARAMETERS:
     State   -   structure stores algorithm state
@@ -4694,313 +6037,346 @@ INPUT PARAMETERS:
                 S[i] may be negative, sign doesn't matter.
 
   -- ALGLIB --
-     Copyright 14.01.2011 by Bochkanov Sergey
+     Copyright 19.07.2018 by Bochkanov Sergey
 *************************************************************************/
-void minbcsetscale(const minbcstate &state, const real_1d_array &s, const xparams _xparams = alglib::xdefault);
+void minlpsetscale(const minlpstate &state, const real_1d_array &s, const xparams _xparams = alglib::xdefault);
 
 
 /*************************************************************************
-Modification of the preconditioner: preconditioning is turned off.
+This function sets box constraints for LP solver (all variables  at  once,
+different constraints for different variables).
+
+The default state of constraints is to have all variables fixed  at  zero.
+You have to overwrite it by your own constraint vector. Constraint  status
+is preserved until constraints are  explicitly  overwritten  with  another
+minlpsetbc()  call,   overwritten   with  minlpsetbcall(),  or   partially
+overwritten with minlmsetbci() call.
+
+Following types of constraints are supported:
+
+    DESCRIPTION         CONSTRAINT              HOW TO SPECIFY
+    fixed variable      x[i]=Bnd[i]             BndL[i]=BndU[i]
+    lower bound         BndL[i]<=x[i]           BndU[i]=+INF
+    upper bound         x[i]<=BndU[i]           BndL[i]=-INF
+    range               BndL[i]<=x[i]<=BndU[i]  ...
+    free variable       -                       BndL[I]=-INF, BndU[I]+INF
 
 INPUT PARAMETERS:
-    State   -   structure which stores algorithm state
+    State   -   structure stores algorithm state
+    BndL    -   lower bounds, array[N].
+    BndU    -   upper bounds, array[N].
+
+NOTE: infinite values can be specified by means of Double.PositiveInfinity
+      and  Double.NegativeInfinity  (in  C#)  and  alglib::fp_posinf   and
+      alglib::fp_neginf (in C++).
+
+NOTE: you may replace infinities by very small/very large values,  but  it
+      is not recommended because large numbers may introduce large numerical
+      errors in the algorithm.
+
+NOTE: if constraints for all variables are same you may use minlpsetbcall()
+      which allows to specify constraints without using arrays.
+
+NOTE: BndL>BndU will result in LP problem being recognized as infeasible.
 
   -- ALGLIB --
-     Copyright 13.10.2010 by Bochkanov Sergey
+     Copyright 19.07.2018 by Bochkanov Sergey
 *************************************************************************/
-void minbcsetprecdefault(const minbcstate &state, const xparams _xparams = alglib::xdefault);
+void minlpsetbc(const minlpstate &state, const real_1d_array &bndl, const real_1d_array &bndu, const xparams _xparams = alglib::xdefault);
 
 
 /*************************************************************************
-Modification  of  the  preconditioner:  diagonal of approximate Hessian is
-used.
+This function sets box constraints for LP solver (all variables  at  once,
+same constraints for all variables)
+
+The default state of constraints is to have all variables fixed  at  zero.
+You have to overwrite it by your own constraint vector. Constraint  status
+is preserved until constraints are  explicitly  overwritten  with  another
+minlpsetbc() call or partially overwritten with minlpsetbcall().
+
+Following types of constraints are supported:
+
+    DESCRIPTION         CONSTRAINT              HOW TO SPECIFY
+    fixed variable      x[i]=Bnd[i]             BndL[i]=BndU[i]
+    lower bound         BndL[i]<=x[i]           BndU[i]=+INF
+    upper bound         x[i]<=BndU[i]           BndL[i]=-INF
+    range               BndL[i]<=x[i]<=BndU[i]  ...
+    free variable       -                       BndL[I]=-INF, BndU[I]+INF
 
 INPUT PARAMETERS:
-    State   -   structure which stores algorithm state
-    D       -   diagonal of the approximate Hessian, array[0..N-1],
-                (if larger, only leading N elements are used).
+    State   -   structure stores algorithm state
+    BndL    -   lower bound, same for all variables
+    BndU    -   upper bound, same for all variables
 
-NOTE 1: D[i] should be positive. Exception will be thrown otherwise.
+NOTE: infinite values can be specified by means of Double.PositiveInfinity
+      and  Double.NegativeInfinity  (in  C#)  and  alglib::fp_posinf   and
+      alglib::fp_neginf (in C++).
 
-NOTE 2: you should pass diagonal of approximate Hessian - NOT ITS INVERSE.
+NOTE: you may replace infinities by very small/very large values,  but  it
+      is not recommended because large numbers may introduce large numerical
+      errors in the algorithm.
+
+NOTE: minlpsetbc() can  be  used  to  specify  different  constraints  for
+      different variables.
+
+NOTE: BndL>BndU will result in LP problem being recognized as infeasible.
 
   -- ALGLIB --
-     Copyright 13.10.2010 by Bochkanov Sergey
+     Copyright 19.07.2018 by Bochkanov Sergey
 *************************************************************************/
-void minbcsetprecdiag(const minbcstate &state, const real_1d_array &d, const xparams _xparams = alglib::xdefault);
+void minlpsetbcall(const minlpstate &state, const double bndl, const double bndu, const xparams _xparams = alglib::xdefault);
 
 
 /*************************************************************************
-Modification of the preconditioner: scale-based diagonal preconditioning.
+This function sets box constraints for I-th variable (other variables are
+not modified).
 
-This preconditioning mode can be useful when you  don't  have  approximate
-diagonal of Hessian, but you know that your  variables  are  badly  scaled
-(for  example,  one  variable is in [1,10], and another in [1000,100000]),
-and most part of the ill-conditioning comes from different scales of vars.
+The default state of constraints is to have all variables fixed  at  zero.
+You have to overwrite it by your own constraint vector.
 
-In this case simple  scale-based  preconditioner,  with H[i] = 1/(s[i]^2),
-can greatly improve convergence.
+Following types of constraints are supported:
 
-IMPRTANT: you should set scale of your variables  with  MinBCSetScale()
-call  (before  or after MinBCSetPrecScale() call). Without knowledge of
-the scale of your variables scale-based preconditioner will be  just  unit
-matrix.
+    DESCRIPTION         CONSTRAINT              HOW TO SPECIFY
+    fixed variable      x[i]=Bnd[i]             BndL[i]=BndU[i]
+    lower bound         BndL[i]<=x[i]           BndU[i]=+INF
+    upper bound         x[i]<=BndU[i]           BndL[i]=-INF
+    range               BndL[i]<=x[i]<=BndU[i]  ...
+    free variable       -                       BndL[I]=-INF, BndU[I]+INF
 
 INPUT PARAMETERS:
-    State   -   structure which stores algorithm state
+    State   -   structure stores algorithm state
+    I       -   variable index, in [0,N)
+    BndL    -   lower bound for I-th variable
+    BndU    -   upper bound for I-th variable
+
+NOTE: infinite values can be specified by means of Double.PositiveInfinity
+      and  Double.NegativeInfinity  (in  C#)  and  alglib::fp_posinf   and
+      alglib::fp_neginf (in C++).
+
+NOTE: you may replace infinities by very small/very large values,  but  it
+      is not recommended because large numbers may introduce large numerical
+      errors in the algorithm.
+
+NOTE: minlpsetbc() can  be  used  to  specify  different  constraints  for
+      different variables.
+
+NOTE: BndL>BndU will result in LP problem being recognized as infeasible.
 
   -- ALGLIB --
-     Copyright 13.10.2010 by Bochkanov Sergey
+     Copyright 19.07.2018 by Bochkanov Sergey
 *************************************************************************/
-void minbcsetprecscale(const minbcstate &state, const xparams _xparams = alglib::xdefault);
+void minlpsetbci(const minlpstate &state, const ae_int_t i, const double bndl, const double bndu, const xparams _xparams = alglib::xdefault);
 
 
 /*************************************************************************
-This function turns on/off reporting.
+This function sets one-sided linear constraints A*x ~ AU, where "~" can be
+a mix of "<=", "=" and ">=".
+
+IMPORTANT: this function is provided here for compatibility with the  rest
+           of ALGLIB optimizers which accept constraints  in  format  like
+           this one. Many real-life problems feature two-sided constraints
+           like a0 <= a*x <= a1. It is really inefficient to add them as a
+           pair of one-sided constraints.
+
+           Use minlpsetlc2dense(), minlpsetlc2(), minlpaddlc2()  (or   its
+           sparse version) wherever possible.
 
 INPUT PARAMETERS:
-    State   -   structure which stores algorithm state
-    NeedXRep-   whether iteration reports are needed or not
-
-If NeedXRep is True, algorithm will call rep() callback function if  it is
-provided to MinBCOptimize().
+    State   -   structure previously allocated with minlpcreate() call.
+    A       -   linear constraints, array[K,N+1]. Each row of A represents
+                one constraint, with first N elements being linear coefficients,
+                and last element being right side.
+    CT      -   constraint types, array[K]:
+                * if CT[i]>0, then I-th constraint is A[i,*]*x >= A[i,n]
+                * if CT[i]=0, then I-th constraint is A[i,*]*x  = A[i,n]
+                * if CT[i]<0, then I-th constraint is A[i,*]*x <= A[i,n]
+    K       -   number of equality/inequality constraints,  K>=0;  if  not
+                given, inferred from sizes of A and CT.
 
   -- ALGLIB --
-     Copyright 28.11.2010 by Bochkanov Sergey
+     Copyright 19.07.2018 by Bochkanov Sergey
 *************************************************************************/
-void minbcsetxrep(const minbcstate &state, const bool needxrep, const xparams _xparams = alglib::xdefault);
+void minlpsetlc(const minlpstate &state, const real_2d_array &a, const integer_1d_array &ct, const ae_int_t k, const xparams _xparams = alglib::xdefault);
+void minlpsetlc(const minlpstate &state, const real_2d_array &a, const integer_1d_array &ct, const xparams _xparams = alglib::xdefault);
 
 
 /*************************************************************************
-This function sets maximum step length
+This function sets two-sided linear constraints AL <= A*x <= AU.
+
+This version accepts dense matrix as  input;  internally  LP  solver  uses
+sparse storage  anyway  (most  LP  problems  are  sparse),  but  for  your
+convenience it may accept dense inputs. This  function  overwrites  linear
+constraints set by previous calls (if such calls were made).
+
+We recommend you to use sparse version of this function unless  you  solve
+small-scale LP problem (less than few hundreds of variables).
+
+NOTE: there also exist several versions of this function:
+      * one-sided dense version which  accepts  constraints  in  the  same
+        format as one used by QP and  NLP solvers
+      * two-sided sparse version which accepts sparse matrix
+      * two-sided dense  version which allows you to add constraints row by row
+      * two-sided sparse version which allows you to add constraints row by row
 
 INPUT PARAMETERS:
-    State   -   structure which stores algorithm state
-    StpMax  -   maximum step length, >=0. Set StpMax to 0.0,  if you don't
-                want to limit step length.
-
-Use this subroutine when you optimize target function which contains exp()
-or  other  fast  growing  functions,  and optimization algorithm makes too
-large  steps  which  lead   to overflow. This function allows us to reject
-steps  that  are  too  large  (and  therefore  expose  us  to the possible
-overflow) without actually calculating function value at the x+stp*d.
-
-  -- ALGLIB --
-     Copyright 02.04.2010 by Bochkanov Sergey
-*************************************************************************/
-void minbcsetstpmax(const minbcstate &state, const double stpmax, const xparams _xparams = alglib::xdefault);
-
-
-/*************************************************************************
-This function provides reverse communication interface
-Reverse communication interface is not documented or recommended to use.
-See below for functions which provide better documented API
-*************************************************************************/
-bool minbciteration(const minbcstate &state, const xparams _xparams = alglib::xdefault);
-
-
-/*************************************************************************
-This family of functions is used to launcn iterations of nonlinear optimizer
-
-These functions accept following parameters:
-    state   -   algorithm state
-    func    -   callback which calculates function (or merit function)
-                value func at given point x
-    grad    -   callback which calculates function (or merit function)
-                value func and gradient grad at given point x
-    rep     -   optional callback which is called after each iteration
-                can be NULL
-    ptr     -   optional pointer which is passed to func/grad/hess/jac/rep
-                can be NULL
-
-NOTES:
-
-1. This function has two different implementations: one which  uses  exact
-   (analytical) user-supplied gradient,  and one which uses function value
-   only  and  numerically  differentiates  function  in  order  to  obtain
-   gradient.
-
-   Depending  on  the  specific  function  used to create optimizer object
-   (either  MinBCCreate() for analytical gradient or  MinBCCreateF()
-   for numerical differentiation) you should choose appropriate variant of
-   MinBCOptimize() - one  which  accepts  function  AND gradient or one
-   which accepts function ONLY.
-
-   Be careful to choose variant of MinBCOptimize() which corresponds to
-   your optimization scheme! Table below lists different  combinations  of
-   callback (function/gradient) passed to MinBCOptimize()  and specific
-   function used to create optimizer.
-
-
-                     |         USER PASSED TO MinBCOptimize()
-   CREATED WITH      |  function only   |  function and gradient
-   ------------------------------------------------------------
-   MinBCCreateF()    |     works               FAILS
-   MinBCCreate()     |     FAILS               works
-
-   Here "FAIL" denotes inappropriate combinations  of  optimizer  creation
-   function  and  MinBCOptimize()  version.   Attemps   to   use   such
-   combination (for  example,  to  create optimizer with MinBCCreateF()
-   and  to  pass  gradient  information  to  MinCGOptimize()) will lead to
-   exception being thrown. Either  you  did  not pass gradient when it WAS
-   needed or you passed gradient when it was NOT needed.
+    State   -   structure previously allocated with minlpcreate() call.
+    A       -   linear constraints, array[K,N]. Each row of  A  represents
+                one  constraint. One-sided  inequality   constraints, two-
+                sided inequality  constraints,  equality  constraints  are
+                supported (see below)
+    AL, AU  -   lower and upper bounds, array[K];
+                * AL[i]=AU[i] => equality constraint Ai*x
+                * AL[i]<AU[i] => two-sided constraint AL[i]<=Ai*x<=AU[i]
+                * AL[i]=-INF  => one-sided constraint Ai*x<=AU[i]
+                * AU[i]=+INF  => one-sided constraint AL[i]<=Ai*x
+                * AL[i]=-INF, AU[i]=+INF => constraint is ignored
+    K       -   number of equality/inequality constraints,  K>=0;  if  not
+                given, inferred from sizes of A, AL, AU.
 
   -- ALGLIB --
-     Copyright 28.11.2010 by Bochkanov Sergey
-
+     Copyright 19.07.2018 by Bochkanov Sergey
 *************************************************************************/
-void minbcoptimize(minbcstate &state,
-    void (*func)(const real_1d_array &x, double &func, void *ptr),
-    void  (*rep)(const real_1d_array &x, double func, void *ptr) = NULL,
-    void *ptr = NULL,
-    const xparams _xparams = alglib::xdefault);
-void minbcoptimize(minbcstate &state,
-    void (*grad)(const real_1d_array &x, double &func, real_1d_array &grad, void *ptr),
-    void  (*rep)(const real_1d_array &x, double func, void *ptr) = NULL,
-    void *ptr = NULL,
-    const xparams _xparams = alglib::xdefault);
+void minlpsetlc2dense(const minlpstate &state, const real_2d_array &a, const real_1d_array &al, const real_1d_array &au, const ae_int_t k, const xparams _xparams = alglib::xdefault);
+void minlpsetlc2dense(const minlpstate &state, const real_2d_array &a, const real_1d_array &al, const real_1d_array &au, const xparams _xparams = alglib::xdefault);
 
 
 /*************************************************************************
-BC results
+This  function  sets  two-sided linear  constraints  AL <= A*x <= AU  with
+sparse constraining matrix A. Recommended for large-scale problems.
+
+This  function  overwrites  linear  (non-box)  constraints set by previous
+calls (if such calls were made).
+
+INPUT PARAMETERS:
+    State   -   structure previously allocated with minlpcreate() call.
+    A       -   sparse matrix with size [K,N] (exactly!).
+                Each row of A represents one general linear constraint.
+                A can be stored in any sparse storage format.
+    AL, AU  -   lower and upper bounds, array[K];
+                * AL[i]=AU[i] => equality constraint Ai*x
+                * AL[i]<AU[i] => two-sided constraint AL[i]<=Ai*x<=AU[i]
+                * AL[i]=-INF  => one-sided constraint Ai*x<=AU[i]
+                * AU[i]=+INF  => one-sided constraint AL[i]<=Ai*x
+                * AL[i]=-INF, AU[i]=+INF => constraint is ignored
+    K       -   number  of equality/inequality constraints, K>=0.  If  K=0
+                is specified, A, AL, AU are ignored.
+
+  -- ALGLIB --
+     Copyright 19.07.2018 by Bochkanov Sergey
+*************************************************************************/
+void minlpsetlc2(const minlpstate &state, const sparsematrix &a, const real_1d_array &al, const real_1d_array &au, const ae_int_t k, const xparams _xparams = alglib::xdefault);
+
+
+/*************************************************************************
+This function appends two-sided linear constraint  AL <= A*x <= AU  to the
+list of currently present constraints.
+
+This version accepts dense constraint vector as input, but  sparsifies  it
+for internal storage and processing. Thus, time to add one  constraint  in
+is O(N) - we have to scan entire array of length N. Sparse version of this
+function is order of magnitude faster for  constraints  with  just  a  few
+nonzeros per row.
+
+INPUT PARAMETERS:
+    State   -   structure previously allocated with minlpcreate() call.
+    A       -   linear constraint coefficient, array[N], right side is NOT
+                included.
+    AL, AU  -   lower and upper bounds;
+                * AL=AU    => equality constraint Ai*x
+                * AL<AU    => two-sided constraint AL<=A*x<=AU
+                * AL=-INF  => one-sided constraint Ai*x<=AU
+                * AU=+INF  => one-sided constraint AL<=Ai*x
+                * AL=-INF, AU=+INF => constraint is ignored
+
+  -- ALGLIB --
+     Copyright 19.07.2018 by Bochkanov Sergey
+*************************************************************************/
+void minlpaddlc2dense(const minlpstate &state, const real_1d_array &a, const double al, const double au, const xparams _xparams = alglib::xdefault);
+
+
+/*************************************************************************
+This function appends two-sided linear constraint  AL <= A*x <= AU  to the
+list of currently present constraints.
+
+Constraint is passed in compressed format: as list of non-zero entries  of
+coefficient vector A. Such approach is more efficient than  dense  storage
+for highly sparse constraint vectors.
+
+INPUT PARAMETERS:
+    State   -   structure previously allocated with minlpcreate() call.
+    IdxA    -   array[NNZ], indexes of non-zero elements of A:
+                * can be unsorted
+                * can include duplicate indexes (corresponding entries  of
+                  ValA[] will be summed)
+    ValA    -   array[NNZ], values of non-zero elements of A
+    NNZ     -   number of non-zero coefficients in A
+    AL, AU  -   lower and upper bounds;
+                * AL=AU    => equality constraint A*x
+                * AL<AU    => two-sided constraint AL<=A*x<=AU
+                * AL=-INF  => one-sided constraint A*x<=AU
+                * AU=+INF  => one-sided constraint AL<=A*x
+                * AL=-INF, AU=+INF => constraint is ignored
+
+  -- ALGLIB --
+     Copyright 19.07.2018 by Bochkanov Sergey
+*************************************************************************/
+void minlpaddlc2(const minlpstate &state, const integer_1d_array &idxa, const real_1d_array &vala, const ae_int_t nnz, const double al, const double au, const xparams _xparams = alglib::xdefault);
+
+
+/*************************************************************************
+This function solves LP problem.
+
+INPUT PARAMETERS:
+    State   -   algorithm state
+
+You should use minlpresults() function to access results  after  calls  to
+this function.
+
+  -- ALGLIB --
+     Copyright 19.07.2018 by Bochkanov Sergey.
+*************************************************************************/
+void minlpoptimize(const minlpstate &state, const xparams _xparams = alglib::xdefault);
+
+
+/*************************************************************************
+LP solver results
 
 INPUT PARAMETERS:
     State   -   algorithm state
 
 OUTPUT PARAMETERS:
-    X       -   array[0..N-1], solution
-    Rep     -   optimization report. You should check Rep.TerminationType
-                in  order  to  distinguish  successful  termination  from
-                unsuccessful one:
-                * -8    internal integrity control  detected  infinite or
-                        NAN   values   in   function/gradient.   Abnormal
-                        termination signalled.
-                * -7   gradient verification failed.
-                       See MinBCSetGradientCheck() for more information.
-                * -3   inconsistent constraints.
-                *  1   relative function improvement is no more than EpsF.
-                *  2   scaled step is no more than EpsX.
-                *  4   scaled gradient norm is no more than EpsG.
-                *  5   MaxIts steps was taken
-                *  8   terminated by user who called minbcrequesttermination().
-                       X contains point which was "current accepted"  when
-                       termination request was submitted.
-                More information about fields of this  structure  can  be
-                found in the comments on MinBCReport datatype.
+    X       -   array[N], solution. Filled by zeros on failure.
+    Rep     -   optimization report. You should check Rep.TerminationType,
+                which contains completion code, and you may check  another
+                fields which contain another information  about  algorithm
+                functioning.
+
+                Failure codes returned by algorithm are:
+                * -4    LP problem is primal unbounded (dual infeasible)
+                * -3    LP problem is primal infeasible (dual unbounded)
+
+                Success codes:
+                *  1..4 successful completion
+                *  5    MaxIts steps was taken
 
   -- ALGLIB --
-     Copyright 28.11.2010 by Bochkanov Sergey
+     Copyright 11.01.2011 by Bochkanov Sergey
 *************************************************************************/
-void minbcresults(const minbcstate &state, real_1d_array &x, minbcreport &rep, const xparams _xparams = alglib::xdefault);
+void minlpresults(const minlpstate &state, real_1d_array &x, minlpreport &rep, const xparams _xparams = alglib::xdefault);
 
 
 /*************************************************************************
-BC results
+LP results
 
-Buffered implementation of MinBCResults() which uses pre-allocated buffer
+Buffered implementation of MinLPResults() which uses pre-allocated  buffer
 to store X[]. If buffer size is  too  small,  it  resizes  buffer.  It  is
 intended to be used in the inner cycles of performance critical algorithms
 where array reallocation penalty is too large to be ignored.
 
   -- ALGLIB --
-     Copyright 28.11.2010 by Bochkanov Sergey
+     Copyright 11.01.2011 by Bochkanov Sergey
 *************************************************************************/
-void minbcresultsbuf(const minbcstate &state, real_1d_array &x, minbcreport &rep, const xparams _xparams = alglib::xdefault);
-
-
-/*************************************************************************
-This subroutine restarts algorithm from new point.
-All optimization parameters (including constraints) are left unchanged.
-
-This  function  allows  to  solve multiple  optimization  problems  (which
-must have  same number of dimensions) without object reallocation penalty.
-
-INPUT PARAMETERS:
-    State   -   structure previously allocated with MinBCCreate call.
-    X       -   new starting point.
-
-  -- ALGLIB --
-     Copyright 28.11.2010 by Bochkanov Sergey
-*************************************************************************/
-void minbcrestartfrom(const minbcstate &state, const real_1d_array &x, const xparams _xparams = alglib::xdefault);
-
-
-/*************************************************************************
-This subroutine submits request for termination of running  optimizer.  It
-should be called from user-supplied callback when user decides that it  is
-time to "smoothly" terminate optimization process.  As  result,  optimizer
-stops at point which was "current accepted" when termination  request  was
-submitted and returns error code 8 (successful termination).
-
-INPUT PARAMETERS:
-    State   -   optimizer structure
-
-NOTE: after  request  for  termination  optimizer  may   perform   several
-      additional calls to user-supplied callbacks. It does  NOT  guarantee
-      to stop immediately - it just guarantees that these additional calls
-      will be discarded later.
-
-NOTE: calling this function on optimizer which is NOT running will have no
-      effect.
-
-NOTE: multiple calls to this function are possible. First call is counted,
-      subsequent calls are silently ignored.
-
-  -- ALGLIB --
-     Copyright 08.10.2014 by Bochkanov Sergey
-*************************************************************************/
-void minbcrequesttermination(const minbcstate &state, const xparams _xparams = alglib::xdefault);
-
-
-/*************************************************************************
-This  subroutine  turns  on  verification  of  the  user-supplied analytic
-gradient:
-* user calls this subroutine before optimization begins
-* MinBCOptimize() is called
-* prior to  actual  optimization, for each component  of  parameters being
-  optimized X[i] algorithm performs following steps:
-  * two trial steps are made to X[i]-TestStep*S[i] and X[i]+TestStep*S[i],
-    where X[i] is i-th component of the initial point and S[i] is a  scale
-    of i-th parameter
-  * if needed, steps are bounded with respect to constraints on X[]
-  * F(X) is evaluated at these trial points
-  * we perform one more evaluation in the middle point of the interval
-  * we  build  cubic  model using function values and derivatives at trial
-    points and we compare its prediction with actual value in  the  middle
-    point
-  * in case difference between prediction and actual value is higher  than
-    some predetermined threshold, algorithm stops with completion code -7;
-    Rep.VarIdx is set to index of the parameter with incorrect derivative.
-* after verification is over, algorithm proceeds to the actual optimization.
-
-NOTE 1: verification  needs  N (parameters count) gradient evaluations. It
-        is very costly and you should use  it  only  for  low  dimensional
-        problems,  when  you  want  to  be  sure  that  you've   correctly
-        calculated  analytic  derivatives.  You  should  not use it in the
-        production code (unless you want to check derivatives provided  by
-        some third party).
-
-NOTE 2: you  should  carefully  choose  TestStep. Value which is too large
-        (so large that function behaviour is significantly non-cubic) will
-        lead to false alarms. You may use  different  step  for  different
-        parameters by means of setting scale with MinBCSetScale().
-
-NOTE 3: this function may lead to false positives. In case it reports that
-        I-th  derivative was calculated incorrectly, you may decrease test
-        step  and  try  one  more  time  - maybe your function changes too
-        sharply  and  your  step  is  too  large for such rapidly chanding
-        function.
-
-INPUT PARAMETERS:
-    State       -   structure used to store algorithm state
-    TestStep    -   verification step:
-                    * TestStep=0 turns verification off
-                    * TestStep>0 activates verification
-
-  -- ALGLIB --
-     Copyright 15.06.2012 by Bochkanov Sergey
-*************************************************************************/
-void minbcsetgradientcheck(const minbcstate &state, const double teststep, const xparams _xparams = alglib::xdefault);
+void minlpresultsbuf(const minlpstate &state, real_1d_array &x, minlpreport &rep, const xparams _xparams = alglib::xdefault);
 #endif
 
 #if defined(AE_COMPILE_NLCSLP) || !defined(AE_PARTIAL_BUILD)
@@ -5025,8 +6401,8 @@ REQUIREMENTS:
 * user must provide function value and gradient for F(), H(), G()
 * starting point X0 must be feasible or not too far away from the feasible
   set
-* F(), G(), H() are twice continuously differentiable on the feasible  set
-  and its neighborhood
+* F(), G(), H() are continuously differentiable on the  feasible  set  and
+  its neighborhood
 * nonlinear constraints G() and H() must have non-zero gradient at  G(x)=0
   and at H(x)=0. Say, constraint like x^2>=1 is supported, but x^2>=0   is
   NOT supported.
@@ -5053,34 +6429,60 @@ http://www.alglib.net/optimization/
    sure that it will work with new ALGLIB releases.
 
    In the current release following solvers can be used:
-   * SLP solver (activated with MinNLCSetAlgoSLP() function) -  successive
-     linear programming, recommended option (default)
-   * AUL solver (activated with MinNLCSetAlgoAUL() function)  -  augmented
-     Lagrangian method with dense preconditioner
+   * SQP solver, recommended for medium-scale problems (less than thousand
+     of variables) with hard-to-evaluate target functions.  Requires  less
+     function  evaluations  than  other  solvers  but  each  step involves
+     solution of QP subproblem, so running time may be higher than that of
+     AUL (another recommended option). Activated  with  minnlcsetalgosqp()
+     function.
+   * AUL solver with dense  preconditioner,  recommended  for  large-scale
+     problems or for problems  with  cheap  target  function.  Needs  more
+     function evaluations that SQP (about  5x-10x  times  more),  but  its
+     iterations  are  much  cheaper  that  that  of  SQP.  Activated  with
+     minnlcsetalgoaul() function.
+   * SLP solver, successive linear programming. The slowest one,  requires
+     more target function evaluations that SQP and  AUL.  However,  it  is
+     somewhat more robust in tricky cases, so it can be used  as  a backup
+     plan. Activated with minnlcsetalgoslp() function.
 
-2. User adds boundary and/or linear and/or nonlinear constraints by  means
+2. [optional] user activates OptGuard  integrity checker  which  tries  to
+   detect possible errors in the user-supplied callbacks:
+   * discontinuity/nonsmoothness of the target/nonlinear constraints
+   * errors in the analytic gradient provided by user
+   This feature is essential for early prototyping stages because it helps
+   to catch common coding and problem statement errors.
+   OptGuard can be activated with following functions (one per each  check
+   performed):
+   * minnlcoptguardsmoothness()
+   * minnlcoptguardgradient()
+
+3. User adds boundary and/or linear and/or nonlinear constraints by  means
    of calling one of the following functions:
-   a) MinNLCSetBC() for boundary constraints
-   b) MinNLCSetLC() for linear constraints
-   c) MinNLCSetNLC() for nonlinear constraints
+   a) minnlcsetbc() for boundary constraints
+   b) minnlcsetlc() for linear constraints
+   c) minnlcsetnlc() for nonlinear constraints
    You may combine (a), (b) and (c) in one optimization problem.
 
-3. User sets scale of the variables with MinNLCSetScale() function. It  is
+4. User sets scale of the variables with minnlcsetscale() function. It  is
    VERY important to set  scale  of  the  variables,  because  nonlinearly
    constrained problems are hard to solve when variables are badly scaled.
 
-4. User sets  stopping  conditions  with  MinNLCSetCond(). If  NLC  solver
+5. User sets  stopping  conditions  with  minnlcsetcond(). If  NLC  solver
    uses  inner/outer  iteration  layout,  this  function   sets   stopping
    conditions for INNER iterations.
 
-5. Finally, user calls MinNLCOptimize()  function  which  takes  algorithm
+6. Finally, user calls minnlcoptimize()  function  which  takes  algorithm
    state and pointer (delegate, etc.) to callback function which calculates
    F/G/H.
 
-6. User calls MinNLCResults() to get solution
+7. User calls  minnlcresults()  to  get  solution;  additionally  you  can
+   retrieve OptGuard report with minnlcoptguardresults(), and get detailed
+   report about purported errors in the target function with:
+   * minnlcoptguardnonc1test0results()
+   * minnlcoptguardnonc1test1results()
 
-7. Optionally user may call MinNLCRestartFrom() to solve  another  problem
-   with same N but another starting point. MinNLCRestartFrom()  allows  to
+8. Optionally user may call minnlcrestartfrom() to solve  another  problem
+   with same N but another starting point. minnlcrestartfrom()  allows  to
    reuse already initialized structure.
 
 
@@ -5517,6 +6919,9 @@ modification of one described in "A Modified Barrier-Augmented  Lagrangian
 Method for  Constrained  Minimization  (1999)"  by  D.GOLDFARB,  R.POLYAK,
 K. SCHEINBERG, I.YUZEFOVICH.
 
+AUL solver can be significantly faster than SQP on easy  problems  due  to
+cheaper iterations, although it needs more function evaluations.
+
 Augmented Lagrangian algorithm works by converting problem  of  minimizing
 F(x) subject to equality/inequality constraints   to unconstrained problem
 of the form
@@ -5713,10 +7118,24 @@ algorithm  is  a  slight  modification  of  one  described  in  "A  Linear
 programming-based optimization algorithm for solving nonlinear programming
 problems" (2010) by Claus Still and Tapio Westerlund.
 
+This solver is the slowest one in ALGLIB, it requires more target function
+evaluations that SQP and AUL. However it is somewhat more robust in tricky
+cases, so it can be used as a backup plan. We recommend to use  this  algo
+when SQP/AUL do not work (does not return  the  solution  you  expect). If
+trying different approach gives same  results,  then  MAYBE  something  is
+wrong with your optimization problem.
+
 Despite its name ("linear" = "first order method") this algorithm performs
 steps similar to that of conjugate gradients method;  internally  it  uses
 orthogonality/conjugacy requirement for subsequent steps  which  makes  it
 closer to second order methods in terms of convergence speed.
+
+Convergence is proved for the following case:
+* function and constraints are continuously differentiable (C1 class)
+* extended Mangasarian–Fromovitz constraint qualification  (EMFCQ)  holds;
+  in the context of this algorithm EMFCQ  means  that  one  can,  for  any
+  infeasible  point,  find  a  search  direction  such that the constraint
+  infeasibilities are reduced.
 
 This algorithm has following nice properties:
 * no parameters to tune
@@ -5729,15 +7148,147 @@ This algorithm has following nice properties:
   nonlinear constraints are enforced, algorithm will try  to  respect them
   as much as possible
 * numerical differentiation does not  violate  box  constraints  (although
-  general linear and nonlinear ones can be violated)
+  general linear and nonlinear ones can be violated during differentiation)
+* from our experience, this algorithm is somewhat more  robust  in  really
+  difficult cases
 
 INPUT PARAMETERS:
     State   -   structure which stores algorithm state
+
+===== TRACING SLP SOLVER =================================================
+
+SLP solver supports advanced tracing capabilities. You can trace algorithm
+output by specifying following trace symbols (case-insensitive)  by  means
+of trace_file() call:
+* 'SLP'         - for basic trace of algorithm  steps and decisions.  Only
+                  short scalars (function values and deltas) are  printed.
+                  N-dimensional quantities like search directions are  NOT
+                  printed.
+                  It also prints OptGuard  integrity  checker  report when
+                  nonsmoothness of target/constraints is suspected.
+* 'SLP.DETAILED'- for output of points being visited and search directions
+                  This  symbol  also  implicitly  defines  'SLP'. You  can
+                  control output format by additionally specifying:
+                  * nothing     to output in  6-digit exponential format
+                  * 'PREC.E15'  to output in 15-digit exponential format
+                  * 'PREC.F6'   to output in  6-digit fixed-point format
+* 'SLP.PROBING' - to let algorithm insert additional function  evaluations
+                  before line search  in  order  to  build  human-readable
+                  chart of the raw  Lagrangian  (~40  additional  function
+                  evaluations is performed for  each  line  search).  This
+                  symbol also implicitly defines 'SLP'.
+* 'OPTGUARD'    - for report of smoothness/continuity violations in target
+                  and/or constraints. This kind of reporting is   included
+                  in 'SLP', but it comes with lots of additional info.  If
+                  you  need  just  smoothness  monitoring,   specify  this
+                  setting.
+
+                  NOTE: this tag merely directs  OptGuard  output  to  log
+                        file. Even if you specify it, you  still  have  to
+                        configure OptGuard  by calling minnlcoptguard...()
+                        family of functions.
+
+By default trace is disabled and adds  no  overhead  to  the  optimization
+process. However, specifying any of the symbols adds some  formatting  and
+output-related   overhead.  Specifying  'SLP.PROBING'  adds   even  larger
+overhead due to additional function evaluations being performed.
+
+You may specify multiple symbols by separating them with commas:
+>
+> alglib::trace_file("SLP,SLP.PROBING,PREC.F6", "path/to/trace.log")
+>
 
   -- ALGLIB --
      Copyright 02.04.2018 by Bochkanov Sergey
 *************************************************************************/
 void minnlcsetalgoslp(const minnlcstate &state, const xparams _xparams = alglib::xdefault);
+
+
+/*************************************************************************
+This   function  tells  MinNLC  optimizer to use SQP (Successive Quadratic
+Programming) algorithm for nonlinearly constrained optimization.
+
+This algorithm needs order of magnitude (5x-10x) less function evaluations
+than AUL solver, but has higher overhead because each  iteration  involves
+solution of quadratic programming problem.
+
+Convergence is proved for the following case:
+* function and constraints are continuously differentiable (C1 class)
+
+This algorithm has following nice properties:
+* no parameters to tune
+* no convexity requirements for target function or constraints
+* initial point can be infeasible
+* algorithm respects box constraints in all intermediate points  (it  does
+  not even evaluate function outside of box constrained area)
+* once linear constraints are enforced, algorithm will not violate them
+* no such guarantees can be provided for nonlinear constraints,  but  once
+  nonlinear constraints are enforced, algorithm will try  to  respect them
+  as much as possible
+* numerical differentiation does not  violate  box  constraints  (although
+  general linear and nonlinear ones can be violated during differentiation)
+
+We recommend this algorithm as a default option for medium-scale  problems
+(less than thousand of variables) or problems with target  function  being
+hard to evaluate.
+
+For   large-scale  problems  or  ones  with very  cheap  target   function
+AUL solver can be better option.
+
+INPUT PARAMETERS:
+    State   -   structure which stores algorithm state
+
+===== INTERACTION WITH OPTGUARD ==========================================
+
+OptGuard integrity  checker  allows us to catch problems  like  errors  in
+gradients   and  discontinuity/nonsmoothness  of  the  target/constraints.
+Latter kind of problems can be detected  by  looking  upon  line  searches
+performed during optimization and searching for signs of nonsmoothness.
+
+The problem with SQP is that it is too good for OptGuard to work - it does
+not perform line searches. It typically  needs  1-2  function  evaluations
+per step, and it is not enough for OptGuard to detect nonsmoothness.
+
+So, if you suspect that your problem is nonsmooth, we recommend you to use
+AUL or SLP solvers.
+
+===== TRACING SQP SOLVER =================================================
+
+SQP solver supports advanced tracing capabilities. You can trace algorithm
+output by specifying following trace symbols (case-insensitive)  by  means
+of trace_file() call:
+* 'SQP'         - for basic trace of algorithm  steps and decisions.  Only
+                  short scalars (function values and deltas) are  printed.
+                  N-dimensional quantities like search directions are  NOT
+                  printed.
+                  It also prints OptGuard  integrity  checker  report when
+                  nonsmoothness of target/constraints is suspected.
+* 'SQP.DETAILED'- for output of points being visited and search directions
+                  This  symbol  also  implicitly  defines  'SQP'. You  can
+                  control output format by additionally specifying:
+                  * nothing     to output in  6-digit exponential format
+                  * 'PREC.E15'  to output in 15-digit exponential format
+                  * 'PREC.F6'   to output in  6-digit fixed-point format
+* 'SQP.PROBING' - to let algorithm insert additional function  evaluations
+                  before line search  in  order  to  build  human-readable
+                  chart of the raw  Lagrangian  (~40  additional  function
+                  evaluations is performed for  each  line  search).  This
+                  symbol also implicitly defines 'SQP'.
+
+By default trace is disabled and adds  no  overhead  to  the  optimization
+process. However, specifying any of the symbols adds some  formatting  and
+output-related   overhead.  Specifying  'SQP.PROBING'  adds   even  larger
+overhead due to additional function evaluations being performed.
+
+You may specify multiple symbols by separating them with commas:
+>
+> alglib::trace_file("SQP,SQP.PROBING,PREC.F6", "path/to/trace.log")
+>
+
+  -- ALGLIB --
+     Copyright 02.12.2019 by Bochkanov Sergey
+*************************************************************************/
+void minnlcsetalgosqp(const minnlcstate &state, const xparams _xparams = alglib::xdefault);
 
 
 /*************************************************************************
@@ -5829,25 +7380,361 @@ void minnlcoptimize(minnlcstate &state,
 
 
 /*************************************************************************
-MinNLC results
+This  function  activates/deactivates verification  of  the  user-supplied
+analytic gradient/Jacobian.
+
+Upon  activation  of  this  option  OptGuard  integrity  checker  performs
+numerical differentiation of your target  function  (constraints)  at  the
+initial point (note: future versions may also perform check  at  the final
+point) and compares numerical gradient/Jacobian with analytic one provided
+by you.
+
+If difference is too large, an error flag is set and optimization  session
+continues. After optimization session is over, you can retrieve the report
+which stores both gradients/Jacobians, and specific components highlighted
+as suspicious by the OptGuard.
+
+The primary OptGuard report can be retrieved with minnlcoptguardresults().
+
+IMPORTANT: gradient check is a high-overhead option which  will  cost  you
+           about 3*N additional function evaluations. In many cases it may
+           cost as much as the rest of the optimization session.
+
+           YOU SHOULD NOT USE IT IN THE PRODUCTION CODE UNLESS YOU WANT TO
+           CHECK DERIVATIVES PROVIDED BY SOME THIRD PARTY.
+
+NOTE: unlike previous incarnation of the gradient checking code,  OptGuard
+      does NOT interrupt optimization even if it discovers bad gradient.
+
+INPUT PARAMETERS:
+    State       -   structure used to store algorithm state
+    TestStep    -   verification step used for numerical differentiation:
+                    * TestStep=0 turns verification off
+                    * TestStep>0 activates verification
+                    You should carefully choose TestStep. Value  which  is
+                    too large (so large that  function  behavior  is  non-
+                    cubic at this scale) will lead  to  false  alarms. Too
+                    short step will result in rounding  errors  dominating
+                    numerical derivative.
+
+                    You may use different step for different parameters by
+                    means of setting scale with minnlcsetscale().
+
+=== EXPLANATION ==========================================================
+
+In order to verify gradient algorithm performs following steps:
+  * two trial steps are made to X[i]-TestStep*S[i] and X[i]+TestStep*S[i],
+    where X[i] is i-th component of the initial point and S[i] is a  scale
+    of i-th parameter
+  * F(X) is evaluated at these trial points
+  * we perform one more evaluation in the middle point of the interval
+  * we  build  cubic  model using function values and derivatives at trial
+    points and we compare its prediction with actual value in  the  middle
+    point
+
+  -- ALGLIB --
+     Copyright 15.06.2014 by Bochkanov Sergey
+*************************************************************************/
+void minnlcoptguardgradient(const minnlcstate &state, const double teststep, const xparams _xparams = alglib::xdefault);
+
+
+/*************************************************************************
+This  function  activates/deactivates nonsmoothness monitoring  option  of
+the  OptGuard  integrity  checker. Smoothness  monitor  silently  observes
+solution process and tries to detect ill-posed problems, i.e. ones with:
+a) discontinuous target function (non-C0) and/or constraints
+b) nonsmooth     target function (non-C1) and/or constraints
+
+Smoothness monitoring does NOT interrupt optimization  even if it suspects
+that your problem is nonsmooth. It just sets corresponding  flags  in  the
+OptGuard report which can be retrieved after optimization is over.
+
+Smoothness monitoring is a moderate overhead option which often adds  less
+than 1% to the optimizer running time. Thus, you can use it even for large
+scale problems.
+
+NOTE: OptGuard does  NOT  guarantee  that  it  will  always  detect  C0/C1
+      continuity violations.
+
+      First, minor errors are hard to  catch - say, a 0.0001 difference in
+      the model values at two sides of the gap may be due to discontinuity
+      of the model - or simply because the model has changed.
+
+      Second, C1-violations  are  especially  difficult  to  detect  in  a
+      noninvasive way. The optimizer usually  performs  very  short  steps
+      near the nonsmoothness, and differentiation  usually   introduces  a
+      lot of numerical noise.  It  is  hard  to  tell  whether  some  tiny
+      discontinuity in the slope is due to real nonsmoothness or just  due
+      to numerical noise alone.
+
+      Our top priority was to avoid false positives, so in some rare cases
+      minor errors may went unnoticed (however, in most cases they can  be
+      spotted with restart from different initial point).
+
+INPUT PARAMETERS:
+    state   -   algorithm state
+    level   -   monitoring level:
+                * 0 - monitoring is disabled
+                * 1 - noninvasive low-overhead monitoring; function values
+                      and/or gradients are recorded, but OptGuard does not
+                      try to perform additional evaluations  in  order  to
+                      get more information about suspicious locations.
+                      This kind of monitoring does not work well with  SQP
+                      because SQP solver needs just 1-2 function evaluations
+                      per step, which is not enough for OptGuard  to  make
+                      any conclusions.
+
+=== EXPLANATION ==========================================================
+
+One major source of headache during optimization  is  the  possibility  of
+the coding errors in the target function/constraints (or their gradients).
+Such  errors   most   often   manifest   themselves  as  discontinuity  or
+nonsmoothness of the target/constraints.
+
+Another frequent situation is when you try to optimize something involving
+lots of min() and max() operations, i.e. nonsmooth target. Although not  a
+coding error, it is nonsmoothness anyway - and smooth  optimizers  usually
+stop right after encountering nonsmoothness, well before reaching solution.
+
+OptGuard integrity checker helps you to catch such situations: it monitors
+function values/gradients being passed  to  the  optimizer  and  tries  to
+errors. Upon discovering suspicious pair of points it  raises  appropriate
+flag (and allows you to continue optimization). When optimization is done,
+you can study OptGuard result.
+
+  -- ALGLIB --
+     Copyright 21.11.2018 by Bochkanov Sergey
+*************************************************************************/
+void minnlcoptguardsmoothness(const minnlcstate &state, const ae_int_t level, const xparams _xparams = alglib::xdefault);
+void minnlcoptguardsmoothness(const minnlcstate &state, const xparams _xparams = alglib::xdefault);
+
+
+/*************************************************************************
+Results of OptGuard integrity check, should be called  after  optimization
+session is over.
+
+=== PRIMARY REPORT =======================================================
+
+OptGuard performs several checks which are intended to catch common errors
+in the implementation of nonlinear function/gradient:
+* incorrect analytic gradient
+* discontinuous (non-C0) target functions (constraints)
+* nonsmooth     (non-C1) target functions (constraints)
+
+Each of these checks is activated with appropriate function:
+* minnlcoptguardgradient() for gradient verification
+* minnlcoptguardsmoothness() for C0/C1 checks
+
+Following flags are set when these errors are suspected:
+* rep.badgradsuspected, and additionally:
+  * rep.badgradfidx for specific function (Jacobian row) suspected
+  * rep.badgradvidx for specific variable (Jacobian column) suspected
+  * rep.badgradxbase, a point where gradient/Jacobian is tested
+  * rep.badgraduser, user-provided gradient/Jacobian
+  * rep.badgradnum, reference gradient/Jacobian obtained via numerical
+    differentiation
+* rep.nonc0suspected, and additionally:
+  * rep.nonc0fidx - an index of specific function violating C0 continuity
+* rep.nonc1suspected, and additionally
+  * rep.nonc1fidx - an index of specific function violating C1 continuity
+Here function index 0 means  target function, index 1  or  higher  denotes
+nonlinear constraints.
+
+=== ADDITIONAL REPORTS/LOGS ==============================================
+
+Several different tests are performed to catch C0/C1 errors, you can  find
+out specific test signaled error by looking to:
+* rep.nonc0test0positive, for non-C0 test #0
+* rep.nonc1test0positive, for non-C1 test #0
+* rep.nonc1test1positive, for non-C1 test #1
+
+Additional information (including line search logs)  can  be  obtained  by
+means of:
+* minnlcoptguardnonc1test0results()
+* minnlcoptguardnonc1test1results()
+which return detailed error reports, specific points where discontinuities
+were found, and so on.
+
+==========================================================================
+
+INPUT PARAMETERS:
+    state   -   algorithm state
+
+OUTPUT PARAMETERS:
+    rep     -   generic OptGuard report;  more  detailed  reports  can  be
+                retrieved with other functions.
+
+NOTE: false negatives (nonsmooth problems are not identified as  nonsmooth
+      ones) are possible although unlikely.
+
+      The reason  is  that  you  need  to  make several evaluations around
+      nonsmoothness  in  order  to  accumulate  enough  information  about
+      function curvature. Say, if you start right from the nonsmooth point,
+      optimizer simply won't get enough data to understand what  is  going
+      wrong before it terminates due to abrupt changes in the  derivative.
+      It is also  possible  that  "unlucky"  step  will  move  us  to  the
+      termination too quickly.
+
+      Our current approach is to have less than 0.1%  false  negatives  in
+      our test examples  (measured  with  multiple  restarts  from  random
+      points), and to have exactly 0% false positives.
+
+  -- ALGLIB --
+     Copyright 21.11.2018 by Bochkanov Sergey
+*************************************************************************/
+void minnlcoptguardresults(const minnlcstate &state, optguardreport &rep, const xparams _xparams = alglib::xdefault);
+
+
+/*************************************************************************
+Detailed results of the OptGuard integrity check for nonsmoothness test #0
+
+Nonsmoothness (non-C1) test #0 studies  function  values  (not  gradient!)
+obtained during line searches and monitors  behavior  of  the  directional
+derivative estimate.
+
+This test is less powerful than test #1, but it does  not  depend  on  the
+gradient values and thus it is more robust against artifacts introduced by
+numerical differentiation.
+
+Two reports are returned:
+* a "strongest" one, corresponding  to  line   search  which  had  highest
+  value of the nonsmoothness indicator
+* a "longest" one, corresponding to line search which  had  more  function
+  evaluations, and thus is more detailed
+
+In both cases following fields are returned:
+
+* positive - is TRUE  when test flagged suspicious point;  FALSE  if  test
+  did not notice anything (in the latter cases fields below are empty).
+* fidx - is an index of the function (0 for  target  function, 1 or higher
+  for nonlinear constraints) which is suspected of being "non-C1"
+* x0[], d[] - arrays of length N which store initial point  and  direction
+  for line search (d[] can be normalized, but does not have to)
+* stp[], f[] - arrays of length CNT which store step lengths and  function
+  values at these points; f[i] is evaluated in x0+stp[i]*d.
+* stpidxa, stpidxb - we  suspect  that  function  violates  C1  continuity
+  between steps #stpidxa and #stpidxb (usually we have  stpidxb=stpidxa+3,
+  with  most  likely  position  of  the  violation  between  stpidxa+1 and
+  stpidxa+2.
+
+==========================================================================
+= SHORTLY SPEAKING: build a 2D plot of (stp,f) and look at it -  you  will
+=                   see where C1 continuity is violated.
+==========================================================================
+
+INPUT PARAMETERS:
+    state   -   algorithm state
+
+OUTPUT PARAMETERS:
+    strrep  -   C1 test #0 "strong" report
+    lngrep  -   C1 test #0 "long" report
+
+  -- ALGLIB --
+     Copyright 21.11.2018 by Bochkanov Sergey
+*************************************************************************/
+void minnlcoptguardnonc1test0results(const minnlcstate &state, optguardnonc1test0report &strrep, optguardnonc1test0report &lngrep, const xparams _xparams = alglib::xdefault);
+
+
+/*************************************************************************
+Detailed results of the OptGuard integrity check for nonsmoothness test #1
+
+Nonsmoothness (non-C1)  test  #1  studies  individual  components  of  the
+gradient computed during line search.
+
+When precise analytic gradient is provided this test is more powerful than
+test #0  which  works  with  function  values  and  ignores  user-provided
+gradient.  However,  test  #0  becomes  more   powerful   when   numerical
+differentiation is employed (in such cases test #1 detects  higher  levels
+of numerical noise and becomes too conservative).
+
+This test also tells specific components of the gradient which violate  C1
+continuity, which makes it more informative than #0, which just tells that
+continuity is violated.
+
+Two reports are returned:
+* a "strongest" one, corresponding  to  line   search  which  had  highest
+  value of the nonsmoothness indicator
+* a "longest" one, corresponding to line search which  had  more  function
+  evaluations, and thus is more detailed
+
+In both cases following fields are returned:
+
+* positive - is TRUE  when test flagged suspicious point;  FALSE  if  test
+  did not notice anything (in the latter cases fields below are empty).
+* fidx - is an index of the function (0 for  target  function, 1 or higher
+  for nonlinear constraints) which is suspected of being "non-C1"
+* vidx - is an index of the variable in [0,N) with nonsmooth derivative
+* x0[], d[] - arrays of length N which store initial point  and  direction
+  for line search (d[] can be normalized, but does not have to)
+* stp[], g[] - arrays of length CNT which store step lengths and  gradient
+  values at these points; g[i] is evaluated in  x0+stp[i]*d  and  contains
+  vidx-th component of the gradient.
+* stpidxa, stpidxb - we  suspect  that  function  violates  C1  continuity
+  between steps #stpidxa and #stpidxb (usually we have  stpidxb=stpidxa+3,
+  with  most  likely  position  of  the  violation  between  stpidxa+1 and
+  stpidxa+2.
+
+==========================================================================
+= SHORTLY SPEAKING: build a 2D plot of (stp,f) and look at it -  you  will
+=                   see where C1 continuity is violated.
+==========================================================================
+
+INPUT PARAMETERS:
+    state   -   algorithm state
+
+OUTPUT PARAMETERS:
+    strrep  -   C1 test #1 "strong" report
+    lngrep  -   C1 test #1 "long" report
+
+  -- ALGLIB --
+     Copyright 21.11.2018 by Bochkanov Sergey
+*************************************************************************/
+void minnlcoptguardnonc1test1results(const minnlcstate &state, optguardnonc1test1report &strrep, optguardnonc1test1report &lngrep, const xparams _xparams = alglib::xdefault);
+
+
+/*************************************************************************
+MinNLC results:  the  solution  found,  completion  codes  and  additional
+information.
+
+If you activated OptGuard integrity checking functionality and want to get
+OptGuard report, it can be retrieved with:
+* minnlcoptguardresults() - for a primary report about (a) suspected C0/C1
+  continuity violations and (b) errors in the analytic gradient.
+* minnlcoptguardnonc1test0results() - for C1 continuity violation test #0,
+  detailed line search log
+* minnlcoptguardnonc1test1results() - for C1 continuity violation test #1,
+  detailed line search log
 
 INPUT PARAMETERS:
     State   -   algorithm state
 
 OUTPUT PARAMETERS:
     X       -   array[0..N-1], solution
-    Rep     -   optimization report. You should check Rep.TerminationType
-                in  order  to  distinguish  successful  termination  from
-                unsuccessful one:
-                * -8    internal integrity control  detected  infinite or
-                        NAN   values   in   function/gradient.   Abnormal
+    Rep     -   optimization report, contains information about completion
+                code, constraint violation at the solution and so on.
+
+                You   should   check   rep.terminationtype  in  order   to
+                distinguish successful termination from unsuccessful one:
+
+                === FAILURE CODES ===
+                * -8    internal  integrity control  detected  infinite or
+                        NAN   values    in   function/gradient.   Abnormal
                         termination signalled.
-                * -7   gradient verification failed.
-                       See MinNLCSetGradientCheck() for more information.
+                * -3    box  constraints are infeasible.
+                        Note: infeasibility of  non-box  constraints  does
+                              NOT trigger emergency completion;  you  have
+                              to examine rep.bcerr/rep.lcerr/rep.nlcerr to
+                              detect possibly inconsistent constraints.
+
+                === SUCCESS CODES ===
                 *  2   scaled step is no more than EpsX.
-                *  5   MaxIts steps was taken
+                *  5   MaxIts steps were taken.
+                *  8   user   requested    algorithm    termination    via
+                       minnlcrequesttermination(), last accepted point  is
+                       returned.
+
                 More information about fields of this  structure  can  be
-                found in the comments on MinNLCReport datatype.
+                found in the comments on minnlcreport datatype.
 
   -- ALGLIB --
      Copyright 06.06.2014 by Bochkanov Sergey
@@ -5870,6 +7757,33 @@ void minnlcresultsbuf(const minnlcstate &state, real_1d_array &x, minnlcreport &
 
 
 /*************************************************************************
+This subroutine submits request for termination of running  optimizer.  It
+should be called from user-supplied callback when user decides that it  is
+time to "smoothly" terminate optimization process.  As  result,  optimizer
+stops at point which was "current accepted" when termination  request  was
+submitted and returns error code 8 (successful termination).
+
+INPUT PARAMETERS:
+    State   -   optimizer structure
+
+NOTE: after  request  for  termination  optimizer  may   perform   several
+      additional calls to user-supplied callbacks. It does  NOT  guarantee
+      to stop immediately - it just guarantees that these additional calls
+      will be discarded later.
+
+NOTE: calling this function on optimizer which is NOT running will have no
+      effect.
+
+NOTE: multiple calls to this function are possible. First call is counted,
+      subsequent calls are silently ignored.
+
+  -- ALGLIB --
+     Copyright 08.10.2014 by Bochkanov Sergey
+*************************************************************************/
+void minnlcrequesttermination(const minnlcstate &state, const xparams _xparams = alglib::xdefault);
+
+
+/*************************************************************************
 This subroutine restarts algorithm from new point.
 All optimization parameters (including constraints) are left unchanged.
 
@@ -5884,15 +7798,428 @@ INPUT PARAMETERS:
      Copyright 28.11.2010 by Bochkanov Sergey
 *************************************************************************/
 void minnlcrestartfrom(const minnlcstate &state, const real_1d_array &x, const xparams _xparams = alglib::xdefault);
+#endif
+
+#if defined(AE_COMPILE_MINBC) || !defined(AE_PARTIAL_BUILD)
+/*************************************************************************
+                     BOX CONSTRAINED OPTIMIZATION
+          WITH FAST ACTIVATION OF MULTIPLE BOX CONSTRAINTS
+
+DESCRIPTION:
+The  subroutine  minimizes  function   F(x) of N arguments subject  to box
+constraints (with some of box constraints actually being equality ones).
+
+This optimizer uses algorithm similar to that of MinBLEIC (optimizer  with
+general linear constraints), but presence of box-only  constraints  allows
+us to use faster constraint activation strategies. On large-scale problems,
+with multiple constraints active at the solution, this  optimizer  can  be
+several times faster than BLEIC.
+
+REQUIREMENTS:
+* user must provide function value and gradient
+* starting point X0 must be feasible or
+  not too far away from the feasible set
+* grad(f) must be Lipschitz continuous on a level set:
+  L = { x : f(x)<=f(x0) }
+* function must be defined everywhere on the feasible set F
+
+USAGE:
+
+Constrained optimization if far more complex than the unconstrained one.
+Here we give very brief outline of the BC optimizer. We strongly recommend
+you to read examples in the ALGLIB Reference Manual and to read ALGLIB User Guide
+on optimization, which is available at http://www.alglib.net/optimization/
+
+1. User initializes algorithm state with MinBCCreate() call
+
+2. USer adds box constraints by calling MinBCSetBC() function.
+
+3. User sets stopping conditions with MinBCSetCond().
+
+4. User calls MinBCOptimize() function which takes algorithm  state and
+   pointer (delegate, etc.) to callback function which calculates F/G.
+
+5. User calls MinBCResults() to get solution
+
+6. Optionally user may call MinBCRestartFrom() to solve another problem
+   with same N but another starting point.
+   MinBCRestartFrom() allows to reuse already initialized structure.
+
+
+INPUT PARAMETERS:
+    N       -   problem dimension, N>0:
+                * if given, only leading N elements of X are used
+                * if not given, automatically determined from size ofX
+    X       -   starting point, array[N]:
+                * it is better to set X to a feasible point
+                * but X can be infeasible, in which case algorithm will try
+                  to find feasible point first, using X as initial
+                  approximation.
+
+OUTPUT PARAMETERS:
+    State   -   structure stores algorithm state
+
+  -- ALGLIB --
+     Copyright 28.11.2010 by Bochkanov Sergey
+*************************************************************************/
+void minbccreate(const ae_int_t n, const real_1d_array &x, minbcstate &state, const xparams _xparams = alglib::xdefault);
+void minbccreate(const real_1d_array &x, minbcstate &state, const xparams _xparams = alglib::xdefault);
 
 
 /*************************************************************************
-This  subroutine  turns  on  verification  of  the  user-supplied analytic
-gradient:
-* user calls this subroutine before optimization begins
-* MinNLCOptimize() is called
-* prior to  actual  optimization, for each component  of  parameters being
-  optimized X[i] algorithm performs following steps:
+The subroutine is finite difference variant of MinBCCreate().  It  uses
+finite differences in order to differentiate target function.
+
+Description below contains information which is specific to  this function
+only. We recommend to read comments on MinBCCreate() in  order  to  get
+more information about creation of BC optimizer.
+
+INPUT PARAMETERS:
+    N       -   problem dimension, N>0:
+                * if given, only leading N elements of X are used
+                * if not given, automatically determined from size of X
+    X       -   starting point, array[0..N-1].
+    DiffStep-   differentiation step, >0
+
+OUTPUT PARAMETERS:
+    State   -   structure which stores algorithm state
+
+NOTES:
+1. algorithm uses 4-point central formula for differentiation.
+2. differentiation step along I-th axis is equal to DiffStep*S[I] where
+   S[] is scaling vector which can be set by MinBCSetScale() call.
+3. we recommend you to use moderate values of  differentiation  step.  Too
+   large step will result in too large truncation  errors, while too small
+   step will result in too large numerical  errors.  1.0E-6  can  be  good
+   value to start with.
+4. Numerical  differentiation  is   very   inefficient  -   one   gradient
+   calculation needs 4*N function evaluations. This function will work for
+   any N - either small (1...10), moderate (10...100) or  large  (100...).
+   However, performance penalty will be too severe for any N's except  for
+   small ones.
+   We should also say that code which relies on numerical  differentiation
+   is  less  robust and precise. CG needs exact gradient values. Imprecise
+   gradient may slow  down  convergence, especially  on  highly  nonlinear
+   problems.
+   Thus  we  recommend to use this function for fast prototyping on small-
+   dimensional problems only, and to implement analytical gradient as soon
+   as possible.
+
+  -- ALGLIB --
+     Copyright 16.05.2011 by Bochkanov Sergey
+*************************************************************************/
+void minbccreatef(const ae_int_t n, const real_1d_array &x, const double diffstep, minbcstate &state, const xparams _xparams = alglib::xdefault);
+void minbccreatef(const real_1d_array &x, const double diffstep, minbcstate &state, const xparams _xparams = alglib::xdefault);
+
+
+/*************************************************************************
+This function sets boundary constraints for BC optimizer.
+
+Boundary constraints are inactive by default (after initial creation).
+They are preserved after algorithm restart with MinBCRestartFrom().
+
+INPUT PARAMETERS:
+    State   -   structure stores algorithm state
+    BndL    -   lower bounds, array[N].
+                If some (all) variables are unbounded, you may specify
+                very small number or -INF.
+    BndU    -   upper bounds, array[N].
+                If some (all) variables are unbounded, you may specify
+                very large number or +INF.
+
+NOTE 1: it is possible to specify BndL[i]=BndU[i]. In this case I-th
+variable will be "frozen" at X[i]=BndL[i]=BndU[i].
+
+NOTE 2: this solver has following useful properties:
+* bound constraints are always satisfied exactly
+* function is evaluated only INSIDE area specified by  bound  constraints,
+  even  when  numerical  differentiation is used (algorithm adjusts  nodes
+  according to boundary constraints)
+
+  -- ALGLIB --
+     Copyright 28.11.2010 by Bochkanov Sergey
+*************************************************************************/
+void minbcsetbc(const minbcstate &state, const real_1d_array &bndl, const real_1d_array &bndu, const xparams _xparams = alglib::xdefault);
+
+
+/*************************************************************************
+This function sets stopping conditions for the optimizer.
+
+INPUT PARAMETERS:
+    State   -   structure which stores algorithm state
+    EpsG    -   >=0
+                The  subroutine  finishes  its  work   if   the  condition
+                |v|<EpsG is satisfied, where:
+                * |.| means Euclidian norm
+                * v - scaled gradient vector, v[i]=g[i]*s[i]
+                * g - gradient
+                * s - scaling coefficients set by MinBCSetScale()
+    EpsF    -   >=0
+                The  subroutine  finishes  its work if on k+1-th iteration
+                the  condition  |F(k+1)-F(k)|<=EpsF*max{|F(k)|,|F(k+1)|,1}
+                is satisfied.
+    EpsX    -   >=0
+                The subroutine finishes its work if  on  k+1-th  iteration
+                the condition |v|<=EpsX is fulfilled, where:
+                * |.| means Euclidian norm
+                * v - scaled step vector, v[i]=dx[i]/s[i]
+                * dx - step vector, dx=X(k+1)-X(k)
+                * s - scaling coefficients set by MinBCSetScale()
+    MaxIts  -   maximum number of iterations. If MaxIts=0, the  number  of
+                iterations is unlimited.
+
+Passing EpsG=0, EpsF=0 and EpsX=0 and MaxIts=0 (simultaneously) will lead
+to automatic stopping criterion selection.
+
+NOTE: when SetCond() called with non-zero MaxIts, BC solver may perform
+      slightly more than MaxIts iterations. I.e., MaxIts  sets  non-strict
+      limit on iterations count.
+
+  -- ALGLIB --
+     Copyright 28.11.2010 by Bochkanov Sergey
+*************************************************************************/
+void minbcsetcond(const minbcstate &state, const double epsg, const double epsf, const double epsx, const ae_int_t maxits, const xparams _xparams = alglib::xdefault);
+
+
+/*************************************************************************
+This function sets scaling coefficients for BC optimizer.
+
+ALGLIB optimizers use scaling matrices to test stopping  conditions  (step
+size and gradient are scaled before comparison with tolerances).  Scale of
+the I-th variable is a translation invariant measure of:
+a) "how large" the variable is
+b) how large the step should be to make significant changes in the function
+
+Scaling is also used by finite difference variant of the optimizer  - step
+along I-th axis is equal to DiffStep*S[I].
+
+In  most  optimizers  (and  in  the  BC  too)  scaling is NOT a form of
+preconditioning. It just  affects  stopping  conditions.  You  should  set
+preconditioner  by  separate  call  to  one  of  the  MinBCSetPrec...()
+functions.
+
+There is a special  preconditioning  mode, however,  which  uses   scaling
+coefficients to form diagonal preconditioning matrix. You  can  turn  this
+mode on, if you want.   But  you should understand that scaling is not the
+same thing as preconditioning - these are two different, although  related
+forms of tuning solver.
+
+INPUT PARAMETERS:
+    State   -   structure stores algorithm state
+    S       -   array[N], non-zero scaling coefficients
+                S[i] may be negative, sign doesn't matter.
+
+  -- ALGLIB --
+     Copyright 14.01.2011 by Bochkanov Sergey
+*************************************************************************/
+void minbcsetscale(const minbcstate &state, const real_1d_array &s, const xparams _xparams = alglib::xdefault);
+
+
+/*************************************************************************
+Modification of the preconditioner: preconditioning is turned off.
+
+INPUT PARAMETERS:
+    State   -   structure which stores algorithm state
+
+  -- ALGLIB --
+     Copyright 13.10.2010 by Bochkanov Sergey
+*************************************************************************/
+void minbcsetprecdefault(const minbcstate &state, const xparams _xparams = alglib::xdefault);
+
+
+/*************************************************************************
+Modification  of  the  preconditioner:  diagonal of approximate Hessian is
+used.
+
+INPUT PARAMETERS:
+    State   -   structure which stores algorithm state
+    D       -   diagonal of the approximate Hessian, array[0..N-1],
+                (if larger, only leading N elements are used).
+
+NOTE 1: D[i] should be positive. Exception will be thrown otherwise.
+
+NOTE 2: you should pass diagonal of approximate Hessian - NOT ITS INVERSE.
+
+  -- ALGLIB --
+     Copyright 13.10.2010 by Bochkanov Sergey
+*************************************************************************/
+void minbcsetprecdiag(const minbcstate &state, const real_1d_array &d, const xparams _xparams = alglib::xdefault);
+
+
+/*************************************************************************
+Modification of the preconditioner: scale-based diagonal preconditioning.
+
+This preconditioning mode can be useful when you  don't  have  approximate
+diagonal of Hessian, but you know that your  variables  are  badly  scaled
+(for  example,  one  variable is in [1,10], and another in [1000,100000]),
+and most part of the ill-conditioning comes from different scales of vars.
+
+In this case simple  scale-based  preconditioner,  with H[i] = 1/(s[i]^2),
+can greatly improve convergence.
+
+IMPRTANT: you should set scale of your variables  with  MinBCSetScale()
+call  (before  or after MinBCSetPrecScale() call). Without knowledge of
+the scale of your variables scale-based preconditioner will be  just  unit
+matrix.
+
+INPUT PARAMETERS:
+    State   -   structure which stores algorithm state
+
+  -- ALGLIB --
+     Copyright 13.10.2010 by Bochkanov Sergey
+*************************************************************************/
+void minbcsetprecscale(const minbcstate &state, const xparams _xparams = alglib::xdefault);
+
+
+/*************************************************************************
+This function turns on/off reporting.
+
+INPUT PARAMETERS:
+    State   -   structure which stores algorithm state
+    NeedXRep-   whether iteration reports are needed or not
+
+If NeedXRep is True, algorithm will call rep() callback function if  it is
+provided to MinBCOptimize().
+
+  -- ALGLIB --
+     Copyright 28.11.2010 by Bochkanov Sergey
+*************************************************************************/
+void minbcsetxrep(const minbcstate &state, const bool needxrep, const xparams _xparams = alglib::xdefault);
+
+
+/*************************************************************************
+This function sets maximum step length
+
+INPUT PARAMETERS:
+    State   -   structure which stores algorithm state
+    StpMax  -   maximum step length, >=0. Set StpMax to 0.0,  if you don't
+                want to limit step length.
+
+Use this subroutine when you optimize target function which contains exp()
+or  other  fast  growing  functions,  and optimization algorithm makes too
+large  steps  which  lead   to overflow. This function allows us to reject
+steps  that  are  too  large  (and  therefore  expose  us  to the possible
+overflow) without actually calculating function value at the x+stp*d.
+
+  -- ALGLIB --
+     Copyright 02.04.2010 by Bochkanov Sergey
+*************************************************************************/
+void minbcsetstpmax(const minbcstate &state, const double stpmax, const xparams _xparams = alglib::xdefault);
+
+
+/*************************************************************************
+This function provides reverse communication interface
+Reverse communication interface is not documented or recommended to use.
+See below for functions which provide better documented API
+*************************************************************************/
+bool minbciteration(const minbcstate &state, const xparams _xparams = alglib::xdefault);
+
+
+/*************************************************************************
+This family of functions is used to launcn iterations of nonlinear optimizer
+
+These functions accept following parameters:
+    state   -   algorithm state
+    func    -   callback which calculates function (or merit function)
+                value func at given point x
+    grad    -   callback which calculates function (or merit function)
+                value func and gradient grad at given point x
+    rep     -   optional callback which is called after each iteration
+                can be NULL
+    ptr     -   optional pointer which is passed to func/grad/hess/jac/rep
+                can be NULL
+
+NOTES:
+
+1. This function has two different implementations: one which  uses  exact
+   (analytical) user-supplied gradient,  and one which uses function value
+   only  and  numerically  differentiates  function  in  order  to  obtain
+   gradient.
+
+   Depending  on  the  specific  function  used to create optimizer object
+   (either  MinBCCreate() for analytical gradient or  MinBCCreateF()
+   for numerical differentiation) you should choose appropriate variant of
+   MinBCOptimize() - one  which  accepts  function  AND gradient or one
+   which accepts function ONLY.
+
+   Be careful to choose variant of MinBCOptimize() which corresponds to
+   your optimization scheme! Table below lists different  combinations  of
+   callback (function/gradient) passed to MinBCOptimize()  and specific
+   function used to create optimizer.
+
+
+                     |         USER PASSED TO MinBCOptimize()
+   CREATED WITH      |  function only   |  function and gradient
+   ------------------------------------------------------------
+   MinBCCreateF()    |     works               FAILS
+   MinBCCreate()     |     FAILS               works
+
+   Here "FAIL" denotes inappropriate combinations  of  optimizer  creation
+   function  and  MinBCOptimize()  version.   Attemps   to   use   such
+   combination (for  example,  to  create optimizer with MinBCCreateF()
+   and  to  pass  gradient  information  to  MinCGOptimize()) will lead to
+   exception being thrown. Either  you  did  not pass gradient when it WAS
+   needed or you passed gradient when it was NOT needed.
+
+  -- ALGLIB --
+     Copyright 28.11.2010 by Bochkanov Sergey
+
+*************************************************************************/
+void minbcoptimize(minbcstate &state,
+    void (*func)(const real_1d_array &x, double &func, void *ptr),
+    void  (*rep)(const real_1d_array &x, double func, void *ptr) = NULL,
+    void *ptr = NULL,
+    const xparams _xparams = alglib::xdefault);
+void minbcoptimize(minbcstate &state,
+    void (*grad)(const real_1d_array &x, double &func, real_1d_array &grad, void *ptr),
+    void  (*rep)(const real_1d_array &x, double func, void *ptr) = NULL,
+    void *ptr = NULL,
+    const xparams _xparams = alglib::xdefault);
+
+
+/*************************************************************************
+This  function  activates/deactivates verification  of  the  user-supplied
+analytic gradient.
+
+Upon  activation  of  this  option  OptGuard  integrity  checker  performs
+numerical differentiation of your target function  at  the  initial  point
+(note: future versions may also perform check  at  the  final  point)  and
+compares numerical gradient with analytic one provided by you.
+
+If difference is too large, an error flag is set and optimization  session
+continues. After optimization session is over, you can retrieve the report
+which  stores  both  gradients  and  specific  components  highlighted  as
+suspicious by the OptGuard.
+
+The primary OptGuard report can be retrieved with minbcoptguardresults().
+
+IMPORTANT: gradient check is a high-overhead option which  will  cost  you
+           about 3*N additional function evaluations. In many cases it may
+           cost as much as the rest of the optimization session.
+
+           YOU SHOULD NOT USE IT IN THE PRODUCTION CODE UNLESS YOU WANT TO
+           CHECK DERIVATIVES PROVIDED BY SOME THIRD PARTY.
+
+NOTE: unlike previous incarnation of the gradient checking code,  OptGuard
+      does NOT interrupt optimization even if it discovers bad gradient.
+
+INPUT PARAMETERS:
+    State       -   structure used to store algorithm state
+    TestStep    -   verification step used for numerical differentiation:
+                    * TestStep=0 turns verification off
+                    * TestStep>0 activates verification
+                    You should carefully choose TestStep. Value  which  is
+                    too large (so large that  function  behavior  is  non-
+                    cubic at this scale) will lead  to  false  alarms. Too
+                    short step will result in rounding  errors  dominating
+                    numerical derivative.
+
+                    You may use different step for different parameters by
+                    means of setting scale with minbcsetscale().
+
+=== EXPLANATION ==========================================================
+
+In order to verify gradient algorithm performs following steps:
   * two trial steps are made to X[i]-TestStep*S[i] and X[i]+TestStep*S[i],
     where X[i] is i-th component of the initial point and S[i] is a  scale
     of i-th parameter
@@ -5901,40 +8228,345 @@ gradient:
   * we  build  cubic  model using function values and derivatives at trial
     points and we compare its prediction with actual value in  the  middle
     point
-  * in case difference between prediction and actual value is higher  than
-    some predetermined threshold, algorithm stops with completion code -7;
-    Rep.VarIdx is set to index of the parameter with incorrect derivative,
-    and Rep.FuncIdx is set to index of the function.
-* after verification is over, algorithm proceeds to the actual optimization.
-
-NOTE 1: verification  needs  N (parameters count) gradient evaluations. It
-        is very costly and you should use  it  only  for  low  dimensional
-        problems,  when  you  want  to  be  sure  that  you've   correctly
-        calculated  analytic  derivatives.  You  should  not use it in the
-        production code (unless you want to check derivatives provided  by
-        some third party).
-
-NOTE 2: you  should  carefully  choose  TestStep. Value which is too large
-        (so large that function behaviour is significantly non-cubic) will
-        lead to false alarms. You may use  different  step  for  different
-        parameters by means of setting scale with MinNLCSetScale().
-
-NOTE 3: this function may lead to false positives. In case it reports that
-        I-th  derivative was calculated incorrectly, you may decrease test
-        step  and  try  one  more  time  - maybe your function changes too
-        sharply  and  your  step  is  too  large for such rapidly chanding
-        function.
-
-INPUT PARAMETERS:
-    State       -   structure used to store algorithm state
-    TestStep    -   verification step:
-                    * TestStep=0 turns verification off
-                    * TestStep>0 activates verification
 
   -- ALGLIB --
      Copyright 15.06.2014 by Bochkanov Sergey
 *************************************************************************/
-void minnlcsetgradientcheck(const minnlcstate &state, const double teststep, const xparams _xparams = alglib::xdefault);
+void minbcoptguardgradient(const minbcstate &state, const double teststep, const xparams _xparams = alglib::xdefault);
+
+
+/*************************************************************************
+This  function  activates/deactivates nonsmoothness monitoring  option  of
+the  OptGuard  integrity  checker. Smoothness  monitor  silently  observes
+solution process and tries to detect ill-posed problems, i.e. ones with:
+a) discontinuous target function (non-C0)
+b) nonsmooth     target function (non-C1)
+
+Smoothness monitoring does NOT interrupt optimization  even if it suspects
+that your problem is nonsmooth. It just sets corresponding  flags  in  the
+OptGuard report which can be retrieved after optimization is over.
+
+Smoothness monitoring is a moderate overhead option which often adds  less
+than 1% to the optimizer running time. Thus, you can use it even for large
+scale problems.
+
+NOTE: OptGuard does  NOT  guarantee  that  it  will  always  detect  C0/C1
+      continuity violations.
+
+      First, minor errors are hard to  catch - say, a 0.0001 difference in
+      the model values at two sides of the gap may be due to discontinuity
+      of the model - or simply because the model has changed.
+
+      Second, C1-violations  are  especially  difficult  to  detect  in  a
+      noninvasive way. The optimizer usually  performs  very  short  steps
+      near the nonsmoothness, and differentiation  usually   introduces  a
+      lot of numerical noise.  It  is  hard  to  tell  whether  some  tiny
+      discontinuity in the slope is due to real nonsmoothness or just  due
+      to numerical noise alone.
+
+      Our top priority was to avoid false positives, so in some rare cases
+      minor errors may went unnoticed (however, in most cases they can  be
+      spotted with restart from different initial point).
+
+INPUT PARAMETERS:
+    state   -   algorithm state
+    level   -   monitoring level:
+                * 0 - monitoring is disabled
+                * 1 - noninvasive low-overhead monitoring; function values
+                      and/or gradients are recorded, but OptGuard does not
+                      try to perform additional evaluations  in  order  to
+                      get more information about suspicious locations.
+
+=== EXPLANATION ==========================================================
+
+One major source of headache during optimization  is  the  possibility  of
+the coding errors in the target function/constraints (or their gradients).
+Such  errors   most   often   manifest   themselves  as  discontinuity  or
+nonsmoothness of the target/constraints.
+
+Another frequent situation is when you try to optimize something involving
+lots of min() and max() operations, i.e. nonsmooth target. Although not  a
+coding error, it is nonsmoothness anyway - and smooth  optimizers  usually
+stop right after encountering nonsmoothness, well before reaching solution.
+
+OptGuard integrity checker helps you to catch such situations: it monitors
+function values/gradients being passed  to  the  optimizer  and  tries  to
+errors. Upon discovering suspicious pair of points it  raises  appropriate
+flag (and allows you to continue optimization). When optimization is done,
+you can study OptGuard result.
+
+  -- ALGLIB --
+     Copyright 21.11.2018 by Bochkanov Sergey
+*************************************************************************/
+void minbcoptguardsmoothness(const minbcstate &state, const ae_int_t level, const xparams _xparams = alglib::xdefault);
+void minbcoptguardsmoothness(const minbcstate &state, const xparams _xparams = alglib::xdefault);
+
+
+/*************************************************************************
+Results of OptGuard integrity check, should be called  after  optimization
+session is over.
+
+=== PRIMARY REPORT =======================================================
+
+OptGuard performs several checks which are intended to catch common errors
+in the implementation of nonlinear function/gradient:
+* incorrect analytic gradient
+* discontinuous (non-C0) target functions (constraints)
+* nonsmooth     (non-C1) target functions (constraints)
+
+Each of these checks is activated with appropriate function:
+* minbcoptguardgradient() for gradient verification
+* minbcoptguardsmoothness() for C0/C1 checks
+
+Following flags are set when these errors are suspected:
+* rep.badgradsuspected, and additionally:
+  * rep.badgradvidx for specific variable (gradient element) suspected
+  * rep.badgradxbase, a point where gradient is tested
+  * rep.badgraduser, user-provided gradient  (stored  as  2D  matrix  with
+    single row in order to make  report  structure  compatible  with  more
+    complex optimizers like MinNLC or MinLM)
+  * rep.badgradnum,   reference    gradient    obtained    via   numerical
+    differentiation (stored as  2D matrix with single row in order to make
+    report structure compatible with more complex optimizers  like  MinNLC
+    or MinLM)
+* rep.nonc0suspected
+* rep.nonc1suspected
+
+=== ADDITIONAL REPORTS/LOGS ==============================================
+
+Several different tests are performed to catch C0/C1 errors, you can  find
+out specific test signaled error by looking to:
+* rep.nonc0test0positive, for non-C0 test #0
+* rep.nonc1test0positive, for non-C1 test #0
+* rep.nonc1test1positive, for non-C1 test #1
+
+Additional information (including line search logs)  can  be  obtained  by
+means of:
+* minbcoptguardnonc1test0results()
+* minbcoptguardnonc1test1results()
+which return detailed error reports, specific points where discontinuities
+were found, and so on.
+
+==========================================================================
+
+INPUT PARAMETERS:
+    state   -   algorithm state
+
+OUTPUT PARAMETERS:
+    rep     -   generic OptGuard report;  more  detailed  reports  can  be
+                retrieved with other functions.
+
+NOTE: false negatives (nonsmooth problems are not identified as  nonsmooth
+      ones) are possible although unlikely.
+
+      The reason  is  that  you  need  to  make several evaluations around
+      nonsmoothness  in  order  to  accumulate  enough  information  about
+      function curvature. Say, if you start right from the nonsmooth point,
+      optimizer simply won't get enough data to understand what  is  going
+      wrong before it terminates due to abrupt changes in the  derivative.
+      It is also  possible  that  "unlucky"  step  will  move  us  to  the
+      termination too quickly.
+
+      Our current approach is to have less than 0.1%  false  negatives  in
+      our test examples  (measured  with  multiple  restarts  from  random
+      points), and to have exactly 0% false positives.
+
+  -- ALGLIB --
+     Copyright 21.11.2018 by Bochkanov Sergey
+*************************************************************************/
+void minbcoptguardresults(const minbcstate &state, optguardreport &rep, const xparams _xparams = alglib::xdefault);
+
+
+/*************************************************************************
+Detailed results of the OptGuard integrity check for nonsmoothness test #0
+
+Nonsmoothness (non-C1) test #0 studies  function  values  (not  gradient!)
+obtained during line searches and monitors  behavior  of  the  directional
+derivative estimate.
+
+This test is less powerful than test #1, but it does  not  depend  on  the
+gradient values and thus it is more robust against artifacts introduced by
+numerical differentiation.
+
+Two reports are returned:
+* a "strongest" one, corresponding  to  line   search  which  had  highest
+  value of the nonsmoothness indicator
+* a "longest" one, corresponding to line search which  had  more  function
+  evaluations, and thus is more detailed
+
+In both cases following fields are returned:
+
+* positive - is TRUE  when test flagged suspicious point;  FALSE  if  test
+  did not notice anything (in the latter cases fields below are empty).
+* x0[], d[] - arrays of length N which store initial point  and  direction
+  for line search (d[] can be normalized, but does not have to)
+* stp[], f[] - arrays of length CNT which store step lengths and  function
+  values at these points; f[i] is evaluated in x0+stp[i]*d.
+* stpidxa, stpidxb - we  suspect  that  function  violates  C1  continuity
+  between steps #stpidxa and #stpidxb (usually we have  stpidxb=stpidxa+3,
+  with  most  likely  position  of  the  violation  between  stpidxa+1 and
+  stpidxa+2.
+
+==========================================================================
+= SHORTLY SPEAKING: build a 2D plot of (stp,f) and look at it -  you  will
+=                   see where C1 continuity is violated.
+==========================================================================
+
+INPUT PARAMETERS:
+    state   -   algorithm state
+
+OUTPUT PARAMETERS:
+    strrep  -   C1 test #0 "strong" report
+    lngrep  -   C1 test #0 "long" report
+
+  -- ALGLIB --
+     Copyright 21.11.2018 by Bochkanov Sergey
+*************************************************************************/
+void minbcoptguardnonc1test0results(const minbcstate &state, optguardnonc1test0report &strrep, optguardnonc1test0report &lngrep, const xparams _xparams = alglib::xdefault);
+
+
+/*************************************************************************
+Detailed results of the OptGuard integrity check for nonsmoothness test #1
+
+Nonsmoothness (non-C1)  test  #1  studies  individual  components  of  the
+gradient computed during line search.
+
+When precise analytic gradient is provided this test is more powerful than
+test #0  which  works  with  function  values  and  ignores  user-provided
+gradient.  However,  test  #0  becomes  more   powerful   when   numerical
+differentiation is employed (in such cases test #1 detects  higher  levels
+of numerical noise and becomes too conservative).
+
+This test also tells specific components of the gradient which violate  C1
+continuity, which makes it more informative than #0, which just tells that
+continuity is violated.
+
+Two reports are returned:
+* a "strongest" one, corresponding  to  line   search  which  had  highest
+  value of the nonsmoothness indicator
+* a "longest" one, corresponding to line search which  had  more  function
+  evaluations, and thus is more detailed
+
+In both cases following fields are returned:
+
+* positive - is TRUE  when test flagged suspicious point;  FALSE  if  test
+  did not notice anything (in the latter cases fields below are empty).
+* vidx - is an index of the variable in [0,N) with nonsmooth derivative
+* x0[], d[] - arrays of length N which store initial point  and  direction
+  for line search (d[] can be normalized, but does not have to)
+* stp[], g[] - arrays of length CNT which store step lengths and  gradient
+  values at these points; g[i] is evaluated in  x0+stp[i]*d  and  contains
+  vidx-th component of the gradient.
+* stpidxa, stpidxb - we  suspect  that  function  violates  C1  continuity
+  between steps #stpidxa and #stpidxb (usually we have  stpidxb=stpidxa+3,
+  with  most  likely  position  of  the  violation  between  stpidxa+1 and
+  stpidxa+2.
+
+==========================================================================
+= SHORTLY SPEAKING: build a 2D plot of (stp,f) and look at it -  you  will
+=                   see where C1 continuity is violated.
+==========================================================================
+
+INPUT PARAMETERS:
+    state   -   algorithm state
+
+OUTPUT PARAMETERS:
+    strrep  -   C1 test #1 "strong" report
+    lngrep  -   C1 test #1 "long" report
+
+  -- ALGLIB --
+     Copyright 21.11.2018 by Bochkanov Sergey
+*************************************************************************/
+void minbcoptguardnonc1test1results(const minbcstate &state, optguardnonc1test1report &strrep, optguardnonc1test1report &lngrep, const xparams _xparams = alglib::xdefault);
+
+
+/*************************************************************************
+BC results
+
+INPUT PARAMETERS:
+    State   -   algorithm state
+
+OUTPUT PARAMETERS:
+    X       -   array[0..N-1], solution
+    Rep     -   optimization report. You should check Rep.TerminationType
+                in  order  to  distinguish  successful  termination  from
+                unsuccessful one:
+                * -8    internal integrity control  detected  infinite or
+                        NAN   values   in   function/gradient.   Abnormal
+                        termination signalled.
+                * -3   inconsistent constraints.
+                *  1   relative function improvement is no more than EpsF.
+                *  2   scaled step is no more than EpsX.
+                *  4   scaled gradient norm is no more than EpsG.
+                *  5   MaxIts steps was taken
+                *  8   terminated by user who called minbcrequesttermination().
+                       X contains point which was "current accepted"  when
+                       termination request was submitted.
+                More information about fields of this  structure  can  be
+                found in the comments on MinBCReport datatype.
+
+  -- ALGLIB --
+     Copyright 28.11.2010 by Bochkanov Sergey
+*************************************************************************/
+void minbcresults(const minbcstate &state, real_1d_array &x, minbcreport &rep, const xparams _xparams = alglib::xdefault);
+
+
+/*************************************************************************
+BC results
+
+Buffered implementation of MinBCResults() which uses pre-allocated buffer
+to store X[]. If buffer size is  too  small,  it  resizes  buffer.  It  is
+intended to be used in the inner cycles of performance critical algorithms
+where array reallocation penalty is too large to be ignored.
+
+  -- ALGLIB --
+     Copyright 28.11.2010 by Bochkanov Sergey
+*************************************************************************/
+void minbcresultsbuf(const minbcstate &state, real_1d_array &x, minbcreport &rep, const xparams _xparams = alglib::xdefault);
+
+
+/*************************************************************************
+This subroutine restarts algorithm from new point.
+All optimization parameters (including constraints) are left unchanged.
+
+This  function  allows  to  solve multiple  optimization  problems  (which
+must have  same number of dimensions) without object reallocation penalty.
+
+INPUT PARAMETERS:
+    State   -   structure previously allocated with MinBCCreate call.
+    X       -   new starting point.
+
+  -- ALGLIB --
+     Copyright 28.11.2010 by Bochkanov Sergey
+*************************************************************************/
+void minbcrestartfrom(const minbcstate &state, const real_1d_array &x, const xparams _xparams = alglib::xdefault);
+
+
+/*************************************************************************
+This subroutine submits request for termination of running  optimizer.  It
+should be called from user-supplied callback when user decides that it  is
+time to "smoothly" terminate optimization process.  As  result,  optimizer
+stops at point which was "current accepted" when termination  request  was
+submitted and returns error code 8 (successful termination).
+
+INPUT PARAMETERS:
+    State   -   optimizer structure
+
+NOTE: after  request  for  termination  optimizer  may   perform   several
+      additional calls to user-supplied callbacks. It does  NOT  guarantee
+      to stop immediately - it just guarantees that these additional calls
+      will be discarded later.
+
+NOTE: calling this function on optimizer which is NOT running will have no
+      effect.
+
+NOTE: multiple calls to this function are possible. First call is counted,
+      subsequent calls are silently ignored.
+
+  -- ALGLIB --
+     Copyright 08.10.2014 by Bochkanov Sergey
+*************************************************************************/
+void minbcrequesttermination(const minbcstate &state, const xparams _xparams = alglib::xdefault);
 #endif
 
 #if defined(AE_COMPILE_MINNS) || !defined(AE_PARTIAL_BUILD)
@@ -6681,6 +9313,782 @@ Was replaced by MinBLEIC subpackage.
 void minasarestartfrom(const minasastate &state, const real_1d_array &x, const real_1d_array &bndl, const real_1d_array &bndu, const xparams _xparams = alglib::xdefault);
 #endif
 
+#if defined(AE_COMPILE_MINCG) || !defined(AE_PARTIAL_BUILD)
+/*************************************************************************
+        NONLINEAR CONJUGATE GRADIENT METHOD
+
+DESCRIPTION:
+The subroutine minimizes function F(x) of N arguments by using one of  the
+nonlinear conjugate gradient methods.
+
+These CG methods are globally convergent (even on non-convex functions) as
+long as grad(f) is Lipschitz continuous in  a  some  neighborhood  of  the
+L = { x : f(x)<=f(x0) }.
+
+
+REQUIREMENTS:
+Algorithm will request following information during its operation:
+* function value F and its gradient G (simultaneously) at given point X
+
+
+USAGE:
+1. User initializes algorithm state with MinCGCreate() call
+2. User tunes solver parameters with MinCGSetCond(), MinCGSetStpMax() and
+   other functions
+3. User calls MinCGOptimize() function which takes algorithm  state   and
+   pointer (delegate, etc.) to callback function which calculates F/G.
+4. User calls MinCGResults() to get solution
+5. Optionally, user may call MinCGRestartFrom() to solve another  problem
+   with same N but another starting point and/or another function.
+   MinCGRestartFrom() allows to reuse already initialized structure.
+
+
+INPUT PARAMETERS:
+    N       -   problem dimension, N>0:
+                * if given, only leading N elements of X are used
+                * if not given, automatically determined from size of X
+    X       -   starting point, array[0..N-1].
+
+OUTPUT PARAMETERS:
+    State   -   structure which stores algorithm state
+
+  -- ALGLIB --
+     Copyright 25.03.2010 by Bochkanov Sergey
+*************************************************************************/
+void mincgcreate(const ae_int_t n, const real_1d_array &x, mincgstate &state, const xparams _xparams = alglib::xdefault);
+void mincgcreate(const real_1d_array &x, mincgstate &state, const xparams _xparams = alglib::xdefault);
+
+
+/*************************************************************************
+The subroutine is finite difference variant of MinCGCreate(). It uses
+finite differences in order to differentiate target function.
+
+Description below contains information which is specific to this function
+only. We recommend to read comments on MinCGCreate() in order to get more
+information about creation of CG optimizer.
+
+INPUT PARAMETERS:
+    N       -   problem dimension, N>0:
+                * if given, only leading N elements of X are used
+                * if not given, automatically determined from size of X
+    X       -   starting point, array[0..N-1].
+    DiffStep-   differentiation step, >0
+
+OUTPUT PARAMETERS:
+    State   -   structure which stores algorithm state
+
+NOTES:
+1. algorithm uses 4-point central formula for differentiation.
+2. differentiation step along I-th axis is equal to DiffStep*S[I] where
+   S[] is scaling vector which can be set by MinCGSetScale() call.
+3. we recommend you to use moderate values of  differentiation  step.  Too
+   large step will result in too large truncation  errors, while too small
+   step will result in too large numerical  errors.  1.0E-6  can  be  good
+   value to start with.
+4. Numerical  differentiation  is   very   inefficient  -   one   gradient
+   calculation needs 4*N function evaluations. This function will work for
+   any N - either small (1...10), moderate (10...100) or  large  (100...).
+   However, performance penalty will be too severe for any N's except  for
+   small ones.
+   We should also say that code which relies on numerical  differentiation
+   is  less  robust  and  precise.  L-BFGS  needs  exact  gradient values.
+   Imprecise  gradient may slow down  convergence,  especially  on  highly
+   nonlinear problems.
+   Thus  we  recommend to use this function for fast prototyping on small-
+   dimensional problems only, and to implement analytical gradient as soon
+   as possible.
+
+  -- ALGLIB --
+     Copyright 16.05.2011 by Bochkanov Sergey
+*************************************************************************/
+void mincgcreatef(const ae_int_t n, const real_1d_array &x, const double diffstep, mincgstate &state, const xparams _xparams = alglib::xdefault);
+void mincgcreatef(const real_1d_array &x, const double diffstep, mincgstate &state, const xparams _xparams = alglib::xdefault);
+
+
+/*************************************************************************
+This function sets stopping conditions for CG optimization algorithm.
+
+INPUT PARAMETERS:
+    State   -   structure which stores algorithm state
+    EpsG    -   >=0
+                The  subroutine  finishes  its  work   if   the  condition
+                |v|<EpsG is satisfied, where:
+                * |.| means Euclidian norm
+                * v - scaled gradient vector, v[i]=g[i]*s[i]
+                * g - gradient
+                * s - scaling coefficients set by MinCGSetScale()
+    EpsF    -   >=0
+                The  subroutine  finishes  its work if on k+1-th iteration
+                the  condition  |F(k+1)-F(k)|<=EpsF*max{|F(k)|,|F(k+1)|,1}
+                is satisfied.
+    EpsX    -   >=0
+                The subroutine finishes its work if  on  k+1-th  iteration
+                the condition |v|<=EpsX is fulfilled, where:
+                * |.| means Euclidian norm
+                * v - scaled step vector, v[i]=dx[i]/s[i]
+                * dx - ste pvector, dx=X(k+1)-X(k)
+                * s - scaling coefficients set by MinCGSetScale()
+    MaxIts  -   maximum number of iterations. If MaxIts=0, the  number  of
+                iterations is unlimited.
+
+Passing EpsG=0, EpsF=0, EpsX=0 and MaxIts=0 (simultaneously) will lead to
+automatic stopping criterion selection (small EpsX).
+
+  -- ALGLIB --
+     Copyright 02.04.2010 by Bochkanov Sergey
+*************************************************************************/
+void mincgsetcond(const mincgstate &state, const double epsg, const double epsf, const double epsx, const ae_int_t maxits, const xparams _xparams = alglib::xdefault);
+
+
+/*************************************************************************
+This function sets scaling coefficients for CG optimizer.
+
+ALGLIB optimizers use scaling matrices to test stopping  conditions  (step
+size and gradient are scaled before comparison with tolerances).  Scale of
+the I-th variable is a translation invariant measure of:
+a) "how large" the variable is
+b) how large the step should be to make significant changes in the function
+
+Scaling is also used by finite difference variant of CG optimizer  -  step
+along I-th axis is equal to DiffStep*S[I].
+
+In   most   optimizers  (and  in  the  CG  too)  scaling is NOT a form  of
+preconditioning. It just  affects  stopping  conditions.  You  should  set
+preconditioner by separate call to one of the MinCGSetPrec...() functions.
+
+There  is  special  preconditioning  mode, however,  which  uses   scaling
+coefficients to form diagonal preconditioning matrix. You  can  turn  this
+mode on, if you want.   But  you should understand that scaling is not the
+same thing as preconditioning - these are two different, although  related
+forms of tuning solver.
+
+INPUT PARAMETERS:
+    State   -   structure stores algorithm state
+    S       -   array[N], non-zero scaling coefficients
+                S[i] may be negative, sign doesn't matter.
+
+  -- ALGLIB --
+     Copyright 14.01.2011 by Bochkanov Sergey
+*************************************************************************/
+void mincgsetscale(const mincgstate &state, const real_1d_array &s, const xparams _xparams = alglib::xdefault);
+
+
+/*************************************************************************
+This function turns on/off reporting.
+
+INPUT PARAMETERS:
+    State   -   structure which stores algorithm state
+    NeedXRep-   whether iteration reports are needed or not
+
+If NeedXRep is True, algorithm will call rep() callback function if  it is
+provided to MinCGOptimize().
+
+  -- ALGLIB --
+     Copyright 02.04.2010 by Bochkanov Sergey
+*************************************************************************/
+void mincgsetxrep(const mincgstate &state, const bool needxrep, const xparams _xparams = alglib::xdefault);
+
+
+/*************************************************************************
+This function sets CG algorithm.
+
+INPUT PARAMETERS:
+    State   -   structure which stores algorithm state
+    CGType  -   algorithm type:
+                * -1    automatic selection of the best algorithm
+                * 0     DY (Dai and Yuan) algorithm
+                * 1     Hybrid DY-HS algorithm
+
+  -- ALGLIB --
+     Copyright 02.04.2010 by Bochkanov Sergey
+*************************************************************************/
+void mincgsetcgtype(const mincgstate &state, const ae_int_t cgtype, const xparams _xparams = alglib::xdefault);
+
+
+/*************************************************************************
+This function sets maximum step length
+
+INPUT PARAMETERS:
+    State   -   structure which stores algorithm state
+    StpMax  -   maximum step length, >=0. Set StpMax to 0.0,  if you don't
+                want to limit step length.
+
+Use this subroutine when you optimize target function which contains exp()
+or  other  fast  growing  functions,  and optimization algorithm makes too
+large  steps  which  leads  to overflow. This function allows us to reject
+steps  that  are  too  large  (and  therefore  expose  us  to the possible
+overflow) without actually calculating function value at the x+stp*d.
+
+  -- ALGLIB --
+     Copyright 02.04.2010 by Bochkanov Sergey
+*************************************************************************/
+void mincgsetstpmax(const mincgstate &state, const double stpmax, const xparams _xparams = alglib::xdefault);
+
+
+/*************************************************************************
+This function allows to suggest initial step length to the CG algorithm.
+
+Suggested  step  length  is used as starting point for the line search. It
+can be useful when you have  badly  scaled  problem,  i.e.  when  ||grad||
+(which is used as initial estimate for the first step) is many  orders  of
+magnitude different from the desired step.
+
+Line search  may  fail  on  such problems without good estimate of initial
+step length. Imagine, for example, problem with ||grad||=10^50 and desired
+step equal to 0.1 Line  search function will use 10^50  as  initial  step,
+then  it  will  decrease step length by 2 (up to 20 attempts) and will get
+10^44, which is still too large.
+
+This function allows us to tell than line search should  be  started  from
+some moderate step length, like 1.0, so algorithm will be able  to  detect
+desired step length in a several searches.
+
+Default behavior (when no step is suggested) is to use preconditioner,  if
+it is available, to generate initial estimate of step length.
+
+This function influences only first iteration of algorithm. It  should  be
+called between MinCGCreate/MinCGRestartFrom() call and MinCGOptimize call.
+Suggested step is ignored if you have preconditioner.
+
+INPUT PARAMETERS:
+    State   -   structure used to store algorithm state.
+    Stp     -   initial estimate of the step length.
+                Can be zero (no estimate).
+
+  -- ALGLIB --
+     Copyright 30.07.2010 by Bochkanov Sergey
+*************************************************************************/
+void mincgsuggeststep(const mincgstate &state, const double stp, const xparams _xparams = alglib::xdefault);
+
+
+/*************************************************************************
+Modification of the preconditioner: preconditioning is turned off.
+
+INPUT PARAMETERS:
+    State   -   structure which stores algorithm state
+
+NOTE:  you  can  change  preconditioner  "on  the  fly",  during algorithm
+iterations.
+
+  -- ALGLIB --
+     Copyright 13.10.2010 by Bochkanov Sergey
+*************************************************************************/
+void mincgsetprecdefault(const mincgstate &state, const xparams _xparams = alglib::xdefault);
+
+
+/*************************************************************************
+Modification  of  the  preconditioner:  diagonal of approximate Hessian is
+used.
+
+INPUT PARAMETERS:
+    State   -   structure which stores algorithm state
+    D       -   diagonal of the approximate Hessian, array[0..N-1],
+                (if larger, only leading N elements are used).
+
+NOTE:  you  can  change  preconditioner  "on  the  fly",  during algorithm
+iterations.
+
+NOTE 2: D[i] should be positive. Exception will be thrown otherwise.
+
+NOTE 3: you should pass diagonal of approximate Hessian - NOT ITS INVERSE.
+
+  -- ALGLIB --
+     Copyright 13.10.2010 by Bochkanov Sergey
+*************************************************************************/
+void mincgsetprecdiag(const mincgstate &state, const real_1d_array &d, const xparams _xparams = alglib::xdefault);
+
+
+/*************************************************************************
+Modification of the preconditioner: scale-based diagonal preconditioning.
+
+This preconditioning mode can be useful when you  don't  have  approximate
+diagonal of Hessian, but you know that your  variables  are  badly  scaled
+(for  example,  one  variable is in [1,10], and another in [1000,100000]),
+and most part of the ill-conditioning comes from different scales of vars.
+
+In this case simple  scale-based  preconditioner,  with H[i] = 1/(s[i]^2),
+can greatly improve convergence.
+
+IMPRTANT: you should set scale of your variables with MinCGSetScale() call
+(before or after MinCGSetPrecScale() call). Without knowledge of the scale
+of your variables scale-based preconditioner will be just unit matrix.
+
+INPUT PARAMETERS:
+    State   -   structure which stores algorithm state
+
+NOTE:  you  can  change  preconditioner  "on  the  fly",  during algorithm
+iterations.
+
+  -- ALGLIB --
+     Copyright 13.10.2010 by Bochkanov Sergey
+*************************************************************************/
+void mincgsetprecscale(const mincgstate &state, const xparams _xparams = alglib::xdefault);
+
+
+/*************************************************************************
+This function provides reverse communication interface
+Reverse communication interface is not documented or recommended to use.
+See below for functions which provide better documented API
+*************************************************************************/
+bool mincgiteration(const mincgstate &state, const xparams _xparams = alglib::xdefault);
+
+
+/*************************************************************************
+This family of functions is used to launcn iterations of nonlinear optimizer
+
+These functions accept following parameters:
+    state   -   algorithm state
+    func    -   callback which calculates function (or merit function)
+                value func at given point x
+    grad    -   callback which calculates function (or merit function)
+                value func and gradient grad at given point x
+    rep     -   optional callback which is called after each iteration
+                can be NULL
+    ptr     -   optional pointer which is passed to func/grad/hess/jac/rep
+                can be NULL
+
+NOTES:
+
+1. This function has two different implementations: one which  uses  exact
+   (analytical) user-supplied  gradient, and one which uses function value
+   only  and  numerically  differentiates  function  in  order  to  obtain
+   gradient.
+
+   Depending  on  the  specific  function  used to create optimizer object
+   (either MinCGCreate()  for analytical gradient  or  MinCGCreateF()  for
+   numerical differentiation) you should  choose  appropriate  variant  of
+   MinCGOptimize() - one which accepts function AND gradient or one  which
+   accepts function ONLY.
+
+   Be careful to choose variant of MinCGOptimize()  which  corresponds  to
+   your optimization scheme! Table below lists different  combinations  of
+   callback (function/gradient) passed  to  MinCGOptimize()  and  specific
+   function used to create optimizer.
+
+
+                  |         USER PASSED TO MinCGOptimize()
+   CREATED WITH   |  function only   |  function and gradient
+   ------------------------------------------------------------
+   MinCGCreateF() |     work                FAIL
+   MinCGCreate()  |     FAIL                work
+
+   Here "FAIL" denotes inappropriate combinations  of  optimizer  creation
+   function and MinCGOptimize() version. Attemps to use  such  combination
+   (for  example,  to create optimizer with  MinCGCreateF()  and  to  pass
+   gradient information to MinCGOptimize()) will lead to  exception  being
+   thrown. Either  you  did  not  pass  gradient when it WAS needed or you
+   passed gradient when it was NOT needed.
+
+  -- ALGLIB --
+     Copyright 20.04.2009 by Bochkanov Sergey
+
+*************************************************************************/
+void mincgoptimize(mincgstate &state,
+    void (*func)(const real_1d_array &x, double &func, void *ptr),
+    void  (*rep)(const real_1d_array &x, double func, void *ptr) = NULL,
+    void *ptr = NULL,
+    const xparams _xparams = alglib::xdefault);
+void mincgoptimize(mincgstate &state,
+    void (*grad)(const real_1d_array &x, double &func, real_1d_array &grad, void *ptr),
+    void  (*rep)(const real_1d_array &x, double func, void *ptr) = NULL,
+    void *ptr = NULL,
+    const xparams _xparams = alglib::xdefault);
+
+
+/*************************************************************************
+This  function  activates/deactivates verification  of  the  user-supplied
+analytic gradient.
+
+Upon  activation  of  this  option  OptGuard  integrity  checker  performs
+numerical differentiation of your target function  at  the  initial  point
+(note: future versions may also perform check  at  the  final  point)  and
+compares numerical gradient with analytic one provided by you.
+
+If difference is too large, an error flag is set and optimization  session
+continues. After optimization session is over, you can retrieve the report
+which  stores  both  gradients  and  specific  components  highlighted  as
+suspicious by the OptGuard.
+
+The primary OptGuard report can be retrieved with mincgoptguardresults().
+
+IMPORTANT: gradient check is a high-overhead option which  will  cost  you
+           about 3*N additional function evaluations. In many cases it may
+           cost as much as the rest of the optimization session.
+
+           YOU SHOULD NOT USE IT IN THE PRODUCTION CODE UNLESS YOU WANT TO
+           CHECK DERIVATIVES PROVIDED BY SOME THIRD PARTY.
+
+NOTE: unlike previous incarnation of the gradient checking code,  OptGuard
+      does NOT interrupt optimization even if it discovers bad gradient.
+
+INPUT PARAMETERS:
+    State       -   structure used to store algorithm state
+    TestStep    -   verification step used for numerical differentiation:
+                    * TestStep=0 turns verification off
+                    * TestStep>0 activates verification
+                    You should carefully choose TestStep. Value  which  is
+                    too large (so large that  function  behavior  is  non-
+                    cubic at this scale) will lead  to  false  alarms. Too
+                    short step will result in rounding  errors  dominating
+                    numerical derivative.
+
+                    You may use different step for different parameters by
+                    means of setting scale with mincgsetscale().
+
+=== EXPLANATION ==========================================================
+
+In order to verify gradient algorithm performs following steps:
+  * two trial steps are made to X[i]-TestStep*S[i] and X[i]+TestStep*S[i],
+    where X[i] is i-th component of the initial point and S[i] is a  scale
+    of i-th parameter
+  * F(X) is evaluated at these trial points
+  * we perform one more evaluation in the middle point of the interval
+  * we  build  cubic  model using function values and derivatives at trial
+    points and we compare its prediction with actual value in  the  middle
+    point
+
+  -- ALGLIB --
+     Copyright 15.06.2014 by Bochkanov Sergey
+*************************************************************************/
+void mincgoptguardgradient(const mincgstate &state, const double teststep, const xparams _xparams = alglib::xdefault);
+
+
+/*************************************************************************
+This  function  activates/deactivates nonsmoothness monitoring  option  of
+the  OptGuard  integrity  checker. Smoothness  monitor  silently  observes
+solution process and tries to detect ill-posed problems, i.e. ones with:
+a) discontinuous target function (non-C0)
+b) nonsmooth     target function (non-C1)
+
+Smoothness monitoring does NOT interrupt optimization  even if it suspects
+that your problem is nonsmooth. It just sets corresponding  flags  in  the
+OptGuard report which can be retrieved after optimization is over.
+
+Smoothness monitoring is a moderate overhead option which often adds  less
+than 1% to the optimizer running time. Thus, you can use it even for large
+scale problems.
+
+NOTE: OptGuard does  NOT  guarantee  that  it  will  always  detect  C0/C1
+      continuity violations.
+
+      First, minor errors are hard to  catch - say, a 0.0001 difference in
+      the model values at two sides of the gap may be due to discontinuity
+      of the model - or simply because the model has changed.
+
+      Second, C1-violations  are  especially  difficult  to  detect  in  a
+      noninvasive way. The optimizer usually  performs  very  short  steps
+      near the nonsmoothness, and differentiation  usually   introduces  a
+      lot of numerical noise.  It  is  hard  to  tell  whether  some  tiny
+      discontinuity in the slope is due to real nonsmoothness or just  due
+      to numerical noise alone.
+
+      Our top priority was to avoid false positives, so in some rare cases
+      minor errors may went unnoticed (however, in most cases they can  be
+      spotted with restart from different initial point).
+
+INPUT PARAMETERS:
+    state   -   algorithm state
+    level   -   monitoring level:
+                * 0 - monitoring is disabled
+                * 1 - noninvasive low-overhead monitoring; function values
+                      and/or gradients are recorded, but OptGuard does not
+                      try to perform additional evaluations  in  order  to
+                      get more information about suspicious locations.
+
+=== EXPLANATION ==========================================================
+
+One major source of headache during optimization  is  the  possibility  of
+the coding errors in the target function/constraints (or their gradients).
+Such  errors   most   often   manifest   themselves  as  discontinuity  or
+nonsmoothness of the target/constraints.
+
+Another frequent situation is when you try to optimize something involving
+lots of min() and max() operations, i.e. nonsmooth target. Although not  a
+coding error, it is nonsmoothness anyway - and smooth  optimizers  usually
+stop right after encountering nonsmoothness, well before reaching solution.
+
+OptGuard integrity checker helps you to catch such situations: it monitors
+function values/gradients being passed  to  the  optimizer  and  tries  to
+errors. Upon discovering suspicious pair of points it  raises  appropriate
+flag (and allows you to continue optimization). When optimization is done,
+you can study OptGuard result.
+
+  -- ALGLIB --
+     Copyright 21.11.2018 by Bochkanov Sergey
+*************************************************************************/
+void mincgoptguardsmoothness(const mincgstate &state, const ae_int_t level, const xparams _xparams = alglib::xdefault);
+void mincgoptguardsmoothness(const mincgstate &state, const xparams _xparams = alglib::xdefault);
+
+
+/*************************************************************************
+Results of OptGuard integrity check, should be called  after  optimization
+session is over.
+
+=== PRIMARY REPORT =======================================================
+
+OptGuard performs several checks which are intended to catch common errors
+in the implementation of nonlinear function/gradient:
+* incorrect analytic gradient
+* discontinuous (non-C0) target functions (constraints)
+* nonsmooth     (non-C1) target functions (constraints)
+
+Each of these checks is activated with appropriate function:
+* mincgoptguardgradient() for gradient verification
+* mincgoptguardsmoothness() for C0/C1 checks
+
+Following flags are set when these errors are suspected:
+* rep.badgradsuspected, and additionally:
+  * rep.badgradvidx for specific variable (gradient element) suspected
+  * rep.badgradxbase, a point where gradient is tested
+  * rep.badgraduser, user-provided gradient  (stored  as  2D  matrix  with
+    single row in order to make  report  structure  compatible  with  more
+    complex optimizers like MinNLC or MinLM)
+  * rep.badgradnum,   reference    gradient    obtained    via   numerical
+    differentiation (stored as  2D matrix with single row in order to make
+    report structure compatible with more complex optimizers  like  MinNLC
+    or MinLM)
+* rep.nonc0suspected
+* rep.nonc1suspected
+
+=== ADDITIONAL REPORTS/LOGS ==============================================
+
+Several different tests are performed to catch C0/C1 errors, you can  find
+out specific test signaled error by looking to:
+* rep.nonc0test0positive, for non-C0 test #0
+* rep.nonc1test0positive, for non-C1 test #0
+* rep.nonc1test1positive, for non-C1 test #1
+
+Additional information (including line search logs)  can  be  obtained  by
+means of:
+* mincgoptguardnonc1test0results()
+* mincgoptguardnonc1test1results()
+which return detailed error reports, specific points where discontinuities
+were found, and so on.
+
+==========================================================================
+
+INPUT PARAMETERS:
+    state   -   algorithm state
+
+OUTPUT PARAMETERS:
+    rep     -   generic OptGuard report;  more  detailed  reports  can  be
+                retrieved with other functions.
+
+NOTE: false negatives (nonsmooth problems are not identified as  nonsmooth
+      ones) are possible although unlikely.
+
+      The reason  is  that  you  need  to  make several evaluations around
+      nonsmoothness  in  order  to  accumulate  enough  information  about
+      function curvature. Say, if you start right from the nonsmooth point,
+      optimizer simply won't get enough data to understand what  is  going
+      wrong before it terminates due to abrupt changes in the  derivative.
+      It is also  possible  that  "unlucky"  step  will  move  us  to  the
+      termination too quickly.
+
+      Our current approach is to have less than 0.1%  false  negatives  in
+      our test examples  (measured  with  multiple  restarts  from  random
+      points), and to have exactly 0% false positives.
+
+  -- ALGLIB --
+     Copyright 21.11.2018 by Bochkanov Sergey
+*************************************************************************/
+void mincgoptguardresults(const mincgstate &state, optguardreport &rep, const xparams _xparams = alglib::xdefault);
+
+
+/*************************************************************************
+Detailed results of the OptGuard integrity check for nonsmoothness test #0
+
+Nonsmoothness (non-C1) test #0 studies  function  values  (not  gradient!)
+obtained during line searches and monitors  behavior  of  the  directional
+derivative estimate.
+
+This test is less powerful than test #1, but it does  not  depend  on  the
+gradient values and thus it is more robust against artifacts introduced by
+numerical differentiation.
+
+Two reports are returned:
+* a "strongest" one, corresponding  to  line   search  which  had  highest
+  value of the nonsmoothness indicator
+* a "longest" one, corresponding to line search which  had  more  function
+  evaluations, and thus is more detailed
+
+In both cases following fields are returned:
+
+* positive - is TRUE  when test flagged suspicious point;  FALSE  if  test
+  did not notice anything (in the latter cases fields below are empty).
+* x0[], d[] - arrays of length N which store initial point  and  direction
+  for line search (d[] can be normalized, but does not have to)
+* stp[], f[] - arrays of length CNT which store step lengths and  function
+  values at these points; f[i] is evaluated in x0+stp[i]*d.
+* stpidxa, stpidxb - we  suspect  that  function  violates  C1  continuity
+  between steps #stpidxa and #stpidxb (usually we have  stpidxb=stpidxa+3,
+  with  most  likely  position  of  the  violation  between  stpidxa+1 and
+  stpidxa+2.
+
+==========================================================================
+= SHORTLY SPEAKING: build a 2D plot of (stp,f) and look at it -  you  will
+=                   see where C1 continuity is violated.
+==========================================================================
+
+INPUT PARAMETERS:
+    state   -   algorithm state
+
+OUTPUT PARAMETERS:
+    strrep  -   C1 test #0 "strong" report
+    lngrep  -   C1 test #0 "long" report
+
+  -- ALGLIB --
+     Copyright 21.11.2018 by Bochkanov Sergey
+*************************************************************************/
+void mincgoptguardnonc1test0results(const mincgstate &state, optguardnonc1test0report &strrep, optguardnonc1test0report &lngrep, const xparams _xparams = alglib::xdefault);
+
+
+/*************************************************************************
+Detailed results of the OptGuard integrity check for nonsmoothness test #1
+
+Nonsmoothness (non-C1)  test  #1  studies  individual  components  of  the
+gradient computed during line search.
+
+When precise analytic gradient is provided this test is more powerful than
+test #0  which  works  with  function  values  and  ignores  user-provided
+gradient.  However,  test  #0  becomes  more   powerful   when   numerical
+differentiation is employed (in such cases test #1 detects  higher  levels
+of numerical noise and becomes too conservative).
+
+This test also tells specific components of the gradient which violate  C1
+continuity, which makes it more informative than #0, which just tells that
+continuity is violated.
+
+Two reports are returned:
+* a "strongest" one, corresponding  to  line   search  which  had  highest
+  value of the nonsmoothness indicator
+* a "longest" one, corresponding to line search which  had  more  function
+  evaluations, and thus is more detailed
+
+In both cases following fields are returned:
+
+* positive - is TRUE  when test flagged suspicious point;  FALSE  if  test
+  did not notice anything (in the latter cases fields below are empty).
+* vidx - is an index of the variable in [0,N) with nonsmooth derivative
+* x0[], d[] - arrays of length N which store initial point  and  direction
+  for line search (d[] can be normalized, but does not have to)
+* stp[], g[] - arrays of length CNT which store step lengths and  gradient
+  values at these points; g[i] is evaluated in  x0+stp[i]*d  and  contains
+  vidx-th component of the gradient.
+* stpidxa, stpidxb - we  suspect  that  function  violates  C1  continuity
+  between steps #stpidxa and #stpidxb (usually we have  stpidxb=stpidxa+3,
+  with  most  likely  position  of  the  violation  between  stpidxa+1 and
+  stpidxa+2.
+
+==========================================================================
+= SHORTLY SPEAKING: build a 2D plot of (stp,f) and look at it -  you  will
+=                   see where C1 continuity is violated.
+==========================================================================
+
+INPUT PARAMETERS:
+    state   -   algorithm state
+
+OUTPUT PARAMETERS:
+    strrep  -   C1 test #1 "strong" report
+    lngrep  -   C1 test #1 "long" report
+
+  -- ALGLIB --
+     Copyright 21.11.2018 by Bochkanov Sergey
+*************************************************************************/
+void mincgoptguardnonc1test1results(const mincgstate &state, optguardnonc1test1report &strrep, optguardnonc1test1report &lngrep, const xparams _xparams = alglib::xdefault);
+
+
+/*************************************************************************
+Conjugate gradient results
+
+INPUT PARAMETERS:
+    State   -   algorithm state
+
+OUTPUT PARAMETERS:
+    X       -   array[0..N-1], solution
+    Rep     -   optimization report:
+                * Rep.TerminationType completetion code:
+                    * -8    internal integrity control  detected  infinite
+                            or NAN values in  function/gradient.  Abnormal
+                            termination signalled.
+                    * -7    gradient verification failed.
+                            See MinCGSetGradientCheck() for more information.
+                    *  1    relative function improvement is no more than
+                            EpsF.
+                    *  2    relative step is no more than EpsX.
+                    *  4    gradient norm is no more than EpsG
+                    *  5    MaxIts steps was taken
+                    *  7    stopping conditions are too stringent,
+                            further improvement is impossible,
+                            we return best X found so far
+                    *  8    terminated by user
+                * Rep.IterationsCount contains iterations count
+                * NFEV countains number of function calculations
+
+  -- ALGLIB --
+     Copyright 20.04.2009 by Bochkanov Sergey
+*************************************************************************/
+void mincgresults(const mincgstate &state, real_1d_array &x, mincgreport &rep, const xparams _xparams = alglib::xdefault);
+
+
+/*************************************************************************
+Conjugate gradient results
+
+Buffered implementation of MinCGResults(), which uses pre-allocated buffer
+to store X[]. If buffer size is  too  small,  it  resizes  buffer.  It  is
+intended to be used in the inner cycles of performance critical algorithms
+where array reallocation penalty is too large to be ignored.
+
+  -- ALGLIB --
+     Copyright 20.04.2009 by Bochkanov Sergey
+*************************************************************************/
+void mincgresultsbuf(const mincgstate &state, real_1d_array &x, mincgreport &rep, const xparams _xparams = alglib::xdefault);
+
+
+/*************************************************************************
+This  subroutine  restarts  CG  algorithm from new point. All optimization
+parameters are left unchanged.
+
+This  function  allows  to  solve multiple  optimization  problems  (which
+must have same number of dimensions) without object reallocation penalty.
+
+INPUT PARAMETERS:
+    State   -   structure used to store algorithm state.
+    X       -   new starting point.
+
+  -- ALGLIB --
+     Copyright 30.07.2010 by Bochkanov Sergey
+*************************************************************************/
+void mincgrestartfrom(const mincgstate &state, const real_1d_array &x, const xparams _xparams = alglib::xdefault);
+
+
+/*************************************************************************
+This subroutine submits request for termination of running  optimizer.  It
+should be called from user-supplied callback when user decides that it  is
+time to "smoothly" terminate optimization process.  As  result,  optimizer
+stops at point which was "current accepted" when termination  request  was
+submitted and returns error code 8 (successful termination).
+
+INPUT PARAMETERS:
+    State   -   optimizer structure
+
+NOTE: after  request  for  termination  optimizer  may   perform   several
+      additional calls to user-supplied callbacks. It does  NOT  guarantee
+      to stop immediately - it just guarantees that these additional calls
+      will be discarded later.
+
+NOTE: calling this function on optimizer which is NOT running will have no
+      effect.
+
+NOTE: multiple calls to this function are possible. First call is counted,
+      subsequent calls are silently ignored.
+
+  -- ALGLIB --
+     Copyright 08.10.2014 by Bochkanov Sergey
+*************************************************************************/
+void mincgrequesttermination(const mincgstate &state, const xparams _xparams = alglib::xdefault);
+#endif
+
 #if defined(AE_COMPILE_MINLM) || !defined(AE_PARTIAL_BUILD)
 /*************************************************************************
                 IMPROVED LEVENBERG-MARQUARDT METHOD FOR
@@ -7189,7 +10597,107 @@ void minlmoptimize(minlmstate &state,
 
 
 /*************************************************************************
+This  function  activates/deactivates verification  of  the  user-supplied
+analytic Jacobian.
+
+Upon  activation  of  this  option  OptGuard  integrity  checker  performs
+numerical differentiation of your target function vector  at  the  initial
+point (note: future versions may also perform check  at  the final  point)
+and compares numerical Jacobian with analytic one provided by you.
+
+If difference is too large, an error flag is set and optimization  session
+continues. After optimization session is over, you can retrieve the report
+which stores  both  Jacobians,  and  specific  components  highlighted  as
+suspicious by the OptGuard.
+
+The OptGuard report can be retrieved with minlmoptguardresults().
+
+IMPORTANT: gradient check is a high-overhead option which  will  cost  you
+           about 3*N additional function evaluations. In many cases it may
+           cost as much as the rest of the optimization session.
+
+           YOU SHOULD NOT USE IT IN THE PRODUCTION CODE UNLESS YOU WANT TO
+           CHECK DERIVATIVES PROVIDED BY SOME THIRD PARTY.
+
+NOTE: unlike previous incarnation of the gradient checking code,  OptGuard
+      does NOT interrupt optimization even if it discovers bad gradient.
+
+INPUT PARAMETERS:
+    State       -   structure used to store algorithm state
+    TestStep    -   verification step used for numerical differentiation:
+                    * TestStep=0 turns verification off
+                    * TestStep>0 activates verification
+                    You should carefully choose TestStep. Value  which  is
+                    too large (so large that  function  behavior  is  non-
+                    cubic at this scale) will lead  to  false  alarms. Too
+                    short step will result in rounding  errors  dominating
+                    numerical derivative.
+
+                    You may use different step for different parameters by
+                    means of setting scale with minlmsetscale().
+
+=== EXPLANATION ==========================================================
+
+In order to verify gradient algorithm performs following steps:
+  * two trial steps are made to X[i]-TestStep*S[i] and X[i]+TestStep*S[i],
+    where X[i] is i-th component of the initial point and S[i] is a  scale
+    of i-th parameter
+  * F(X) is evaluated at these trial points
+  * we perform one more evaluation in the middle point of the interval
+  * we  build  cubic  model using function values and derivatives at trial
+    points and we compare its prediction with actual value in  the  middle
+    point
+
+  -- ALGLIB --
+     Copyright 15.06.2014 by Bochkanov Sergey
+*************************************************************************/
+void minlmoptguardgradient(const minlmstate &state, const double teststep, const xparams _xparams = alglib::xdefault);
+
+
+/*************************************************************************
+Results of OptGuard integrity check, should be called  after  optimization
+session is over.
+
+OptGuard checks analytic Jacobian  against  reference  value  obtained  by
+numerical differentiation with user-specified step.
+
+NOTE: other optimizers perform additional OptGuard checks for things  like
+      C0/C1-continuity violations. However, LM optimizer  can  check  only
+      for incorrect Jacobian.
+
+      The reason is that unlike line search methods LM optimizer does  not
+      perform extensive evaluations along the line. Thus, we simply do not
+      have enough data to catch C0/C1-violations.
+
+This check is activated with  minlmoptguardgradient() function.
+
+Following flags are set when these errors are suspected:
+* rep.badgradsuspected, and additionally:
+  * rep.badgradfidx for specific function (Jacobian row) suspected
+  * rep.badgradvidx for specific variable (Jacobian column) suspected
+  * rep.badgradxbase, a point where gradient/Jacobian is tested
+  * rep.badgraduser, user-provided gradient/Jacobian
+  * rep.badgradnum, reference gradient/Jacobian obtained via numerical
+    differentiation
+
+INPUT PARAMETERS:
+    state   -   algorithm state
+
+OUTPUT PARAMETERS:
+    rep     -   OptGuard report
+
+  -- ALGLIB --
+     Copyright 21.11.2018 by Bochkanov Sergey
+*************************************************************************/
+void minlmoptguardresults(const minlmstate &state, optguardreport &rep, const xparams _xparams = alglib::xdefault);
+
+
+/*************************************************************************
 Levenberg-Marquardt algorithm results
+
+NOTE: if you activated OptGuard integrity checking functionality and  want
+      to get OptGuard report,  it  can  be  retrieved  with  the  help  of
+      minlmoptguardresults() function.
 
 INPUT PARAMETERS:
     State   -   algorithm state
@@ -7202,9 +10710,6 @@ OUTPUT PARAMETERS:
                 Termination code is stored in rep.terminationtype field:
                 * -8    optimizer detected NAN/INF values either in the
                         function itself, or in its Jacobian
-                * -7    derivative correctness check failed;
-                        see rep.funcidx, rep.varidx for
-                        more information.
                 * -3    constraints are inconsistent
                 *  2    relative step is no more than EpsX.
                 *  5    MaxIts steps was taken
@@ -7313,57 +10818,6 @@ provides similar, but more consistent and feature-rich interface.
 *************************************************************************/
 void minlmcreatefj(const ae_int_t n, const ae_int_t m, const real_1d_array &x, minlmstate &state, const xparams _xparams = alglib::xdefault);
 void minlmcreatefj(const ae_int_t m, const real_1d_array &x, minlmstate &state, const xparams _xparams = alglib::xdefault);
-
-
-/*************************************************************************
-This  subroutine  turns  on  verification  of  the  user-supplied analytic
-gradient:
-* user calls this subroutine before optimization begins
-* MinLMOptimize() is called
-* prior to actual optimization, for  each  function Fi and each  component
-  of parameters  being  optimized X[j] algorithm performs following steps:
-  * two trial steps are made to X[j]-TestStep*S[j] and X[j]+TestStep*S[j],
-    where X[j] is j-th parameter and S[j] is a scale of j-th parameter
-  * if needed, steps are bounded with respect to constraints on X[]
-  * Fi(X) is evaluated at these trial points
-  * we perform one more evaluation in the middle point of the interval
-  * we  build  cubic  model using function values and derivatives at trial
-    points and we compare its prediction with actual value in  the  middle
-    point
-  * in case difference between prediction and actual value is higher  than
-    some predetermined threshold, algorithm stops with completion code -7;
-    Rep.VarIdx is set to index of the parameter with incorrect derivative,
-    Rep.FuncIdx is set to index of the function.
-* after verification is over, algorithm proceeds to the actual optimization.
-
-NOTE 1: verification  needs  N (parameters count) Jacobian evaluations. It
-        is  very  costly  and  you  should use it only for low dimensional
-        problems,  when  you  want  to  be  sure  that  you've   correctly
-        calculated  analytic  derivatives.  You should not  use  it in the
-        production code  (unless  you  want  to check derivatives provided
-        by some third party).
-
-NOTE 2: you  should  carefully  choose  TestStep. Value which is too large
-        (so large that function behaviour is significantly non-cubic) will
-        lead to false alarms. You may use  different  step  for  different
-        parameters by means of setting scale with MinLMSetScale().
-
-NOTE 3: this function may lead to false positives. In case it reports that
-        I-th  derivative was calculated incorrectly, you may decrease test
-        step  and  try  one  more  time  - maybe your function changes too
-        sharply  and  your  step  is  too  large for such rapidly chanding
-        function.
-
-INPUT PARAMETERS:
-    State       -   structure used to store algorithm state
-    TestStep    -   verification step:
-                    * TestStep=0 turns verification off
-                    * TestStep>0 activates verification
-
-  -- ALGLIB --
-     Copyright 15.06.2012 by Bochkanov Sergey
-*************************************************************************/
-void minlmsetgradientcheck(const minlmstate &state, const double teststep, const xparams _xparams = alglib::xdefault);
 #endif
 }
 
@@ -7445,7 +10899,77 @@ void _convexquadraticmodel_init_copy(void* _dst, void* _src, ae_state *_state, a
 void _convexquadraticmodel_clear(void* _p);
 void _convexquadraticmodel_destroy(void* _p);
 #endif
+#if defined(AE_COMPILE_OPTGUARDAPI) || !defined(AE_PARTIAL_BUILD)
+void optguardinitinternal(optguardreport* rep,
+     ae_int_t n,
+     ae_int_t k,
+     ae_state *_state);
+void optguardexportreport(optguardreport* srcrep,
+     ae_int_t n,
+     ae_int_t k,
+     ae_bool badgradhasxj,
+     optguardreport* dstrep,
+     ae_state *_state);
+void smoothnessmonitorexportc1test0report(optguardnonc1test0report* srcrep,
+     /* Real    */ ae_vector* s,
+     optguardnonc1test0report* dstrep,
+     ae_state *_state);
+void smoothnessmonitorexportc1test1report(optguardnonc1test1report* srcrep,
+     /* Real    */ ae_vector* s,
+     optguardnonc1test1report* dstrep,
+     ae_state *_state);
+ae_bool optguardallclear(optguardreport* rep, ae_state *_state);
+void _optguardreport_init(void* _p, ae_state *_state, ae_bool make_automatic);
+void _optguardreport_init_copy(void* _dst, void* _src, ae_state *_state, ae_bool make_automatic);
+void _optguardreport_clear(void* _p);
+void _optguardreport_destroy(void* _p);
+void _optguardnonc0report_init(void* _p, ae_state *_state, ae_bool make_automatic);
+void _optguardnonc0report_init_copy(void* _dst, void* _src, ae_state *_state, ae_bool make_automatic);
+void _optguardnonc0report_clear(void* _p);
+void _optguardnonc0report_destroy(void* _p);
+void _optguardnonc1test0report_init(void* _p, ae_state *_state, ae_bool make_automatic);
+void _optguardnonc1test0report_init_copy(void* _dst, void* _src, ae_state *_state, ae_bool make_automatic);
+void _optguardnonc1test0report_clear(void* _p);
+void _optguardnonc1test0report_destroy(void* _p);
+void _optguardnonc1test1report_init(void* _p, ae_state *_state, ae_bool make_automatic);
+void _optguardnonc1test1report_init_copy(void* _dst, void* _src, ae_state *_state, ae_bool make_automatic);
+void _optguardnonc1test1report_clear(void* _p);
+void _optguardnonc1test1report_destroy(void* _p);
+#endif
 #if defined(AE_COMPILE_OPTSERV) || !defined(AE_PARTIAL_BUILD)
+void checkbcviolation(/* Boolean */ ae_vector* hasbndl,
+     /* Real    */ ae_vector* bndl,
+     /* Boolean */ ae_vector* hasbndu,
+     /* Real    */ ae_vector* bndu,
+     /* Real    */ ae_vector* x,
+     ae_int_t n,
+     /* Real    */ ae_vector* s,
+     ae_bool nonunits,
+     double* bcerr,
+     ae_int_t* bcidx,
+     ae_state *_state);
+void checklcviolation(/* Real    */ ae_matrix* cleic,
+     /* Integer */ ae_vector* lcsrcidx,
+     ae_int_t nec,
+     ae_int_t nic,
+     /* Real    */ ae_vector* x,
+     ae_int_t n,
+     double* lcerr,
+     ae_int_t* lcidx,
+     ae_state *_state);
+void checknlcviolation(/* Real    */ ae_vector* fi,
+     ae_int_t ng,
+     ae_int_t nh,
+     double* nlcerr,
+     ae_int_t* nlcidx,
+     ae_state *_state);
+void unscaleandchecknlcviolation(/* Real    */ ae_vector* fi,
+     /* Real    */ ae_vector* fscales,
+     ae_int_t ng,
+     ae_int_t nh,
+     double* nlcerr,
+     ae_int_t* nlcidx,
+     ae_state *_state);
 void trimprepare(double f, double* threshold, ae_state *_state);
 void trimfunction(double* f,
      /* Real    */ ae_vector* g,
@@ -7564,6 +11088,64 @@ void preparelowrankpreconditioner(/* Real    */ ae_vector* d,
 void applylowrankpreconditioner(/* Real    */ ae_vector* s,
      precbuflowrank* buf,
      ae_state *_state);
+void smoothnessmonitorinit(smoothnessmonitor* monitor,
+     ae_int_t n,
+     ae_int_t k,
+     ae_bool checksmoothness,
+     ae_state *_state);
+void smoothnessmonitorstartlinesearch(smoothnessmonitor* monitor,
+     /* Real    */ ae_vector* x,
+     /* Real    */ ae_vector* fi,
+     /* Real    */ ae_matrix* jac,
+     ae_state *_state);
+void smoothnessmonitorstartlinesearch1u(smoothnessmonitor* monitor,
+     /* Real    */ ae_vector* s,
+     /* Real    */ ae_vector* invs,
+     /* Real    */ ae_vector* x,
+     double f0,
+     /* Real    */ ae_vector* j0,
+     ae_state *_state);
+void smoothnessmonitorenqueuepoint(smoothnessmonitor* monitor,
+     /* Real    */ ae_vector* d,
+     double stp,
+     /* Real    */ ae_vector* x,
+     /* Real    */ ae_vector* fi,
+     /* Real    */ ae_matrix* jac,
+     ae_state *_state);
+void smoothnessmonitorenqueuepoint1u(smoothnessmonitor* monitor,
+     /* Real    */ ae_vector* s,
+     /* Real    */ ae_vector* invs,
+     /* Real    */ ae_vector* d,
+     double stp,
+     /* Real    */ ae_vector* x,
+     double f0,
+     /* Real    */ ae_vector* j0,
+     ae_state *_state);
+void smoothnessmonitorfinalizelinesearch(smoothnessmonitor* monitor,
+     ae_state *_state);
+void smoothnessmonitorstartprobing(smoothnessmonitor* monitor,
+     double stpmax,
+     ae_int_t nvalues,
+     double stepscale,
+     ae_state *_state);
+ae_bool smoothnessmonitorprobe(smoothnessmonitor* monitor,
+     ae_state *_state);
+void smoothnessmonitortraceprobingresults(smoothnessmonitor* monitor,
+     ae_state *_state);
+void smoothnessmonitortracestatus(smoothnessmonitor* monitor,
+     ae_bool callersuggeststrace,
+     ae_state *_state);
+void smoothnessmonitorexportreport(smoothnessmonitor* monitor,
+     optguardreport* rep,
+     ae_state *_state);
+ae_bool smoothnessmonitorcheckgradientatx0(smoothnessmonitor* monitor,
+     /* Real    */ ae_vector* unscaledx0,
+     /* Real    */ ae_vector* s,
+     /* Real    */ ae_vector* bndl,
+     /* Real    */ ae_vector* bndu,
+     ae_bool hasboxconstraints,
+     double teststep,
+     ae_state *_state);
 void _precbuflbfgs_init(void* _p, ae_state *_state, ae_bool make_automatic);
 void _precbuflbfgs_init_copy(void* _dst, void* _src, ae_state *_state, ae_bool make_automatic);
 void _precbuflbfgs_clear(void* _p);
@@ -7572,6 +11154,10 @@ void _precbuflowrank_init(void* _p, ae_state *_state, ae_bool make_automatic);
 void _precbuflowrank_init_copy(void* _dst, void* _src, ae_state *_state, ae_bool make_automatic);
 void _precbuflowrank_clear(void* _p);
 void _precbuflowrank_destroy(void* _p);
+void _smoothnessmonitor_init(void* _p, ae_state *_state, ae_bool make_automatic);
+void _smoothnessmonitor_init_copy(void* _dst, void* _src, ae_state *_state, ae_bool make_automatic);
+void _smoothnessmonitor_clear(void* _p);
+void _smoothnessmonitor_destroy(void* _p);
 #endif
 #if defined(AE_COMPILE_SNNLS) || !defined(AE_PARTIAL_BUILD)
 void snnlsinit(ae_int_t nsmax,
@@ -7708,6 +11294,179 @@ void _qqpbuffers_init_copy(void* _dst, void* _src, ae_state *_state, ae_bool mak
 void _qqpbuffers_clear(void* _p);
 void _qqpbuffers_destroy(void* _p);
 #endif
+#if defined(AE_COMPILE_LPQPSERV) || !defined(AE_PARTIAL_BUILD)
+void scaleshiftbcinplace(/* Real    */ ae_vector* s,
+     /* Real    */ ae_vector* xorigin,
+     /* Real    */ ae_vector* bndl,
+     /* Real    */ ae_vector* bndu,
+     ae_int_t n,
+     ae_state *_state);
+void scaleshiftdensebrlcinplace(/* Real    */ ae_vector* s,
+     /* Real    */ ae_vector* xorigin,
+     ae_int_t n,
+     /* Real    */ ae_matrix* densea,
+     /* Real    */ ae_vector* ab,
+     /* Real    */ ae_vector* ar,
+     ae_int_t m,
+     ae_state *_state);
+void scaleshiftmixedbrlcinplace(/* Real    */ ae_vector* s,
+     /* Real    */ ae_vector* xorigin,
+     ae_int_t n,
+     sparsematrix* sparsea,
+     ae_int_t msparse,
+     /* Real    */ ae_matrix* densea,
+     ae_int_t mdense,
+     /* Real    */ ae_vector* ab,
+     /* Real    */ ae_vector* ar,
+     ae_state *_state);
+void scaledenseqpinplace(/* Real    */ ae_matrix* densea,
+     ae_bool isupper,
+     ae_int_t nmain,
+     /* Real    */ ae_vector* denseb,
+     ae_int_t ntotal,
+     /* Real    */ ae_vector* s,
+     ae_state *_state);
+void scalesparseqpinplace(/* Real    */ ae_vector* s,
+     ae_int_t n,
+     sparsematrix* sparsea,
+     /* Real    */ ae_vector* denseb,
+     ae_state *_state);
+void normalizedensebrlcinplace(/* Real    */ ae_matrix* densea,
+     /* Real    */ ae_vector* ab,
+     /* Real    */ ae_vector* ar,
+     ae_int_t n,
+     ae_int_t m,
+     /* Real    */ ae_vector* rownorms,
+     ae_bool neednorms,
+     ae_state *_state);
+void normalizemixedbrlcinplace(sparsematrix* sparsea,
+     ae_int_t msparse,
+     /* Real    */ ae_matrix* densea,
+     ae_int_t mdense,
+     /* Real    */ ae_vector* ab,
+     /* Real    */ ae_vector* ar,
+     ae_int_t n,
+     /* Real    */ ae_vector* rownorms,
+     ae_bool neednorms,
+     ae_state *_state);
+double normalizedenseqpinplace(/* Real    */ ae_matrix* densea,
+     ae_bool isupper,
+     ae_int_t nmain,
+     /* Real    */ ae_vector* denseb,
+     ae_int_t ntotal,
+     ae_state *_state);
+double normalizesparseqpinplace(sparsematrix* sparsea,
+     ae_bool isupper,
+     /* Real    */ ae_vector* denseb,
+     ae_int_t n,
+     ae_state *_state);
+void unscaleunshiftpointbc(/* Real    */ ae_vector* s,
+     /* Real    */ ae_vector* xorigin,
+     /* Real    */ ae_vector* rawbndl,
+     /* Real    */ ae_vector* rawbndu,
+     /* Real    */ ae_vector* sclsftbndl,
+     /* Real    */ ae_vector* sclsftbndu,
+     /* Boolean */ ae_vector* hasbndl,
+     /* Boolean */ ae_vector* hasbndu,
+     /* Real    */ ae_vector* x,
+     ae_int_t n,
+     ae_state *_state);
+#endif
+#if defined(AE_COMPILE_VIPMSOLVER) || !defined(AE_PARTIAL_BUILD)
+void vipminitdense(vipmstate* state,
+     /* Real    */ ae_vector* s,
+     /* Real    */ ae_vector* xorigin,
+     ae_int_t n,
+     ae_state *_state);
+void vipminitdensewithslacks(vipmstate* state,
+     /* Real    */ ae_vector* s,
+     /* Real    */ ae_vector* xorigin,
+     ae_int_t nmain,
+     ae_int_t n,
+     ae_state *_state);
+void vipminitsparse(vipmstate* state,
+     /* Real    */ ae_vector* s,
+     /* Real    */ ae_vector* xorigin,
+     ae_int_t n,
+     ae_state *_state);
+void vipmsetquadraticlinear(vipmstate* state,
+     /* Real    */ ae_matrix* denseh,
+     sparsematrix* sparseh,
+     ae_int_t hkind,
+     ae_bool isupper,
+     /* Real    */ ae_vector* c,
+     ae_state *_state);
+void vipmsetconstraints(vipmstate* state,
+     /* Real    */ ae_vector* bndl,
+     /* Real    */ ae_vector* bndu,
+     sparsematrix* sparsea,
+     ae_int_t msparse,
+     /* Real    */ ae_matrix* densea,
+     ae_int_t mdense,
+     /* Real    */ ae_vector* cl,
+     /* Real    */ ae_vector* cu,
+     ae_state *_state);
+void vipmsetcond(vipmstate* state,
+     double epsp,
+     double epsd,
+     double epsgap,
+     ae_state *_state);
+void vipmoptimize(vipmstate* state,
+     /* Real    */ ae_vector* xs,
+     /* Real    */ ae_vector* lagbc,
+     /* Real    */ ae_vector* laglc,
+     ae_int_t* terminationtype,
+     ae_state *_state);
+void _vipmvars_init(void* _p, ae_state *_state, ae_bool make_automatic);
+void _vipmvars_init_copy(void* _dst, void* _src, ae_state *_state, ae_bool make_automatic);
+void _vipmvars_clear(void* _p);
+void _vipmvars_destroy(void* _p);
+void _vipmstate_init(void* _p, ae_state *_state, ae_bool make_automatic);
+void _vipmstate_init_copy(void* _dst, void* _src, ae_state *_state, ae_bool make_automatic);
+void _vipmstate_clear(void* _p);
+void _vipmstate_destroy(void* _p);
+#endif
+#if defined(AE_COMPILE_NLCSQP) || !defined(AE_PARTIAL_BUILD)
+void minsqpinitbuf(/* Real    */ ae_vector* bndl,
+     /* Real    */ ae_vector* bndu,
+     /* Real    */ ae_vector* s,
+     /* Real    */ ae_vector* x0,
+     ae_int_t n,
+     /* Real    */ ae_matrix* cleic,
+     /* Integer */ ae_vector* lcsrcidx,
+     ae_int_t nec,
+     ae_int_t nic,
+     ae_int_t nlec,
+     ae_int_t nlic,
+     double epsx,
+     ae_int_t maxits,
+     minsqpstate* state,
+     ae_state *_state);
+ae_bool minsqpiteration(minsqpstate* state,
+     smoothnessmonitor* smonitor,
+     ae_bool userterminationneeded,
+     ae_state *_state);
+void _minsqpsubsolver_init(void* _p, ae_state *_state, ae_bool make_automatic);
+void _minsqpsubsolver_init_copy(void* _dst, void* _src, ae_state *_state, ae_bool make_automatic);
+void _minsqpsubsolver_clear(void* _p);
+void _minsqpsubsolver_destroy(void* _p);
+void _minsqptmplagrangian_init(void* _p, ae_state *_state, ae_bool make_automatic);
+void _minsqptmplagrangian_init_copy(void* _dst, void* _src, ae_state *_state, ae_bool make_automatic);
+void _minsqptmplagrangian_clear(void* _p);
+void _minsqptmplagrangian_destroy(void* _p);
+void _minsqptmpmerit_init(void* _p, ae_state *_state, ae_bool make_automatic);
+void _minsqptmpmerit_init_copy(void* _dst, void* _src, ae_state *_state, ae_bool make_automatic);
+void _minsqptmpmerit_clear(void* _p);
+void _minsqptmpmerit_destroy(void* _p);
+void _minsqpmeritphasestate_init(void* _p, ae_state *_state, ae_bool make_automatic);
+void _minsqpmeritphasestate_init_copy(void* _dst, void* _src, ae_state *_state, ae_bool make_automatic);
+void _minsqpmeritphasestate_clear(void* _p);
+void _minsqpmeritphasestate_destroy(void* _p);
+void _minsqpstate_init(void* _p, ae_state *_state, ae_bool make_automatic);
+void _minsqpstate_init_copy(void* _dst, void* _src, ae_state *_state, ae_bool make_automatic);
+void _minsqpstate_clear(void* _p);
+void _minsqpstate_destroy(void* _p);
+#endif
 #if defined(AE_COMPILE_MINLBFGS) || !defined(AE_PARTIAL_BUILD)
 void minlbfgscreate(ae_int_t n,
      ae_int_t m,
@@ -7764,6 +11523,23 @@ void minlbfgssetpreclowrankexact(minlbfgsstate* state,
      ae_int_t cnt,
      ae_state *_state);
 ae_bool minlbfgsiteration(minlbfgsstate* state, ae_state *_state);
+void minlbfgsoptguardgradient(minlbfgsstate* state,
+     double teststep,
+     ae_state *_state);
+void minlbfgsoptguardsmoothness(minlbfgsstate* state,
+     ae_int_t level,
+     ae_state *_state);
+void minlbfgsoptguardresults(minlbfgsstate* state,
+     optguardreport* rep,
+     ae_state *_state);
+void minlbfgsoptguardnonc1test0results(minlbfgsstate* state,
+     optguardnonc1test0report* strrep,
+     optguardnonc1test0report* lngrep,
+     ae_state *_state);
+void minlbfgsoptguardnonc1test1results(minlbfgsstate* state,
+     optguardnonc1test1report* strrep,
+     optguardnonc1test1report* lngrep,
+     ae_state *_state);
 void minlbfgsresults(minlbfgsstate* state,
      /* Real    */ ae_vector* x,
      minlbfgsreport* rep,
@@ -7776,9 +11552,6 @@ void minlbfgsrestartfrom(minlbfgsstate* state,
      /* Real    */ ae_vector* x,
      ae_state *_state);
 void minlbfgsrequesttermination(minlbfgsstate* state, ae_state *_state);
-void minlbfgssetgradientcheck(minlbfgsstate* state,
-     double teststep,
-     ae_state *_state);
 void _minlbfgsstate_init(void* _p, ae_state *_state, ae_bool make_automatic);
 void _minlbfgsstate_init_copy(void* _dst, void* _src, ae_state *_state, ae_bool make_automatic);
 void _minlbfgsstate_clear(void* _p);
@@ -7812,6 +11585,8 @@ void qpdenseauloptimize(convexquadraticmodel* a,
      qpdenseaulsettings* settings,
      qpdenseaulbuffers* state,
      /* Real    */ ae_vector* xs,
+     /* Real    */ ae_vector* lagbc,
+     /* Real    */ ae_vector* laglc,
      ae_int_t* terminationtype,
      ae_state *_state);
 void _qpdenseaulsettings_init(void* _p, ae_state *_state, ae_bool make_automatic);
@@ -7822,73 +11597,6 @@ void _qpdenseaulbuffers_init(void* _p, ae_state *_state, ae_bool make_automatic)
 void _qpdenseaulbuffers_init_copy(void* _dst, void* _src, ae_state *_state, ae_bool make_automatic);
 void _qpdenseaulbuffers_clear(void* _p);
 void _qpdenseaulbuffers_destroy(void* _p);
-#endif
-#if defined(AE_COMPILE_MINCG) || !defined(AE_PARTIAL_BUILD)
-void mincgcreate(ae_int_t n,
-     /* Real    */ ae_vector* x,
-     mincgstate* state,
-     ae_state *_state);
-void mincgcreatef(ae_int_t n,
-     /* Real    */ ae_vector* x,
-     double diffstep,
-     mincgstate* state,
-     ae_state *_state);
-void mincgsetcond(mincgstate* state,
-     double epsg,
-     double epsf,
-     double epsx,
-     ae_int_t maxits,
-     ae_state *_state);
-void mincgsetscale(mincgstate* state,
-     /* Real    */ ae_vector* s,
-     ae_state *_state);
-void mincgsetxrep(mincgstate* state, ae_bool needxrep, ae_state *_state);
-void mincgsetdrep(mincgstate* state, ae_bool needdrep, ae_state *_state);
-void mincgsetcgtype(mincgstate* state, ae_int_t cgtype, ae_state *_state);
-void mincgsetstpmax(mincgstate* state, double stpmax, ae_state *_state);
-void mincgsuggeststep(mincgstate* state, double stp, ae_state *_state);
-double mincglastgoodstep(mincgstate* state, ae_state *_state);
-void mincgsetprecdefault(mincgstate* state, ae_state *_state);
-void mincgsetprecdiag(mincgstate* state,
-     /* Real    */ ae_vector* d,
-     ae_state *_state);
-void mincgsetprecscale(mincgstate* state, ae_state *_state);
-ae_bool mincgiteration(mincgstate* state, ae_state *_state);
-void mincgresults(mincgstate* state,
-     /* Real    */ ae_vector* x,
-     mincgreport* rep,
-     ae_state *_state);
-void mincgresultsbuf(mincgstate* state,
-     /* Real    */ ae_vector* x,
-     mincgreport* rep,
-     ae_state *_state);
-void mincgrestartfrom(mincgstate* state,
-     /* Real    */ ae_vector* x,
-     ae_state *_state);
-void mincgrequesttermination(mincgstate* state, ae_state *_state);
-void mincgsetprecdiagfast(mincgstate* state,
-     /* Real    */ ae_vector* d,
-     ae_state *_state);
-void mincgsetpreclowrankfast(mincgstate* state,
-     /* Real    */ ae_vector* d1,
-     /* Real    */ ae_vector* c,
-     /* Real    */ ae_matrix* v,
-     ae_int_t vcnt,
-     ae_state *_state);
-void mincgsetprecvarpart(mincgstate* state,
-     /* Real    */ ae_vector* d2,
-     ae_state *_state);
-void mincgsetgradientcheck(mincgstate* state,
-     double teststep,
-     ae_state *_state);
-void _mincgstate_init(void* _p, ae_state *_state, ae_bool make_automatic);
-void _mincgstate_init_copy(void* _dst, void* _src, ae_state *_state, ae_bool make_automatic);
-void _mincgstate_clear(void* _p);
-void _mincgstate_destroy(void* _p);
-void _mincgreport_init(void* _p, ae_state *_state, ae_bool make_automatic);
-void _mincgreport_init_copy(void* _dst, void* _src, ae_state *_state, ae_bool make_automatic);
-void _mincgreport_clear(void* _p);
-void _mincgreport_destroy(void* _p);
 #endif
 #if defined(AE_COMPILE_MINBLEIC) || !defined(AE_PARTIAL_BUILD)
 void minbleiccreate(ae_int_t n,
@@ -7933,6 +11641,23 @@ void minbleicsetstpmax(minbleicstate* state,
      double stpmax,
      ae_state *_state);
 ae_bool minbleiciteration(minbleicstate* state, ae_state *_state);
+void minbleicoptguardgradient(minbleicstate* state,
+     double teststep,
+     ae_state *_state);
+void minbleicoptguardsmoothness(minbleicstate* state,
+     ae_int_t level,
+     ae_state *_state);
+void minbleicoptguardresults(minbleicstate* state,
+     optguardreport* rep,
+     ae_state *_state);
+void minbleicoptguardnonc1test0results(minbleicstate* state,
+     optguardnonc1test0report* strrep,
+     optguardnonc1test0report* lngrep,
+     ae_state *_state);
+void minbleicoptguardnonc1test1results(minbleicstate* state,
+     optguardnonc1test1report* strrep,
+     optguardnonc1test1report* lngrep,
+     ae_state *_state);
 void minbleicresults(minbleicstate* state,
      /* Real    */ ae_vector* x,
      minbleicreport* rep,
@@ -7946,9 +11671,6 @@ void minbleicrestartfrom(minbleicstate* state,
      ae_state *_state);
 void minbleicrequesttermination(minbleicstate* state, ae_state *_state);
 void minbleicemergencytermination(minbleicstate* state, ae_state *_state);
-void minbleicsetgradientcheck(minbleicstate* state,
-     double teststep,
-     ae_state *_state);
 void _minbleicstate_init(void* _p, ae_state *_state, ae_bool make_automatic);
 void _minbleicstate_init_copy(void* _dst, void* _src, ae_state *_state, ae_bool make_automatic);
 void _minbleicstate_clear(void* _p);
@@ -8029,6 +11751,10 @@ void minqpsetalgodenseaul(minqpstate* state,
      double rho,
      ae_int_t itscnt,
      ae_state *_state);
+void minqpsetalgodenseipm(minqpstate* state, double eps, ae_state *_state);
+void minqpsetalgosparseipm(minqpstate* state,
+     double eps,
+     ae_state *_state);
 void minqpsetalgoquickqp(minqpstate* state,
      double epsg,
      double epsf,
@@ -8039,6 +11765,15 @@ void minqpsetalgoquickqp(minqpstate* state,
 void minqpsetbc(minqpstate* state,
      /* Real    */ ae_vector* bndl,
      /* Real    */ ae_vector* bndu,
+     ae_state *_state);
+void minqpsetbcall(minqpstate* state,
+     double bndl,
+     double bndu,
+     ae_state *_state);
+void minqpsetbci(minqpstate* state,
+     ae_int_t i,
+     double bndl,
+     double bndu,
      ae_state *_state);
 void minqpsetlc(minqpstate* state,
      /* Real    */ ae_matrix* c,
@@ -8051,12 +11786,52 @@ void minqpsetlcsparse(minqpstate* state,
      ae_int_t k,
      ae_state *_state);
 void minqpsetlcmixed(minqpstate* state,
+     sparsematrix* sparsec,
+     /* Integer */ ae_vector* sparsect,
+     ae_int_t sparsek,
+     /* Real    */ ae_matrix* densec,
+     /* Integer */ ae_vector* densect,
+     ae_int_t densek,
+     ae_state *_state);
+void minqpsetlcmixedlegacy(minqpstate* state,
      /* Real    */ ae_matrix* densec,
      /* Integer */ ae_vector* densect,
      ae_int_t densek,
      sparsematrix* sparsec,
      /* Integer */ ae_vector* sparsect,
      ae_int_t sparsek,
+     ae_state *_state);
+void minqpsetlc2dense(minqpstate* state,
+     /* Real    */ ae_matrix* a,
+     /* Real    */ ae_vector* al,
+     /* Real    */ ae_vector* au,
+     ae_int_t k,
+     ae_state *_state);
+void minqpsetlc2(minqpstate* state,
+     sparsematrix* a,
+     /* Real    */ ae_vector* al,
+     /* Real    */ ae_vector* au,
+     ae_int_t k,
+     ae_state *_state);
+void minqpsetlc2mixed(minqpstate* state,
+     sparsematrix* sparsea,
+     ae_int_t ksparse,
+     /* Real    */ ae_matrix* densea,
+     ae_int_t kdense,
+     /* Real    */ ae_vector* al,
+     /* Real    */ ae_vector* au,
+     ae_state *_state);
+void minqpaddlc2dense(minqpstate* state,
+     /* Real    */ ae_vector* a,
+     double al,
+     double au,
+     ae_state *_state);
+void minqpaddlc2(minqpstate* state,
+     /* Integer */ ae_vector* idxa,
+     /* Real    */ ae_vector* vala,
+     ae_int_t nnz,
+     double al,
+     double au,
      ae_state *_state);
 void minqpoptimize(minqpstate* state, ae_state *_state);
 void minqpresults(minqpstate* state,
@@ -8093,60 +11868,114 @@ void _minqpreport_init_copy(void* _dst, void* _src, ae_state *_state, ae_bool ma
 void _minqpreport_clear(void* _p);
 void _minqpreport_destroy(void* _p);
 #endif
-#if defined(AE_COMPILE_MINBC) || !defined(AE_PARTIAL_BUILD)
-void minbccreate(ae_int_t n,
-     /* Real    */ ae_vector* x,
-     minbcstate* state,
+#if defined(AE_COMPILE_REVISEDDUALSIMPLEX) || !defined(AE_PARTIAL_BUILD)
+void dsssettingsinit(dualsimplexsettings* settings, ae_state *_state);
+void dssinit(ae_int_t n, dualsimplexstate* s, ae_state *_state);
+void dsssetproblem(dualsimplexstate* state,
+     /* Real    */ ae_vector* c,
+     /* Real    */ ae_vector* bndl,
+     /* Real    */ ae_vector* bndu,
+     /* Real    */ ae_vector* sv,
+     /* Real    */ ae_matrix* densea,
+     sparsematrix* sparsea,
+     ae_int_t akind,
+     /* Real    */ ae_vector* al,
+     /* Real    */ ae_vector* au,
+     ae_int_t k,
+     dualsimplexbasis* proposedbasis,
+     ae_int_t basisinittype,
+     dualsimplexsettings* settings,
      ae_state *_state);
-void minbccreatef(ae_int_t n,
-     /* Real    */ ae_vector* x,
-     double diffstep,
-     minbcstate* state,
+void dssexportbasis(dualsimplexstate* state,
+     dualsimplexbasis* basis,
      ae_state *_state);
-void minbcsetbc(minbcstate* state,
+void dssoptimize(dualsimplexstate* state,
+     dualsimplexsettings* settings,
+     ae_state *_state);
+void _dualsimplexsettings_init(void* _p, ae_state *_state, ae_bool make_automatic);
+void _dualsimplexsettings_init_copy(void* _dst, void* _src, ae_state *_state, ae_bool make_automatic);
+void _dualsimplexsettings_clear(void* _p);
+void _dualsimplexsettings_destroy(void* _p);
+void _dualsimplexbasis_init(void* _p, ae_state *_state, ae_bool make_automatic);
+void _dualsimplexbasis_init_copy(void* _dst, void* _src, ae_state *_state, ae_bool make_automatic);
+void _dualsimplexbasis_clear(void* _p);
+void _dualsimplexbasis_destroy(void* _p);
+void _dualsimplexsubproblem_init(void* _p, ae_state *_state, ae_bool make_automatic);
+void _dualsimplexsubproblem_init_copy(void* _dst, void* _src, ae_state *_state, ae_bool make_automatic);
+void _dualsimplexsubproblem_clear(void* _p);
+void _dualsimplexsubproblem_destroy(void* _p);
+void _dualsimplexstate_init(void* _p, ae_state *_state, ae_bool make_automatic);
+void _dualsimplexstate_init_copy(void* _dst, void* _src, ae_state *_state, ae_bool make_automatic);
+void _dualsimplexstate_clear(void* _p);
+void _dualsimplexstate_destroy(void* _p);
+#endif
+#if defined(AE_COMPILE_MINLP) || !defined(AE_PARTIAL_BUILD)
+void minlpcreate(ae_int_t n, minlpstate* state, ae_state *_state);
+void minlpsetcost(minlpstate* state,
+     /* Real    */ ae_vector* c,
+     ae_state *_state);
+void minlpsetscale(minlpstate* state,
+     /* Real    */ ae_vector* s,
+     ae_state *_state);
+void minlpsetbc(minlpstate* state,
      /* Real    */ ae_vector* bndl,
      /* Real    */ ae_vector* bndu,
      ae_state *_state);
-void minbcsetcond(minbcstate* state,
-     double epsg,
-     double epsf,
-     double epsx,
-     ae_int_t maxits,
+void minlpsetbcall(minlpstate* state,
+     double bndl,
+     double bndu,
      ae_state *_state);
-void minbcsetscale(minbcstate* state,
-     /* Real    */ ae_vector* s,
+void minlpsetbci(minlpstate* state,
+     ae_int_t i,
+     double bndl,
+     double bndu,
      ae_state *_state);
-void minbcsetprecdefault(minbcstate* state, ae_state *_state);
-void minbcsetprecdiag(minbcstate* state,
-     /* Real    */ ae_vector* d,
+void minlpsetlc(minlpstate* state,
+     /* Real    */ ae_matrix* a,
+     /* Integer */ ae_vector* ct,
+     ae_int_t k,
      ae_state *_state);
-void minbcsetprecscale(minbcstate* state, ae_state *_state);
-void minbcsetxrep(minbcstate* state, ae_bool needxrep, ae_state *_state);
-void minbcsetstpmax(minbcstate* state, double stpmax, ae_state *_state);
-ae_bool minbciteration(minbcstate* state, ae_state *_state);
-void minbcresults(minbcstate* state,
+void minlpsetlc2dense(minlpstate* state,
+     /* Real    */ ae_matrix* a,
+     /* Real    */ ae_vector* al,
+     /* Real    */ ae_vector* au,
+     ae_int_t k,
+     ae_state *_state);
+void minlpsetlc2(minlpstate* state,
+     sparsematrix* a,
+     /* Real    */ ae_vector* al,
+     /* Real    */ ae_vector* au,
+     ae_int_t k,
+     ae_state *_state);
+void minlpaddlc2dense(minlpstate* state,
+     /* Real    */ ae_vector* a,
+     double al,
+     double au,
+     ae_state *_state);
+void minlpaddlc2(minlpstate* state,
+     /* Integer */ ae_vector* idxa,
+     /* Real    */ ae_vector* vala,
+     ae_int_t nnz,
+     double al,
+     double au,
+     ae_state *_state);
+void minlpoptimize(minlpstate* state, ae_state *_state);
+void minlpresults(minlpstate* state,
      /* Real    */ ae_vector* x,
-     minbcreport* rep,
+     minlpreport* rep,
      ae_state *_state);
-void minbcresultsbuf(minbcstate* state,
+void minlpresultsbuf(minlpstate* state,
      /* Real    */ ae_vector* x,
-     minbcreport* rep,
+     minlpreport* rep,
      ae_state *_state);
-void minbcrestartfrom(minbcstate* state,
-     /* Real    */ ae_vector* x,
-     ae_state *_state);
-void minbcrequesttermination(minbcstate* state, ae_state *_state);
-void minbcsetgradientcheck(minbcstate* state,
-     double teststep,
-     ae_state *_state);
-void _minbcstate_init(void* _p, ae_state *_state, ae_bool make_automatic);
-void _minbcstate_init_copy(void* _dst, void* _src, ae_state *_state, ae_bool make_automatic);
-void _minbcstate_clear(void* _p);
-void _minbcstate_destroy(void* _p);
-void _minbcreport_init(void* _p, ae_state *_state, ae_bool make_automatic);
-void _minbcreport_init_copy(void* _dst, void* _src, ae_state *_state, ae_bool make_automatic);
-void _minbcreport_clear(void* _p);
-void _minbcreport_destroy(void* _p);
+void _minlpstate_init(void* _p, ae_state *_state, ae_bool make_automatic);
+void _minlpstate_init_copy(void* _dst, void* _src, ae_state *_state, ae_bool make_automatic);
+void _minlpstate_clear(void* _p);
+void _minlpstate_destroy(void* _p);
+void _minlpreport_init(void* _p, ae_state *_state, ae_bool make_automatic);
+void _minlpreport_init_copy(void* _dst, void* _src, ae_state *_state, ae_bool make_automatic);
+void _minlpreport_clear(void* _p);
+void _minlpreport_destroy(void* _p);
 #endif
 #if defined(AE_COMPILE_NLCSLP) || !defined(AE_PARTIAL_BUILD)
 void minslpinitbuf(/* Real    */ ae_vector* bndl,
@@ -8155,6 +11984,7 @@ void minslpinitbuf(/* Real    */ ae_vector* bndl,
      /* Real    */ ae_vector* x0,
      ae_int_t n,
      /* Real    */ ae_matrix* cleic,
+     /* Integer */ ae_vector* lcsrcidx,
      ae_int_t nec,
      ae_int_t nic,
      ae_int_t nlec,
@@ -8163,7 +11993,30 @@ void minslpinitbuf(/* Real    */ ae_vector* bndl,
      ae_int_t maxits,
      minslpstate* state,
      ae_state *_state);
-ae_bool minslpiteration(minslpstate* state, ae_state *_state);
+ae_bool minslpiteration(minslpstate* state,
+     smoothnessmonitor* smonitor,
+     ae_bool userterminationneeded,
+     ae_state *_state);
+void _minslpsubsolver_init(void* _p, ae_state *_state, ae_bool make_automatic);
+void _minslpsubsolver_init_copy(void* _dst, void* _src, ae_state *_state, ae_bool make_automatic);
+void _minslpsubsolver_clear(void* _p);
+void _minslpsubsolver_destroy(void* _p);
+void _minslptmplagrangian_init(void* _p, ae_state *_state, ae_bool make_automatic);
+void _minslptmplagrangian_init_copy(void* _dst, void* _src, ae_state *_state, ae_bool make_automatic);
+void _minslptmplagrangian_clear(void* _p);
+void _minslptmplagrangian_destroy(void* _p);
+void _minslptmpmerit_init(void* _p, ae_state *_state, ae_bool make_automatic);
+void _minslptmpmerit_init_copy(void* _dst, void* _src, ae_state *_state, ae_bool make_automatic);
+void _minslptmpmerit_clear(void* _p);
+void _minslptmpmerit_destroy(void* _p);
+void _minslpphase13state_init(void* _p, ae_state *_state, ae_bool make_automatic);
+void _minslpphase13state_init_copy(void* _dst, void* _src, ae_state *_state, ae_bool make_automatic);
+void _minslpphase13state_clear(void* _p);
+void _minslpphase13state_destroy(void* _p);
+void _minslpphase2state_init(void* _p, ae_state *_state, ae_bool make_automatic);
+void _minslpphase2state_init_copy(void* _dst, void* _src, ae_state *_state, ae_bool make_automatic);
+void _minslpphase2state_clear(void* _p);
+void _minslpphase2state_destroy(void* _p);
 void _minslpstate_init(void* _p, ae_state *_state, ae_bool make_automatic);
 void _minslpstate_init_copy(void* _dst, void* _src, ae_state *_state, ae_bool make_automatic);
 void _minslpstate_clear(void* _p);
@@ -8213,8 +12066,26 @@ void minnlcsetalgoaul(minnlcstate* state,
      ae_int_t itscnt,
      ae_state *_state);
 void minnlcsetalgoslp(minnlcstate* state, ae_state *_state);
+void minnlcsetalgosqp(minnlcstate* state, ae_state *_state);
 void minnlcsetxrep(minnlcstate* state, ae_bool needxrep, ae_state *_state);
 ae_bool minnlciteration(minnlcstate* state, ae_state *_state);
+void minnlcoptguardgradient(minnlcstate* state,
+     double teststep,
+     ae_state *_state);
+void minnlcoptguardsmoothness(minnlcstate* state,
+     ae_int_t level,
+     ae_state *_state);
+void minnlcoptguardresults(minnlcstate* state,
+     optguardreport* rep,
+     ae_state *_state);
+void minnlcoptguardnonc1test0results(minnlcstate* state,
+     optguardnonc1test0report* strrep,
+     optguardnonc1test0report* lngrep,
+     ae_state *_state);
+void minnlcoptguardnonc1test1results(minnlcstate* state,
+     optguardnonc1test1report* strrep,
+     optguardnonc1test1report* lngrep,
+     ae_state *_state);
 void minnlcresults(minnlcstate* state,
      /* Real    */ ae_vector* x,
      minnlcreport* rep,
@@ -8223,11 +12094,9 @@ void minnlcresultsbuf(minnlcstate* state,
      /* Real    */ ae_vector* x,
      minnlcreport* rep,
      ae_state *_state);
+void minnlcrequesttermination(minnlcstate* state, ae_state *_state);
 void minnlcrestartfrom(minnlcstate* state,
      /* Real    */ ae_vector* x,
-     ae_state *_state);
-void minnlcsetgradientcheck(minnlcstate* state,
-     double teststep,
      ae_state *_state);
 void minnlcequalitypenaltyfunction(double alpha,
      double* f,
@@ -8253,6 +12122,75 @@ void _minnlcreport_init(void* _p, ae_state *_state, ae_bool make_automatic);
 void _minnlcreport_init_copy(void* _dst, void* _src, ae_state *_state, ae_bool make_automatic);
 void _minnlcreport_clear(void* _p);
 void _minnlcreport_destroy(void* _p);
+#endif
+#if defined(AE_COMPILE_MINBC) || !defined(AE_PARTIAL_BUILD)
+void minbccreate(ae_int_t n,
+     /* Real    */ ae_vector* x,
+     minbcstate* state,
+     ae_state *_state);
+void minbccreatef(ae_int_t n,
+     /* Real    */ ae_vector* x,
+     double diffstep,
+     minbcstate* state,
+     ae_state *_state);
+void minbcsetbc(minbcstate* state,
+     /* Real    */ ae_vector* bndl,
+     /* Real    */ ae_vector* bndu,
+     ae_state *_state);
+void minbcsetcond(minbcstate* state,
+     double epsg,
+     double epsf,
+     double epsx,
+     ae_int_t maxits,
+     ae_state *_state);
+void minbcsetscale(minbcstate* state,
+     /* Real    */ ae_vector* s,
+     ae_state *_state);
+void minbcsetprecdefault(minbcstate* state, ae_state *_state);
+void minbcsetprecdiag(minbcstate* state,
+     /* Real    */ ae_vector* d,
+     ae_state *_state);
+void minbcsetprecscale(minbcstate* state, ae_state *_state);
+void minbcsetxrep(minbcstate* state, ae_bool needxrep, ae_state *_state);
+void minbcsetstpmax(minbcstate* state, double stpmax, ae_state *_state);
+ae_bool minbciteration(minbcstate* state, ae_state *_state);
+void minbcoptguardgradient(minbcstate* state,
+     double teststep,
+     ae_state *_state);
+void minbcoptguardsmoothness(minbcstate* state,
+     ae_int_t level,
+     ae_state *_state);
+void minbcoptguardresults(minbcstate* state,
+     optguardreport* rep,
+     ae_state *_state);
+void minbcoptguardnonc1test0results(minbcstate* state,
+     optguardnonc1test0report* strrep,
+     optguardnonc1test0report* lngrep,
+     ae_state *_state);
+void minbcoptguardnonc1test1results(minbcstate* state,
+     optguardnonc1test1report* strrep,
+     optguardnonc1test1report* lngrep,
+     ae_state *_state);
+void minbcresults(minbcstate* state,
+     /* Real    */ ae_vector* x,
+     minbcreport* rep,
+     ae_state *_state);
+void minbcresultsbuf(minbcstate* state,
+     /* Real    */ ae_vector* x,
+     minbcreport* rep,
+     ae_state *_state);
+void minbcrestartfrom(minbcstate* state,
+     /* Real    */ ae_vector* x,
+     ae_state *_state);
+void minbcrequesttermination(minbcstate* state, ae_state *_state);
+void _minbcstate_init(void* _p, ae_state *_state, ae_bool make_automatic);
+void _minbcstate_init_copy(void* _dst, void* _src, ae_state *_state, ae_bool make_automatic);
+void _minbcstate_clear(void* _p);
+void _minbcstate_destroy(void* _p);
+void _minbcreport_init(void* _p, ae_state *_state, ae_bool make_automatic);
+void _minbcreport_init_copy(void* _dst, void* _src, ae_state *_state, ae_bool make_automatic);
+void _minbcreport_clear(void* _p);
+void _minbcreport_destroy(void* _p);
 #endif
 #if defined(AE_COMPILE_MINNS) || !defined(AE_PARTIAL_BUILD)
 void minnscreate(ae_int_t n,
@@ -8368,6 +12306,87 @@ void _minasareport_init_copy(void* _dst, void* _src, ae_state *_state, ae_bool m
 void _minasareport_clear(void* _p);
 void _minasareport_destroy(void* _p);
 #endif
+#if defined(AE_COMPILE_MINCG) || !defined(AE_PARTIAL_BUILD)
+void mincgcreate(ae_int_t n,
+     /* Real    */ ae_vector* x,
+     mincgstate* state,
+     ae_state *_state);
+void mincgcreatef(ae_int_t n,
+     /* Real    */ ae_vector* x,
+     double diffstep,
+     mincgstate* state,
+     ae_state *_state);
+void mincgsetcond(mincgstate* state,
+     double epsg,
+     double epsf,
+     double epsx,
+     ae_int_t maxits,
+     ae_state *_state);
+void mincgsetscale(mincgstate* state,
+     /* Real    */ ae_vector* s,
+     ae_state *_state);
+void mincgsetxrep(mincgstate* state, ae_bool needxrep, ae_state *_state);
+void mincgsetdrep(mincgstate* state, ae_bool needdrep, ae_state *_state);
+void mincgsetcgtype(mincgstate* state, ae_int_t cgtype, ae_state *_state);
+void mincgsetstpmax(mincgstate* state, double stpmax, ae_state *_state);
+void mincgsuggeststep(mincgstate* state, double stp, ae_state *_state);
+double mincglastgoodstep(mincgstate* state, ae_state *_state);
+void mincgsetprecdefault(mincgstate* state, ae_state *_state);
+void mincgsetprecdiag(mincgstate* state,
+     /* Real    */ ae_vector* d,
+     ae_state *_state);
+void mincgsetprecscale(mincgstate* state, ae_state *_state);
+ae_bool mincgiteration(mincgstate* state, ae_state *_state);
+void mincgoptguardgradient(mincgstate* state,
+     double teststep,
+     ae_state *_state);
+void mincgoptguardsmoothness(mincgstate* state,
+     ae_int_t level,
+     ae_state *_state);
+void mincgoptguardresults(mincgstate* state,
+     optguardreport* rep,
+     ae_state *_state);
+void mincgoptguardnonc1test0results(mincgstate* state,
+     optguardnonc1test0report* strrep,
+     optguardnonc1test0report* lngrep,
+     ae_state *_state);
+void mincgoptguardnonc1test1results(mincgstate* state,
+     optguardnonc1test1report* strrep,
+     optguardnonc1test1report* lngrep,
+     ae_state *_state);
+void mincgresults(mincgstate* state,
+     /* Real    */ ae_vector* x,
+     mincgreport* rep,
+     ae_state *_state);
+void mincgresultsbuf(mincgstate* state,
+     /* Real    */ ae_vector* x,
+     mincgreport* rep,
+     ae_state *_state);
+void mincgrestartfrom(mincgstate* state,
+     /* Real    */ ae_vector* x,
+     ae_state *_state);
+void mincgrequesttermination(mincgstate* state, ae_state *_state);
+void mincgsetprecdiagfast(mincgstate* state,
+     /* Real    */ ae_vector* d,
+     ae_state *_state);
+void mincgsetpreclowrankfast(mincgstate* state,
+     /* Real    */ ae_vector* d1,
+     /* Real    */ ae_vector* c,
+     /* Real    */ ae_matrix* v,
+     ae_int_t vcnt,
+     ae_state *_state);
+void mincgsetprecvarpart(mincgstate* state,
+     /* Real    */ ae_vector* d2,
+     ae_state *_state);
+void _mincgstate_init(void* _p, ae_state *_state, ae_bool make_automatic);
+void _mincgstate_init_copy(void* _dst, void* _src, ae_state *_state, ae_bool make_automatic);
+void _mincgstate_clear(void* _p);
+void _mincgstate_destroy(void* _p);
+void _mincgreport_init(void* _p, ae_state *_state, ae_bool make_automatic);
+void _mincgreport_init_copy(void* _dst, void* _src, ae_state *_state, ae_bool make_automatic);
+void _mincgreport_clear(void* _p);
+void _mincgreport_destroy(void* _p);
+#endif
 #if defined(AE_COMPILE_MINLM) || !defined(AE_PARTIAL_BUILD)
 void minlmcreatevj(ae_int_t n,
      ae_int_t m,
@@ -8406,6 +12425,12 @@ void minlmsetacctype(minlmstate* state,
      ae_int_t acctype,
      ae_state *_state);
 ae_bool minlmiteration(minlmstate* state, ae_state *_state);
+void minlmoptguardgradient(minlmstate* state,
+     double teststep,
+     ae_state *_state);
+void minlmoptguardresults(minlmstate* state,
+     optguardreport* rep,
+     ae_state *_state);
 void minlmresults(minlmstate* state,
      /* Real    */ ae_vector* x,
      minlmreport* rep,
@@ -8432,9 +12457,6 @@ void minlmcreatefj(ae_int_t n,
      ae_int_t m,
      /* Real    */ ae_vector* x,
      minlmstate* state,
-     ae_state *_state);
-void minlmsetgradientcheck(minlmstate* state,
-     double teststep,
      ae_state *_state);
 void _minlmstepfinder_init(void* _p, ae_state *_state, ae_bool make_automatic);
 void _minlmstepfinder_init_copy(void* _dst, void* _src, ae_state *_state, ae_bool make_automatic);

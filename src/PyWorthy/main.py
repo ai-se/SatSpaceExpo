@@ -84,8 +84,8 @@ class program_s:
 
     def verify(self, sol, diff):
         """
-      sol and diff are BitVector
-      """
+        sol and diff are BitVector
+        """
         to_check_clause_id = []
         for i, v in enumerate(diff):
             if v:
@@ -93,12 +93,13 @@ class program_s:
         to_check_clause_id = set(to_check_clause_id)
         for cid in to_check_clause_id:
             for v in self.cnfs[cid]:
+                if v == 0:
+                    return False
                 if v > 0 and sol[self.var_id[v]]:
                     break
                 if v < 0 and not sol[self.var_id[-v]]:
                     break
-                if v == 0:
-                    return False
+
         return True
 
 
@@ -116,9 +117,9 @@ def load_cnf(model_file, model_name):
                 program.var_num, program.clauses_num = int(var_num), int(
                     clause_num)
                 continue
-            vs = list(map(lambda i: int(i), line.split(' ')))[:-1]
+            vs = list(map(lambda i: int(i), line.split(' ')))
 
-            for v in vs:
+            for v in vs[:-1]:
                 if abs(v) not in program.var_to_clause_map:
                     program.var_to_clause_map[abs(v)] = [clause_adding_id]
                 else:
@@ -135,7 +136,7 @@ def load_cnf(model_file, model_name):
         for cnf in program.cnfs:
             vs_ref = [
                 program.vars[program.var_id[v]] if v > 0 else
-                (Not(program.vars[program.var_id[-v]])) for v in cnf
+                (Not(program.vars[program.var_id[-v]])) for v in cnf[:-1]
             ]
             program.clauses.append(Or(*vs_ref))
 
@@ -174,7 +175,7 @@ def worthy(program, inits, out, RANDOM_SEED=0):
                 deltas_strs[ds] = 1
             else:
                 deltas_strs[ds] += 1
-    print("INIT DELTA DONE")
+    # print("INIT DELTA DONE")
 
     deltas = list()
     for k, v in deltas_strs.items():
@@ -186,10 +187,10 @@ def worthy(program, inits, out, RANDOM_SEED=0):
     totalSamples, validSamples = 0, 0
     for pfi in centers:
         PFx = inits[pfi]
-        life = 30
+        life = 100
         max_try = 100
         while life and max_try:
-            print(f'{life} ', end='')
+            # print(f'{life} ', end='')
             max_try -= 1
             ai = np.random.choice(
                 len(freqs), np.random.choice([1, 2]), p=freqs)
@@ -197,6 +198,7 @@ def worthy(program, inits, out, RANDOM_SEED=0):
             if len(ai) > 1:
                 delta = delta | deltas[ai[1]][0]
             new_sample = PFx ^ delta
+            # pdb.set_trace()
             ispass = program.verify(new_sample, delta)
             totalSamples += 1
             life -= 0 if ispass else 1
@@ -207,7 +209,7 @@ def worthy(program, inits, out, RANDOM_SEED=0):
 
 
 if __name__ == '__main__':
-    print("this is the main entrance of worthy")
+    # print("this is the main entrance of worthy")
     startAt = time.time()
     # parse CNF
     model_id = 3
@@ -217,15 +219,17 @@ if __name__ == '__main__':
     model_file = f'{rootpath}../{benchmark_models[model_id]}'
     model_name = model_file[model_file.rfind('/') + 1:model_file.rfind('.cnf')]
     program = load_cnf(model_file, model_name)
-    print(f"LOADING {model_name} DONE.")
+    # print(f"LOADING {model_name} DONE.")
     # get init sampling
     inits = load_over_sampling(model_name)
 
     # starting worthy
     outputfile = open(f'{rootpath}../memo/{model_name}.cnf.me.valid2', 'a+')
     validSamples, totalSamples = worthy(program, inits, outputfile)
+    print(f"{model_name} {validSamples} {totalSamples}")
     execTime = round(time.time() - startAt, 3)
     outputfile.write(f'# {execTime} {validSamples}/{totalSamples}')
+
     outputfile.close()
 
     # s = Solver()

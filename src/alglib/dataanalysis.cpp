@@ -1,5 +1,5 @@
 /*************************************************************************
-ALGLIB 3.14.0 (source code generated 2018-06-16)
+ALGLIB 3.16.0 (source code generated 2019-12-19)
 Copyright (c) Sergey Bochkanov (ALGLIB project).
 
 >>> SOURCE LICENSE >>>
@@ -89,6 +89,10 @@ namespace alglib
 #endif
 
 #if defined(AE_COMPILE_DFOREST) || !defined(AE_PARTIAL_BUILD)
+
+#endif
+
+#if defined(AE_COMPILE_KNN) || !defined(AE_PARTIAL_BUILD)
 
 #endif
 
@@ -301,8 +305,13 @@ OUTPUT PARAMETERS:
                     matrix, whose columns store basis vectors.
 
 NOTE: passing eps=0 and maxits=0 results in small eps  being  selected  as
-stopping condition. Exact value of automatically selected eps is  version-
--dependent.
+      a stopping condition. Exact value of automatically selected  eps  is
+      version-dependent.
+
+NOTE: zero  MaxIts  is  silently  replaced  by some reasonable value which
+      prevents eternal loops (possible when inputs are degenerate and  too
+      stringent stopping criteria are specified). In  current  version  it
+      is 50+2*NVars.
 
   -- ALGLIB --
      Copyright 10.01.2017 by Bochkanov Sergey
@@ -12808,7 +12817,7 @@ void clusterizerseparatedbycorr(const ahcreport &rep, const double r, ae_int_t &
 /*************************************************************************
 A random forest (decision forest) builder object.
 
-Used to store dataset and specify random forest training algorithm settings.
+Used to store dataset and specify decision forest training algorithm settings.
 *************************************************************************/
 _decisionforestbuilder_owner::_decisionforestbuilder_owner()
 {
@@ -12931,6 +12940,138 @@ decisionforestbuilder& decisionforestbuilder::operator=(const decisionforestbuil
 }
 
 decisionforestbuilder::~decisionforestbuilder()
+{
+}
+
+
+/*************************************************************************
+Buffer object which is used to perform  various  requests  (usually  model
+inference) in the multithreaded mode (multiple threads working  with  same
+DF object).
+
+This object should be created with DFCreateBuffer().
+*************************************************************************/
+_decisionforestbuffer_owner::_decisionforestbuffer_owner()
+{
+    jmp_buf _break_jump;
+    alglib_impl::ae_state _state;
+    
+    alglib_impl::ae_state_init(&_state);
+    if( setjmp(_break_jump) )
+    {
+        if( p_struct!=NULL )
+        {
+            alglib_impl::_decisionforestbuffer_destroy(p_struct);
+            alglib_impl::ae_free(p_struct);
+        }
+        p_struct = NULL;
+#if !defined(AE_NO_EXCEPTIONS)
+        _ALGLIB_CPP_EXCEPTION(_state.error_msg);
+#else
+        _ALGLIB_SET_ERROR_FLAG(_state.error_msg);
+        return;
+#endif
+    }
+    alglib_impl::ae_state_set_break_jump(&_state, &_break_jump);
+    p_struct = NULL;
+    p_struct = (alglib_impl::decisionforestbuffer*)alglib_impl::ae_malloc(sizeof(alglib_impl::decisionforestbuffer), &_state);
+    memset(p_struct, 0, sizeof(alglib_impl::decisionforestbuffer));
+    alglib_impl::_decisionforestbuffer_init(p_struct, &_state, ae_false);
+    ae_state_clear(&_state);
+}
+
+_decisionforestbuffer_owner::_decisionforestbuffer_owner(const _decisionforestbuffer_owner &rhs)
+{
+    jmp_buf _break_jump;
+    alglib_impl::ae_state _state;
+    
+    alglib_impl::ae_state_init(&_state);
+    if( setjmp(_break_jump) )
+    {
+        if( p_struct!=NULL )
+        {
+            alglib_impl::_decisionforestbuffer_destroy(p_struct);
+            alglib_impl::ae_free(p_struct);
+        }
+        p_struct = NULL;
+#if !defined(AE_NO_EXCEPTIONS)
+        _ALGLIB_CPP_EXCEPTION(_state.error_msg);
+#else
+        _ALGLIB_SET_ERROR_FLAG(_state.error_msg);
+        return;
+#endif
+    }
+    alglib_impl::ae_state_set_break_jump(&_state, &_break_jump);
+    p_struct = NULL;
+    alglib_impl::ae_assert(rhs.p_struct!=NULL, "ALGLIB: decisionforestbuffer copy constructor failure (source is not initialized)", &_state);
+    p_struct = (alglib_impl::decisionforestbuffer*)alglib_impl::ae_malloc(sizeof(alglib_impl::decisionforestbuffer), &_state);
+    memset(p_struct, 0, sizeof(alglib_impl::decisionforestbuffer));
+    alglib_impl::_decisionforestbuffer_init_copy(p_struct, const_cast<alglib_impl::decisionforestbuffer*>(rhs.p_struct), &_state, ae_false);
+    ae_state_clear(&_state);
+}
+
+_decisionforestbuffer_owner& _decisionforestbuffer_owner::operator=(const _decisionforestbuffer_owner &rhs)
+{
+    if( this==&rhs )
+        return *this;
+    jmp_buf _break_jump;
+    alglib_impl::ae_state _state;
+    
+    alglib_impl::ae_state_init(&_state);
+    if( setjmp(_break_jump) )
+    {
+#if !defined(AE_NO_EXCEPTIONS)
+        _ALGLIB_CPP_EXCEPTION(_state.error_msg);
+#else
+        _ALGLIB_SET_ERROR_FLAG(_state.error_msg);
+        return *this;
+#endif
+    }
+    alglib_impl::ae_state_set_break_jump(&_state, &_break_jump);
+    alglib_impl::ae_assert(p_struct!=NULL, "ALGLIB: decisionforestbuffer assignment constructor failure (destination is not initialized)", &_state);
+    alglib_impl::ae_assert(rhs.p_struct!=NULL, "ALGLIB: decisionforestbuffer assignment constructor failure (source is not initialized)", &_state);
+    alglib_impl::_decisionforestbuffer_destroy(p_struct);
+    memset(p_struct, 0, sizeof(alglib_impl::decisionforestbuffer));
+    alglib_impl::_decisionforestbuffer_init_copy(p_struct, const_cast<alglib_impl::decisionforestbuffer*>(rhs.p_struct), &_state, ae_false);
+    ae_state_clear(&_state);
+    return *this;
+}
+
+_decisionforestbuffer_owner::~_decisionforestbuffer_owner()
+{
+    if( p_struct!=NULL )
+    {
+        alglib_impl::_decisionforestbuffer_destroy(p_struct);
+        ae_free(p_struct);
+    }
+}
+
+alglib_impl::decisionforestbuffer* _decisionforestbuffer_owner::c_ptr()
+{
+    return p_struct;
+}
+
+alglib_impl::decisionforestbuffer* _decisionforestbuffer_owner::c_ptr() const
+{
+    return const_cast<alglib_impl::decisionforestbuffer*>(p_struct);
+}
+decisionforestbuffer::decisionforestbuffer() : _decisionforestbuffer_owner() 
+{
+}
+
+decisionforestbuffer::decisionforestbuffer(const decisionforestbuffer &rhs):_decisionforestbuffer_owner(rhs) 
+{
+}
+
+decisionforestbuffer& decisionforestbuffer::operator=(const decisionforestbuffer &rhs)
+{
+    if( this==&rhs )
+        return *this;
+    _decisionforestbuffer_owner::operator=(rhs);
+    return *this;
+}
+
+decisionforestbuffer::~decisionforestbuffer()
 {
 }
 
@@ -13066,12 +13207,14 @@ decisionforest::~decisionforest()
 /*************************************************************************
 Decision forest training report.
 
+=== training/oob errors ==================================================
+
 Following fields store training set errors:
-* relclserror       -   fraction of misclassified cases, [0,1]
-* avgce             -   average cross-entropy in bits per symbol
-* rmserror          -   root-mean-square error
-* avgerror          -   average error
-* avgrelerror       -   average relative error
+* relclserror           -   fraction of misclassified cases, [0,1]
+* avgce                 -   average cross-entropy in bits per symbol
+* rmserror              -   root-mean-square error
+* avgerror              -   average error
+* avgrelerror           -   average relative error
 
 Out-of-bag estimates are stored in fields with same names, but "oob" prefix.
 
@@ -13080,6 +13223,60 @@ For classification problems:
 
 For regression problems:
 * RELCLS and AVGCE errors are zero
+
+=== variable importance ==================================================
+
+Following fields are used to store variable importance information:
+
+* topvars               -   variables ordered from the most  important  to
+                            less  important  ones  (according  to  current
+                            choice of importance raiting).
+                            For example, topvars[0] contains index of  the
+                            most important variable, and topvars[0:2]  are
+                            indexes of 3 most important ones and so on.
+
+* varimportances        -   array[nvars], ratings (the  larger,  the  more
+                            important the variable  is,  always  in  [0,1]
+                            range).
+                            By default, filled  by  zeros  (no  importance
+                            ratings are  provided  unless  you  explicitly
+                            request them).
+                            Zero rating means that variable is not important,
+                            however you will rarely encounter such a thing,
+                            in many cases  unimportant  variables  produce
+                            nearly-zero (but nonzero) ratings.
+
+Variable importance report must be EXPLICITLY requested by calling:
+* dfbuildersetimportancegini() function, if you need out-of-bag Gini-based
+  importance rating also known as MDI  (fast to  calculate,  resistant  to
+  overfitting  issues,   but   has   some   bias  towards  continuous  and
+  high-cardinality categorical variables)
+* dfbuildersetimportancetrngini() function, if you need training set Gini-
+  -based importance rating (what other packages typically report).
+* dfbuildersetimportancepermutation() function, if you  need  permutation-
+  based importance rating also known as MDA (slower to calculate, but less
+  biased)
+* dfbuildersetimportancenone() function,  if  you  do  not  need  importance
+  ratings - ratings will be zero, topvars[] will be [0,1,2,...]
+
+Different importance ratings (Gini or permutation) produce  non-comparable
+values. Although in all cases rating values lie in [0,1] range, there  are
+exist differences:
+* informally speaking, Gini importance rating tends to divide "unit amount
+  of importance"  between  several  important  variables, i.e. it produces
+  estimates which roughly sum to 1.0 (or less than 1.0, if your  task  can
+  not be solved exactly). If all variables  are  equally  important,  they
+  will have same rating,  roughly  1/NVars,  even  if  every  variable  is
+  critically important.
+* from the other side, permutation importance tells us what percentage  of
+  the model predictive power will be ruined  by  permuting  this  specific
+  variable. It does not produce estimates which  sum  to  one.  Critically
+  important variable will have rating close  to  1.0,  and  you  may  have
+  multiple variables with such a rating.
+
+More information on variable importance ratings can be found  in  comments
+on the dfbuildersetimportancegini() and dfbuildersetimportancepermutation()
+functions.
 *************************************************************************/
 _dfreport_owner::_dfreport_owner()
 {
@@ -13185,11 +13382,11 @@ alglib_impl::dfreport* _dfreport_owner::c_ptr() const
 {
     return const_cast<alglib_impl::dfreport*>(p_struct);
 }
-dfreport::dfreport() : _dfreport_owner() ,relclserror(p_struct->relclserror),avgce(p_struct->avgce),rmserror(p_struct->rmserror),avgerror(p_struct->avgerror),avgrelerror(p_struct->avgrelerror),oobrelclserror(p_struct->oobrelclserror),oobavgce(p_struct->oobavgce),oobrmserror(p_struct->oobrmserror),oobavgerror(p_struct->oobavgerror),oobavgrelerror(p_struct->oobavgrelerror)
+dfreport::dfreport() : _dfreport_owner() ,relclserror(p_struct->relclserror),avgce(p_struct->avgce),rmserror(p_struct->rmserror),avgerror(p_struct->avgerror),avgrelerror(p_struct->avgrelerror),oobrelclserror(p_struct->oobrelclserror),oobavgce(p_struct->oobavgce),oobrmserror(p_struct->oobrmserror),oobavgerror(p_struct->oobavgerror),oobavgrelerror(p_struct->oobavgrelerror),topvars(&p_struct->topvars),varimportances(&p_struct->varimportances)
 {
 }
 
-dfreport::dfreport(const dfreport &rhs):_dfreport_owner(rhs) ,relclserror(p_struct->relclserror),avgce(p_struct->avgce),rmserror(p_struct->rmserror),avgerror(p_struct->avgerror),avgrelerror(p_struct->avgrelerror),oobrelclserror(p_struct->oobrelclserror),oobavgce(p_struct->oobavgce),oobrmserror(p_struct->oobrmserror),oobavgerror(p_struct->oobavgerror),oobavgrelerror(p_struct->oobavgrelerror)
+dfreport::dfreport(const dfreport &rhs):_dfreport_owner(rhs) ,relclserror(p_struct->relclserror),avgce(p_struct->avgce),rmserror(p_struct->rmserror),avgerror(p_struct->avgerror),avgrelerror(p_struct->avgrelerror),oobrelclserror(p_struct->oobrelclserror),oobavgce(p_struct->oobavgce),oobrmserror(p_struct->oobrmserror),oobavgerror(p_struct->oobavgerror),oobavgrelerror(p_struct->oobavgrelerror),topvars(&p_struct->topvars),varimportances(&p_struct->varimportances)
 {
 }
 
@@ -13353,8 +13550,57 @@ void dfunserialize(const std::istream &s_in, decisionforest &obj)
 }
 
 /*************************************************************************
+This function creates buffer  structure  which  can  be  used  to  perform
+parallel inference requests.
+
+DF subpackage  provides two sets of computing functions - ones  which  use
+internal buffer of DF model  (these  functions are single-threaded because
+they use same buffer, which can not  shared  between  threads),  and  ones
+which use external buffer.
+
+This function is used to initialize external buffer.
+
+INPUT PARAMETERS
+    Model       -   DF model which is associated with newly created buffer
+
+OUTPUT PARAMETERS
+    Buf         -   external buffer.
+
+
+IMPORTANT: buffer object should be used only with model which was used  to
+           initialize buffer. Any attempt to  use  buffer  with  different
+           object is dangerous - you  may   get  integrity  check  failure
+           (exception) because sizes of internal  arrays  do  not  fit  to
+           dimensions of the model structure.
+
+  -- ALGLIB --
+     Copyright 15.02.2019 by Bochkanov Sergey
+*************************************************************************/
+void dfcreatebuffer(const decisionforest &model, decisionforestbuffer &buf, const xparams _xparams)
+{
+    jmp_buf _break_jump;
+    alglib_impl::ae_state _alglib_env_state;
+    alglib_impl::ae_state_init(&_alglib_env_state);
+    if( setjmp(_break_jump) )
+    {
+#if !defined(AE_NO_EXCEPTIONS)
+        _ALGLIB_CPP_EXCEPTION(_alglib_env_state.error_msg);
+#else
+        _ALGLIB_SET_ERROR_FLAG(_alglib_env_state.error_msg);
+        return;
+#endif
+    }
+    ae_state_set_break_jump(&_alglib_env_state, &_break_jump);
+    if( _xparams.flags!=0x0 )
+        ae_state_set_flags(&_alglib_env_state, _xparams.flags);
+    alglib_impl::dfcreatebuffer(const_cast<alglib_impl::decisionforest*>(model.c_ptr()), const_cast<alglib_impl::decisionforestbuffer*>(buf.c_ptr()), &_alglib_env_state);
+    alglib_impl::ae_state_clear(&_alglib_env_state);
+    return;
+}
+
+/*************************************************************************
 This subroutine creates DecisionForestBuilder  object  which  is  used  to
-train random forests.
+train decision forests.
 
 By default, new builder stores empty dataset and some  reasonable  default
 settings. At the very least, you should specify dataset prior to  building
@@ -13363,8 +13609,8 @@ algorithm (recommended, although default setting should work well).
 
 Following actions are mandatory:
 * calling dfbuildersetdataset() to specify dataset
-* calling dfbuilderbuildrandomforest() to build random forest using current
-  dataset and default settings
+* calling dfbuilderbuildrandomforest()  to  build  decision  forest  using
+  current dataset and default settings
 
 Additionally, you may call:
 * dfbuildersetrndvars() or dfbuildersetrndvarsratio() to specify number of
@@ -13455,8 +13701,8 @@ void dfbuildersetdataset(const decisionforestbuilder &s, const real_2d_array &xy
 }
 
 /*************************************************************************
-This function sets number of variables (in [1,NVars] range) used by random
-forest construction algorithm.
+This function sets number  of  variables  (in  [1,NVars]  range)  used  by
+decision forest construction algorithm.
 
 The default option is to use roughly sqrt(NVars) variables.
 
@@ -13494,7 +13740,7 @@ void dfbuildersetrndvars(const decisionforestbuilder &s, const ae_int_t rndvars,
 }
 
 /*************************************************************************
-This function sets number of variables used by random forest  construction
+This function sets number of variables used by decision forest construction
 algorithm as a fraction of total variable count (0,1) range.
 
 The default option is to use roughly sqrt(NVars) variables.
@@ -13532,8 +13778,8 @@ void dfbuildersetrndvarsratio(const decisionforestbuilder &s, const double f, co
 }
 
 /*************************************************************************
-This function tells random forest builder to automatically  choose  number
-of  variables  used  by  random  forest  construction  algorithm.  Roughly
+This function tells decision forest builder to automatically choose number
+of  variables  used  by  decision forest construction  algorithm.  Roughly
 sqrt(NVars) variables will be used.
 
 INPUT PARAMETERS:
@@ -13568,7 +13814,7 @@ void dfbuildersetrndvarsauto(const decisionforestbuilder &s, const xparams _xpar
 }
 
 /*************************************************************************
-This function sets size of dataset subsample generated the  random  forest
+This function sets size of dataset subsample generated the decision forest
 construction algorithm. Size is specified as a fraction of  total  dataset
 size.
 
@@ -13615,7 +13861,7 @@ void dfbuildersetsubsampleratio(const decisionforestbuilder &s, const double f, 
 This function sets seed used by internal RNG for  random  subsampling  and
 random selection of variable subsets.
 
-By default, random seed is used, i.e. every time you build random  forest,
+By default random seed is used, i.e. every time you build decision forest,
 we seed generator with new value  obtained  from  system-wide  RNG.  Thus,
 decision forest builder returns non-deterministic results. You can  change
 such behavior by specyfing fixed positive seed value.
@@ -13625,11 +13871,11 @@ INPUT PARAMETERS:
     SeedVal     -   seed value:
                     * positive values are used for seeding RNG with fixed
                       seed, i.e. subsequent runs on same data will return
-                      same random forests
+                      same decision forests
                     * non-positive seed means that random seed is used
                       for every run of builder, i.e. subsequent  runs  on
-                      same datasets will return slightly different random
-                      forests
+                      same  datasets  will  return   slightly   different
+                      decision forests
 
 OUTPUT PARAMETERS:
     S           -   decision forest builder, see
@@ -13662,7 +13908,7 @@ void dfbuildersetseed(const decisionforestbuilder &s, const ae_int_t seedval, co
 /*************************************************************************
 This function sets random decision forest construction algorithm.
 
-As for now, only one random forest construction algorithm is  supported  -
+As for now, only one decision forest construction algorithm is supported -
 a dense "baseline" RDF algorithm.
 
 INPUT PARAMETERS:
@@ -13699,7 +13945,7 @@ void dfbuildersetrdfalgo(const decisionforestbuilder &s, const ae_int_t algotype
 }
 
 /*************************************************************************
-This  function  sets  split  selection  algorithm  used  by random forests
+This  function  sets  split  selection  algorithm used by decision  forest
 classifier. You may choose several algorithms, with  different  speed  and
 quality of the results.
 
@@ -13739,15 +13985,285 @@ void dfbuildersetrdfsplitstrength(const decisionforestbuilder &s, const ae_int_t
 }
 
 /*************************************************************************
-This function is used to peek into random forest construction process from
-other thread and get current progress indicator. It returns value in [0,1].
+This  function  tells  decision  forest  construction  algorithm  to   use
+Gini impurity based variable importance estimation (also known as MDI).
+
+This version of importance estimation algorithm analyzes mean decrease  in
+impurity (MDI) on training sample during  splits.  The result  is  divided
+by impurity at the root node in order to produce estimate in [0,1] range.
+
+Such estimates are fast to calculate and beautifully  normalized  (sum  to
+one) but have following downsides:
+* They ALWAYS sum to 1.0, even if output is completely unpredictable. I.e.
+  MDI allows to order variables by importance, but does not  tell us about
+  "absolute" importances of variables
+* there exist some bias towards continuous and high-cardinality categorical
+  variables
+
+NOTE: informally speaking, MDA (permutation importance) rating answers the
+      question  "what  part  of  the  model  predictive power is ruined by
+      permuting k-th variable?" while MDI tells us "what part of the model
+      predictive power was achieved due to usage of k-th variable".
+
+      Thus, MDA rates each variable independently at "0 to 1"  scale while
+      MDI (and OOB-MDI too) tends to divide "unit  amount  of  importance"
+      between several important variables.
+
+      If  all  variables  are  equally  important,  they  will  have  same
+      MDI/OOB-MDI rating, equal (for OOB-MDI: roughly equal)  to  1/NVars.
+      However, roughly  same  picture  will  be  produced   for  the  "all
+      variables provide information no one is critical" situation  and for
+      the "all variables are critical, drop any one, everything is ruined"
+      situation.
+
+      Contrary to that, MDA will rate critical variable as ~1.0 important,
+      and important but non-critical variable will  have  less  than  unit
+      rating.
+
+NOTE: quite an often MDA and MDI return same results. It generally happens
+      on problems with low test set error (a few  percents  at  most)  and
+      large enough training set to avoid overfitting.
+
+      The difference between MDA, MDI and OOB-MDI becomes  important  only
+      on "hard" tasks with high test set error and/or small training set.
 
 INPUT PARAMETERS:
-    S           -   decision forest builder object used  to  build  random
-                    forest in some other thread
+    S           -   decision forest builder object
 
-RESULT:
-    progress value, in [0,1]
+OUTPUT PARAMETERS:
+    S           -   decision forest builder object. Next call to the forest
+                    construction function will produce:
+                    * importance estimates in rep.varimportances field
+                    * variable ranks in rep.topvars field
+
+  -- ALGLIB --
+     Copyright 29.07.2019 by Bochkanov Sergey
+*************************************************************************/
+void dfbuildersetimportancetrngini(const decisionforestbuilder &s, const xparams _xparams)
+{
+    jmp_buf _break_jump;
+    alglib_impl::ae_state _alglib_env_state;
+    alglib_impl::ae_state_init(&_alglib_env_state);
+    if( setjmp(_break_jump) )
+    {
+#if !defined(AE_NO_EXCEPTIONS)
+        _ALGLIB_CPP_EXCEPTION(_alglib_env_state.error_msg);
+#else
+        _ALGLIB_SET_ERROR_FLAG(_alglib_env_state.error_msg);
+        return;
+#endif
+    }
+    ae_state_set_break_jump(&_alglib_env_state, &_break_jump);
+    if( _xparams.flags!=0x0 )
+        ae_state_set_flags(&_alglib_env_state, _xparams.flags);
+    alglib_impl::dfbuildersetimportancetrngini(const_cast<alglib_impl::decisionforestbuilder*>(s.c_ptr()), &_alglib_env_state);
+    alglib_impl::ae_state_clear(&_alglib_env_state);
+    return;
+}
+
+/*************************************************************************
+This  function  tells  decision  forest  construction  algorithm  to   use
+out-of-bag version of Gini variable importance estimation (also  known  as
+OOB-MDI).
+
+This version of importance estimation algorithm analyzes mean decrease  in
+impurity (MDI) on out-of-bag sample during splits. The result  is  divided
+by impurity at the root node in order to produce estimate in [0,1] range.
+
+Such estimates are fast to calculate and resistant to  overfitting  issues
+(thanks to the  out-of-bag  estimates  used). However, OOB Gini rating has
+following downsides:
+* there exist some bias towards continuous and high-cardinality categorical
+  variables
+* Gini rating allows us to order variables by importance, but it  is  hard
+  to define importance of the variable by itself.
+
+NOTE: informally speaking, MDA (permutation importance) rating answers the
+      question  "what  part  of  the  model  predictive power is ruined by
+      permuting k-th variable?" while MDI tells us "what part of the model
+      predictive power was achieved due to usage of k-th variable".
+
+      Thus, MDA rates each variable independently at "0 to 1"  scale while
+      MDI (and OOB-MDI too) tends to divide "unit  amount  of  importance"
+      between several important variables.
+
+      If  all  variables  are  equally  important,  they  will  have  same
+      MDI/OOB-MDI rating, equal (for OOB-MDI: roughly equal)  to  1/NVars.
+      However, roughly  same  picture  will  be  produced   for  the  "all
+      variables provide information no one is critical" situation  and for
+      the "all variables are critical, drop any one, everything is ruined"
+      situation.
+
+      Contrary to that, MDA will rate critical variable as ~1.0 important,
+      and important but non-critical variable will  have  less  than  unit
+      rating.
+
+NOTE: quite an often MDA and MDI return same results. It generally happens
+      on problems with low test set error (a few  percents  at  most)  and
+      large enough training set to avoid overfitting.
+
+      The difference between MDA, MDI and OOB-MDI becomes  important  only
+      on "hard" tasks with high test set error and/or small training set.
+
+INPUT PARAMETERS:
+    S           -   decision forest builder object
+
+OUTPUT PARAMETERS:
+    S           -   decision forest builder object. Next call to the forest
+                    construction function will produce:
+                    * importance estimates in rep.varimportances field
+                    * variable ranks in rep.topvars field
+
+  -- ALGLIB --
+     Copyright 29.07.2019 by Bochkanov Sergey
+*************************************************************************/
+void dfbuildersetimportanceoobgini(const decisionforestbuilder &s, const xparams _xparams)
+{
+    jmp_buf _break_jump;
+    alglib_impl::ae_state _alglib_env_state;
+    alglib_impl::ae_state_init(&_alglib_env_state);
+    if( setjmp(_break_jump) )
+    {
+#if !defined(AE_NO_EXCEPTIONS)
+        _ALGLIB_CPP_EXCEPTION(_alglib_env_state.error_msg);
+#else
+        _ALGLIB_SET_ERROR_FLAG(_alglib_env_state.error_msg);
+        return;
+#endif
+    }
+    ae_state_set_break_jump(&_alglib_env_state, &_break_jump);
+    if( _xparams.flags!=0x0 )
+        ae_state_set_flags(&_alglib_env_state, _xparams.flags);
+    alglib_impl::dfbuildersetimportanceoobgini(const_cast<alglib_impl::decisionforestbuilder*>(s.c_ptr()), &_alglib_env_state);
+    alglib_impl::ae_state_clear(&_alglib_env_state);
+    return;
+}
+
+/*************************************************************************
+This  function  tells  decision  forest  construction  algorithm  to   use
+permutation variable importance estimator (also known as MDA).
+
+This version of importance estimation algorithm analyzes mean increase  in
+out-of-bag sum of squared  residuals  after  random  permutation  of  J-th
+variable. The result is divided by error computed with all variables being
+perturbed in order to produce R-squared-like estimate in [0,1] range.
+
+Such estimate  is  slower to calculate than Gini-based rating  because  it
+needs multiple inference runs for each of variables being studied.
+
+ALGLIB uses parallelized and highly  optimized  algorithm  which  analyzes
+path through the decision tree and allows  to  handle  most  perturbations
+in O(1) time; nevertheless, requesting MDA importances may increase forest
+construction time from 10% to 200% (or more,  if  you  have  thousands  of
+variables).
+
+However, MDA rating has following benefits over Gini-based ones:
+* no bias towards specific variable types
+* ability to directly evaluate "absolute" importance of some  variable  at
+  "0 to 1" scale (contrary to Gini-based rating, which returns comparative
+  importances).
+
+NOTE: informally speaking, MDA (permutation importance) rating answers the
+      question  "what  part  of  the  model  predictive power is ruined by
+      permuting k-th variable?" while MDI tells us "what part of the model
+      predictive power was achieved due to usage of k-th variable".
+
+      Thus, MDA rates each variable independently at "0 to 1"  scale while
+      MDI (and OOB-MDI too) tends to divide "unit  amount  of  importance"
+      between several important variables.
+
+      If  all  variables  are  equally  important,  they  will  have  same
+      MDI/OOB-MDI rating, equal (for OOB-MDI: roughly equal)  to  1/NVars.
+      However, roughly  same  picture  will  be  produced   for  the  "all
+      variables provide information no one is critical" situation  and for
+      the "all variables are critical, drop any one, everything is ruined"
+      situation.
+
+      Contrary to that, MDA will rate critical variable as ~1.0 important,
+      and important but non-critical variable will  have  less  than  unit
+      rating.
+
+NOTE: quite an often MDA and MDI return same results. It generally happens
+      on problems with low test set error (a few  percents  at  most)  and
+      large enough training set to avoid overfitting.
+
+      The difference between MDA, MDI and OOB-MDI becomes  important  only
+      on "hard" tasks with high test set error and/or small training set.
+
+INPUT PARAMETERS:
+    S           -   decision forest builder object
+
+OUTPUT PARAMETERS:
+    S           -   decision forest builder object. Next call to the forest
+                    construction function will produce:
+                    * importance estimates in rep.varimportances field
+                    * variable ranks in rep.topvars field
+
+  -- ALGLIB --
+     Copyright 29.07.2019 by Bochkanov Sergey
+*************************************************************************/
+void dfbuildersetimportancepermutation(const decisionforestbuilder &s, const xparams _xparams)
+{
+    jmp_buf _break_jump;
+    alglib_impl::ae_state _alglib_env_state;
+    alglib_impl::ae_state_init(&_alglib_env_state);
+    if( setjmp(_break_jump) )
+    {
+#if !defined(AE_NO_EXCEPTIONS)
+        _ALGLIB_CPP_EXCEPTION(_alglib_env_state.error_msg);
+#else
+        _ALGLIB_SET_ERROR_FLAG(_alglib_env_state.error_msg);
+        return;
+#endif
+    }
+    ae_state_set_break_jump(&_alglib_env_state, &_break_jump);
+    if( _xparams.flags!=0x0 )
+        ae_state_set_flags(&_alglib_env_state, _xparams.flags);
+    alglib_impl::dfbuildersetimportancepermutation(const_cast<alglib_impl::decisionforestbuilder*>(s.c_ptr()), &_alglib_env_state);
+    alglib_impl::ae_state_clear(&_alglib_env_state);
+    return;
+}
+
+/*************************************************************************
+This  function  tells  decision  forest  construction  algorithm  to  skip
+variable importance estimation.
+
+INPUT PARAMETERS:
+    S           -   decision forest builder object
+
+OUTPUT PARAMETERS:
+    S           -   decision forest builder object. Next call to the forest
+                    construction function will result in forest being built
+                    without variable importance estimation.
+
+  -- ALGLIB --
+     Copyright 29.07.2019 by Bochkanov Sergey
+*************************************************************************/
+void dfbuildersetimportancenone(const decisionforestbuilder &s, const xparams _xparams)
+{
+    jmp_buf _break_jump;
+    alglib_impl::ae_state _alglib_env_state;
+    alglib_impl::ae_state_init(&_alglib_env_state);
+    if( setjmp(_break_jump) )
+    {
+#if !defined(AE_NO_EXCEPTIONS)
+        _ALGLIB_CPP_EXCEPTION(_alglib_env_state.error_msg);
+#else
+        _ALGLIB_SET_ERROR_FLAG(_alglib_env_state.error_msg);
+        return;
+#endif
+    }
+    ae_state_set_break_jump(&_alglib_env_state, &_break_jump);
+    if( _xparams.flags!=0x0 )
+        ae_state_set_flags(&_alglib_env_state, _xparams.flags);
+    alglib_impl::dfbuildersetimportancenone(const_cast<alglib_impl::decisionforestbuilder*>(s.c_ptr()), &_alglib_env_state);
+    alglib_impl::ae_state_clear(&_alglib_env_state);
+    return;
+}
+
+/*************************************************************************
+This function is an alias for dfbuilderpeekprogress(), left in ALGLIB  for
+backward compatibility reasons.
 
   -- ALGLIB --
      Copyright 21.05.2018 by Bochkanov Sergey
@@ -13775,11 +14291,61 @@ double dfbuildergetprogress(const decisionforestbuilder &s, const xparams _xpara
 }
 
 /*************************************************************************
-This subroutine builds random forest according to current settings,  using
+This function is used to peek into  decision  forest  construction process
+from some other thread and get current progress indicator.
+
+It returns value in [0,1].
+
+INPUT PARAMETERS:
+    S           -   decision forest builder object used  to  build  forest
+                    in some other thread
+
+RESULT:
+    progress value, in [0,1]
+
+  -- ALGLIB --
+     Copyright 21.05.2018 by Bochkanov Sergey
+*************************************************************************/
+double dfbuilderpeekprogress(const decisionforestbuilder &s, const xparams _xparams)
+{
+    jmp_buf _break_jump;
+    alglib_impl::ae_state _alglib_env_state;
+    alglib_impl::ae_state_init(&_alglib_env_state);
+    if( setjmp(_break_jump) )
+    {
+#if !defined(AE_NO_EXCEPTIONS)
+        _ALGLIB_CPP_EXCEPTION(_alglib_env_state.error_msg);
+#else
+        _ALGLIB_SET_ERROR_FLAG(_alglib_env_state.error_msg);
+        return 0;
+#endif
+    }
+    ae_state_set_break_jump(&_alglib_env_state, &_break_jump);
+    if( _xparams.flags!=0x0 )
+        ae_state_set_flags(&_alglib_env_state, _xparams.flags);
+    double result = alglib_impl::dfbuilderpeekprogress(const_cast<alglib_impl::decisionforestbuilder*>(s.c_ptr()), &_alglib_env_state);
+    alglib_impl::ae_state_clear(&_alglib_env_state);
+    return *(reinterpret_cast<double*>(&result));
+}
+
+/*************************************************************************
+This subroutine builds decision forest according to current settings using
 dataset internally stored in the builder object. Dense algorithm is used.
 
 NOTE: this   function   uses   dense  algorithm  for  forest  construction
       independently from the dataset format (dense or sparse).
+
+NOTE: forest built with this function is  stored  in-memory  using  64-bit
+      data structures for offsets/indexes/split values. It is possible  to
+      convert  forest  into  more  memory-efficient   compressed    binary
+      representation.  Depending  on  the  problem  properties,  3.7x-5.7x
+      compression factors are possible.
+
+      The downsides of compression are (a) slight reduction in  the  model
+      accuracy and (b) ~1.5x reduction in  the  inference  speed  (due  to
+      increased complexity of the storage format).
+
+      See comments on dfbinarycompression() for more info.
 
 Default settings are used by the algorithm; you can tweak  them  with  the
 help of the following functions:
@@ -13804,8 +14370,35 @@ INPUT PARAMETERS:
     NTrees      -   NTrees>=1, number of trees to train
 
 OUTPUT PARAMETERS:
-    DF          -   decision forest
-    Rep         -   report
+    DF          -   decision forest. You can compress this forest to  more
+                    compact 16-bit representation with dfbinarycompression()
+    Rep         -   report, see below for information on its fields.
+
+=== report information produced by forest construction function ==========
+
+Decision forest training report includes following information:
+* training set errors
+* out-of-bag estimates of errors
+* variable importance ratings
+
+Following fields are used to store information:
+* training set errors are stored in rep.relclserror, rep.avgce, rep.rmserror,
+  rep.avgerror and rep.avgrelerror
+* out-of-bag estimates of errors are stored in rep.oobrelclserror, rep.oobavgce,
+  rep.oobrmserror, rep.oobavgerror and rep.oobavgrelerror
+
+Variable importance reports, if requested by dfbuildersetimportancegini(),
+dfbuildersetimportancetrngini() or dfbuildersetimportancepermutation()
+call, are stored in:
+* rep.varimportances field stores importance ratings
+* rep.topvars stores variable indexes ordered from the most important to
+  less important ones
+
+You can find more information about report fields in:
+* comments on dfreport structure
+* comments on dfbuildersetimportancegini function
+* comments on dfbuildersetimportancetrngini function
+* comments on dfbuildersetimportancepermutation function
 
   -- ALGLIB --
      Copyright 21.05.2018 by Bochkanov Sergey
@@ -13833,17 +14426,87 @@ void dfbuilderbuildrandomforest(const decisionforestbuilder &s, const ae_int_t n
 }
 
 /*************************************************************************
-Procesing
+This function performs binary compression of the decision forest.
+
+Original decision forest produced by the  forest  builder  is stored using
+64-bit representation for all numbers - offsets, variable  indexes,  split
+points.
+
+It is possible to significantly reduce model size by means of:
+* using compressed  dynamic encoding for integers  (offsets  and  variable
+  indexes), which uses just 1 byte to store small ints  (less  than  128),
+  just 2 bytes for larger values (less than 128^2) and so on
+* storing floating point numbers using 8-bit exponent and 16-bit mantissa
+
+As  result,  model  needs  significantly  less  memory (compression factor
+depends on  variable and class counts). In particular:
+* NVars<128   and NClasses<128 result in 4.4x-5.7x model size reduction
+* NVars<16384 and NClasses<128 result in 3.7x-4.5x model size reduction
+
+Such storage format performs lossless compression  of  all  integers,  but
+compression of floating point values (split values) is lossy, with roughly
+0.01% relative error introduced during rounding. Thus, we recommend you to
+re-evaluate model accuracy after compression.
+
+Another downside  of  compression  is  ~1.5x reduction  in  the  inference
+speed due to necessity of dynamic decompression of the compressed model.
+
+INPUT PARAMETERS:
+    DF      -   decision forest built by forest builder
+
+OUTPUT PARAMETERS:
+    DF      -   replaced by compressed forest
+
+RESULT:
+    compression factor (in-RAM size of the compressed model vs than of the
+    uncompressed one), positive number larger than 1.0
+
+  -- ALGLIB --
+     Copyright 22.07.2019 by Bochkanov Sergey
+*************************************************************************/
+double dfbinarycompression(const decisionforest &df, const xparams _xparams)
+{
+    jmp_buf _break_jump;
+    alglib_impl::ae_state _alglib_env_state;
+    alglib_impl::ae_state_init(&_alglib_env_state);
+    if( setjmp(_break_jump) )
+    {
+#if !defined(AE_NO_EXCEPTIONS)
+        _ALGLIB_CPP_EXCEPTION(_alglib_env_state.error_msg);
+#else
+        _ALGLIB_SET_ERROR_FLAG(_alglib_env_state.error_msg);
+        return 0;
+#endif
+    }
+    ae_state_set_break_jump(&_alglib_env_state, &_break_jump);
+    if( _xparams.flags!=0x0 )
+        ae_state_set_flags(&_alglib_env_state, _xparams.flags);
+    double result = alglib_impl::dfbinarycompression(const_cast<alglib_impl::decisionforest*>(df.c_ptr()), &_alglib_env_state);
+    alglib_impl::ae_state_clear(&_alglib_env_state);
+    return *(reinterpret_cast<double*>(&result));
+}
+
+/*************************************************************************
+Inference using decision forest
+
+IMPORTANT: this  function  is  thread-unsafe  and  may   modify   internal
+           structures of the model! You can not use same model  object for
+           parallel evaluation from several threads.
+
+           Use dftsprocess()  with  independent  thread-local  buffers  if
+           you need thread-safe evaluation.
 
 INPUT PARAMETERS:
     DF      -   decision forest model
-    X       -   input vector,  array[0..NVars-1].
+    X       -   input vector,  array[NVars]
+    Y       -   possibly preallocated buffer, reallocated if too small
 
 OUTPUT PARAMETERS:
     Y       -   result. Regression estimate when solving regression  task,
                 vector of posterior probabilities for classification task.
 
 See also DFProcessI.
+
 
   -- ALGLIB --
      Copyright 16.02.2009 by Bochkanov Sergey
@@ -13878,6 +14541,13 @@ This function allocates new array on each call,  so  it  is  significantly
 slower than its 'non-interactive' counterpart, but it is  more  convenient
 when you call it from command line.
 
+IMPORTANT: this  function  is  thread-unsafe  and  may   modify   internal
+           structures of the model! You can not use same model  object for
+           parallel evaluation from several threads.
+
+           Use dftsprocess()  with  independent  thread-local  buffers  if
+           you need thread-safe evaluation.
+
   -- ALGLIB --
      Copyright 28.02.2010 by Bochkanov Sergey
 *************************************************************************/
@@ -13899,6 +14569,155 @@ void dfprocessi(const decisionforest &df, const real_1d_array &x, real_1d_array 
     if( _xparams.flags!=0x0 )
         ae_state_set_flags(&_alglib_env_state, _xparams.flags);
     alglib_impl::dfprocessi(const_cast<alglib_impl::decisionforest*>(df.c_ptr()), const_cast<alglib_impl::ae_vector*>(x.c_ptr()), const_cast<alglib_impl::ae_vector*>(y.c_ptr()), &_alglib_env_state);
+    alglib_impl::ae_state_clear(&_alglib_env_state);
+    return;
+}
+
+/*************************************************************************
+This function returns first component of the  inferred  vector  (i.e.  one
+with index #0).
+
+It is a convenience wrapper for dfprocess() intended for either:
+* 1-dimensional regression problems
+* 2-class classification problems
+
+In the former case this function returns inference result as scalar, which
+is definitely more convenient that wrapping it as vector.  In  the  latter
+case it returns probability of object belonging to class #0.
+
+If you call it for anything different from two cases above, it  will  work
+as defined, i.e. return y[0], although it is of less use in such cases.
+
+IMPORTANT: this function is thread-unsafe and modifies internal structures
+           of the model! You can not use same model  object  for  parallel
+           evaluation from several threads.
+
+           Use dftsprocess() with  independent  thread-local  buffers,  if
+           you need thread-safe evaluation.
+
+INPUT PARAMETERS:
+    Model   -   DF model
+    X       -   input vector,  array[0..NVars-1].
+
+RESULT:
+    Y[0]
+
+  -- ALGLIB --
+     Copyright 15.02.2019 by Bochkanov Sergey
+*************************************************************************/
+double dfprocess0(const decisionforest &model, const real_1d_array &x, const xparams _xparams)
+{
+    jmp_buf _break_jump;
+    alglib_impl::ae_state _alglib_env_state;
+    alglib_impl::ae_state_init(&_alglib_env_state);
+    if( setjmp(_break_jump) )
+    {
+#if !defined(AE_NO_EXCEPTIONS)
+        _ALGLIB_CPP_EXCEPTION(_alglib_env_state.error_msg);
+#else
+        _ALGLIB_SET_ERROR_FLAG(_alglib_env_state.error_msg);
+        return 0;
+#endif
+    }
+    ae_state_set_break_jump(&_alglib_env_state, &_break_jump);
+    if( _xparams.flags!=0x0 )
+        ae_state_set_flags(&_alglib_env_state, _xparams.flags);
+    double result = alglib_impl::dfprocess0(const_cast<alglib_impl::decisionforest*>(model.c_ptr()), const_cast<alglib_impl::ae_vector*>(x.c_ptr()), &_alglib_env_state);
+    alglib_impl::ae_state_clear(&_alglib_env_state);
+    return *(reinterpret_cast<double*>(&result));
+}
+
+/*************************************************************************
+This function returns most probable class number for an  input  X.  It  is
+same as calling  dfprocess(model,x,y), then determining i=argmax(y[i]) and
+returning i.
+
+A class number in [0,NOut) range in returned for classification  problems,
+-1 is returned when this function is called for regression problems.
+
+IMPORTANT: this function is thread-unsafe and modifies internal structures
+           of the model! You can not use same model  object  for  parallel
+           evaluation from several threads.
+
+           Use dftsprocess()  with independent  thread-local  buffers,  if
+           you need thread-safe evaluation.
+
+INPUT PARAMETERS:
+    Model   -   decision forest model
+    X       -   input vector,  array[0..NVars-1].
+
+RESULT:
+    class number, -1 for regression tasks
+
+  -- ALGLIB --
+     Copyright 15.02.2019 by Bochkanov Sergey
+*************************************************************************/
+ae_int_t dfclassify(const decisionforest &model, const real_1d_array &x, const xparams _xparams)
+{
+    jmp_buf _break_jump;
+    alglib_impl::ae_state _alglib_env_state;
+    alglib_impl::ae_state_init(&_alglib_env_state);
+    if( setjmp(_break_jump) )
+    {
+#if !defined(AE_NO_EXCEPTIONS)
+        _ALGLIB_CPP_EXCEPTION(_alglib_env_state.error_msg);
+#else
+        _ALGLIB_SET_ERROR_FLAG(_alglib_env_state.error_msg);
+        return 0;
+#endif
+    }
+    ae_state_set_break_jump(&_alglib_env_state, &_break_jump);
+    if( _xparams.flags!=0x0 )
+        ae_state_set_flags(&_alglib_env_state, _xparams.flags);
+    alglib_impl::ae_int_t result = alglib_impl::dfclassify(const_cast<alglib_impl::decisionforest*>(model.c_ptr()), const_cast<alglib_impl::ae_vector*>(x.c_ptr()), &_alglib_env_state);
+    alglib_impl::ae_state_clear(&_alglib_env_state);
+    return *(reinterpret_cast<ae_int_t*>(&result));
+}
+
+/*************************************************************************
+Inference using decision forest
+
+Thread-safe procesing using external buffer for temporaries.
+
+This function is thread-safe (i.e .  you  can  use  same  DF   model  from
+multiple threads) as long as you use different buffer objects for different
+threads.
+
+INPUT PARAMETERS:
+    DF      -   decision forest model
+    Buf     -   buffer object, must be  allocated  specifically  for  this
+                model with dfcreatebuffer().
+    X       -   input vector,  array[NVars]
+    Y       -   possibly preallocated buffer, reallocated if too small
+
+OUTPUT PARAMETERS:
+    Y       -   result. Regression estimate when solving regression  task,
+                vector of posterior probabilities for classification task.
+
+See also DFProcessI.
+
+
+  -- ALGLIB --
+     Copyright 16.02.2009 by Bochkanov Sergey
+*************************************************************************/
+void dftsprocess(const decisionforest &df, const decisionforestbuffer &buf, const real_1d_array &x, real_1d_array &y, const xparams _xparams)
+{
+    jmp_buf _break_jump;
+    alglib_impl::ae_state _alglib_env_state;
+    alglib_impl::ae_state_init(&_alglib_env_state);
+    if( setjmp(_break_jump) )
+    {
+#if !defined(AE_NO_EXCEPTIONS)
+        _ALGLIB_CPP_EXCEPTION(_alglib_env_state.error_msg);
+#else
+        _ALGLIB_SET_ERROR_FLAG(_alglib_env_state.error_msg);
+        return;
+#endif
+    }
+    ae_state_set_break_jump(&_alglib_env_state, &_break_jump);
+    if( _xparams.flags!=0x0 )
+        ae_state_set_flags(&_alglib_env_state, _xparams.flags);
+    alglib_impl::dftsprocess(const_cast<alglib_impl::decisionforest*>(df.c_ptr()), const_cast<alglib_impl::decisionforestbuffer*>(buf.c_ptr()), const_cast<alglib_impl::ae_vector*>(x.c_ptr()), const_cast<alglib_impl::ae_vector*>(y.c_ptr()), &_alglib_env_state);
     alglib_impl::ae_state_clear(&_alglib_env_state);
     return;
 }
@@ -14148,6 +14967,1526 @@ void dfbuildrandomdecisionforestx1(const real_2d_array &xy, const ae_int_t npoin
     if( _xparams.flags!=0x0 )
         ae_state_set_flags(&_alglib_env_state, _xparams.flags);
     alglib_impl::dfbuildrandomdecisionforestx1(const_cast<alglib_impl::ae_matrix*>(xy.c_ptr()), npoints, nvars, nclasses, ntrees, nrndvars, r, &info, const_cast<alglib_impl::decisionforest*>(df.c_ptr()), const_cast<alglib_impl::dfreport*>(rep.c_ptr()), &_alglib_env_state);
+    alglib_impl::ae_state_clear(&_alglib_env_state);
+    return;
+}
+#endif
+
+#if defined(AE_COMPILE_KNN) || !defined(AE_PARTIAL_BUILD)
+/*************************************************************************
+Buffer object which is used to perform  various  requests  (usually  model
+inference) in the multithreaded mode (multiple threads working  with  same
+KNN object).
+
+This object should be created with KNNCreateBuffer().
+*************************************************************************/
+_knnbuffer_owner::_knnbuffer_owner()
+{
+    jmp_buf _break_jump;
+    alglib_impl::ae_state _state;
+    
+    alglib_impl::ae_state_init(&_state);
+    if( setjmp(_break_jump) )
+    {
+        if( p_struct!=NULL )
+        {
+            alglib_impl::_knnbuffer_destroy(p_struct);
+            alglib_impl::ae_free(p_struct);
+        }
+        p_struct = NULL;
+#if !defined(AE_NO_EXCEPTIONS)
+        _ALGLIB_CPP_EXCEPTION(_state.error_msg);
+#else
+        _ALGLIB_SET_ERROR_FLAG(_state.error_msg);
+        return;
+#endif
+    }
+    alglib_impl::ae_state_set_break_jump(&_state, &_break_jump);
+    p_struct = NULL;
+    p_struct = (alglib_impl::knnbuffer*)alglib_impl::ae_malloc(sizeof(alglib_impl::knnbuffer), &_state);
+    memset(p_struct, 0, sizeof(alglib_impl::knnbuffer));
+    alglib_impl::_knnbuffer_init(p_struct, &_state, ae_false);
+    ae_state_clear(&_state);
+}
+
+_knnbuffer_owner::_knnbuffer_owner(const _knnbuffer_owner &rhs)
+{
+    jmp_buf _break_jump;
+    alglib_impl::ae_state _state;
+    
+    alglib_impl::ae_state_init(&_state);
+    if( setjmp(_break_jump) )
+    {
+        if( p_struct!=NULL )
+        {
+            alglib_impl::_knnbuffer_destroy(p_struct);
+            alglib_impl::ae_free(p_struct);
+        }
+        p_struct = NULL;
+#if !defined(AE_NO_EXCEPTIONS)
+        _ALGLIB_CPP_EXCEPTION(_state.error_msg);
+#else
+        _ALGLIB_SET_ERROR_FLAG(_state.error_msg);
+        return;
+#endif
+    }
+    alglib_impl::ae_state_set_break_jump(&_state, &_break_jump);
+    p_struct = NULL;
+    alglib_impl::ae_assert(rhs.p_struct!=NULL, "ALGLIB: knnbuffer copy constructor failure (source is not initialized)", &_state);
+    p_struct = (alglib_impl::knnbuffer*)alglib_impl::ae_malloc(sizeof(alglib_impl::knnbuffer), &_state);
+    memset(p_struct, 0, sizeof(alglib_impl::knnbuffer));
+    alglib_impl::_knnbuffer_init_copy(p_struct, const_cast<alglib_impl::knnbuffer*>(rhs.p_struct), &_state, ae_false);
+    ae_state_clear(&_state);
+}
+
+_knnbuffer_owner& _knnbuffer_owner::operator=(const _knnbuffer_owner &rhs)
+{
+    if( this==&rhs )
+        return *this;
+    jmp_buf _break_jump;
+    alglib_impl::ae_state _state;
+    
+    alglib_impl::ae_state_init(&_state);
+    if( setjmp(_break_jump) )
+    {
+#if !defined(AE_NO_EXCEPTIONS)
+        _ALGLIB_CPP_EXCEPTION(_state.error_msg);
+#else
+        _ALGLIB_SET_ERROR_FLAG(_state.error_msg);
+        return *this;
+#endif
+    }
+    alglib_impl::ae_state_set_break_jump(&_state, &_break_jump);
+    alglib_impl::ae_assert(p_struct!=NULL, "ALGLIB: knnbuffer assignment constructor failure (destination is not initialized)", &_state);
+    alglib_impl::ae_assert(rhs.p_struct!=NULL, "ALGLIB: knnbuffer assignment constructor failure (source is not initialized)", &_state);
+    alglib_impl::_knnbuffer_destroy(p_struct);
+    memset(p_struct, 0, sizeof(alglib_impl::knnbuffer));
+    alglib_impl::_knnbuffer_init_copy(p_struct, const_cast<alglib_impl::knnbuffer*>(rhs.p_struct), &_state, ae_false);
+    ae_state_clear(&_state);
+    return *this;
+}
+
+_knnbuffer_owner::~_knnbuffer_owner()
+{
+    if( p_struct!=NULL )
+    {
+        alglib_impl::_knnbuffer_destroy(p_struct);
+        ae_free(p_struct);
+    }
+}
+
+alglib_impl::knnbuffer* _knnbuffer_owner::c_ptr()
+{
+    return p_struct;
+}
+
+alglib_impl::knnbuffer* _knnbuffer_owner::c_ptr() const
+{
+    return const_cast<alglib_impl::knnbuffer*>(p_struct);
+}
+knnbuffer::knnbuffer() : _knnbuffer_owner() 
+{
+}
+
+knnbuffer::knnbuffer(const knnbuffer &rhs):_knnbuffer_owner(rhs) 
+{
+}
+
+knnbuffer& knnbuffer::operator=(const knnbuffer &rhs)
+{
+    if( this==&rhs )
+        return *this;
+    _knnbuffer_owner::operator=(rhs);
+    return *this;
+}
+
+knnbuffer::~knnbuffer()
+{
+}
+
+
+/*************************************************************************
+A KNN builder object; this object encapsulates  dataset  and  all  related
+settings, it is used to create an actual instance of KNN model.
+*************************************************************************/
+_knnbuilder_owner::_knnbuilder_owner()
+{
+    jmp_buf _break_jump;
+    alglib_impl::ae_state _state;
+    
+    alglib_impl::ae_state_init(&_state);
+    if( setjmp(_break_jump) )
+    {
+        if( p_struct!=NULL )
+        {
+            alglib_impl::_knnbuilder_destroy(p_struct);
+            alglib_impl::ae_free(p_struct);
+        }
+        p_struct = NULL;
+#if !defined(AE_NO_EXCEPTIONS)
+        _ALGLIB_CPP_EXCEPTION(_state.error_msg);
+#else
+        _ALGLIB_SET_ERROR_FLAG(_state.error_msg);
+        return;
+#endif
+    }
+    alglib_impl::ae_state_set_break_jump(&_state, &_break_jump);
+    p_struct = NULL;
+    p_struct = (alglib_impl::knnbuilder*)alglib_impl::ae_malloc(sizeof(alglib_impl::knnbuilder), &_state);
+    memset(p_struct, 0, sizeof(alglib_impl::knnbuilder));
+    alglib_impl::_knnbuilder_init(p_struct, &_state, ae_false);
+    ae_state_clear(&_state);
+}
+
+_knnbuilder_owner::_knnbuilder_owner(const _knnbuilder_owner &rhs)
+{
+    jmp_buf _break_jump;
+    alglib_impl::ae_state _state;
+    
+    alglib_impl::ae_state_init(&_state);
+    if( setjmp(_break_jump) )
+    {
+        if( p_struct!=NULL )
+        {
+            alglib_impl::_knnbuilder_destroy(p_struct);
+            alglib_impl::ae_free(p_struct);
+        }
+        p_struct = NULL;
+#if !defined(AE_NO_EXCEPTIONS)
+        _ALGLIB_CPP_EXCEPTION(_state.error_msg);
+#else
+        _ALGLIB_SET_ERROR_FLAG(_state.error_msg);
+        return;
+#endif
+    }
+    alglib_impl::ae_state_set_break_jump(&_state, &_break_jump);
+    p_struct = NULL;
+    alglib_impl::ae_assert(rhs.p_struct!=NULL, "ALGLIB: knnbuilder copy constructor failure (source is not initialized)", &_state);
+    p_struct = (alglib_impl::knnbuilder*)alglib_impl::ae_malloc(sizeof(alglib_impl::knnbuilder), &_state);
+    memset(p_struct, 0, sizeof(alglib_impl::knnbuilder));
+    alglib_impl::_knnbuilder_init_copy(p_struct, const_cast<alglib_impl::knnbuilder*>(rhs.p_struct), &_state, ae_false);
+    ae_state_clear(&_state);
+}
+
+_knnbuilder_owner& _knnbuilder_owner::operator=(const _knnbuilder_owner &rhs)
+{
+    if( this==&rhs )
+        return *this;
+    jmp_buf _break_jump;
+    alglib_impl::ae_state _state;
+    
+    alglib_impl::ae_state_init(&_state);
+    if( setjmp(_break_jump) )
+    {
+#if !defined(AE_NO_EXCEPTIONS)
+        _ALGLIB_CPP_EXCEPTION(_state.error_msg);
+#else
+        _ALGLIB_SET_ERROR_FLAG(_state.error_msg);
+        return *this;
+#endif
+    }
+    alglib_impl::ae_state_set_break_jump(&_state, &_break_jump);
+    alglib_impl::ae_assert(p_struct!=NULL, "ALGLIB: knnbuilder assignment constructor failure (destination is not initialized)", &_state);
+    alglib_impl::ae_assert(rhs.p_struct!=NULL, "ALGLIB: knnbuilder assignment constructor failure (source is not initialized)", &_state);
+    alglib_impl::_knnbuilder_destroy(p_struct);
+    memset(p_struct, 0, sizeof(alglib_impl::knnbuilder));
+    alglib_impl::_knnbuilder_init_copy(p_struct, const_cast<alglib_impl::knnbuilder*>(rhs.p_struct), &_state, ae_false);
+    ae_state_clear(&_state);
+    return *this;
+}
+
+_knnbuilder_owner::~_knnbuilder_owner()
+{
+    if( p_struct!=NULL )
+    {
+        alglib_impl::_knnbuilder_destroy(p_struct);
+        ae_free(p_struct);
+    }
+}
+
+alglib_impl::knnbuilder* _knnbuilder_owner::c_ptr()
+{
+    return p_struct;
+}
+
+alglib_impl::knnbuilder* _knnbuilder_owner::c_ptr() const
+{
+    return const_cast<alglib_impl::knnbuilder*>(p_struct);
+}
+knnbuilder::knnbuilder() : _knnbuilder_owner() 
+{
+}
+
+knnbuilder::knnbuilder(const knnbuilder &rhs):_knnbuilder_owner(rhs) 
+{
+}
+
+knnbuilder& knnbuilder::operator=(const knnbuilder &rhs)
+{
+    if( this==&rhs )
+        return *this;
+    _knnbuilder_owner::operator=(rhs);
+    return *this;
+}
+
+knnbuilder::~knnbuilder()
+{
+}
+
+
+/*************************************************************************
+KNN model, can be used for classification or regression
+*************************************************************************/
+_knnmodel_owner::_knnmodel_owner()
+{
+    jmp_buf _break_jump;
+    alglib_impl::ae_state _state;
+    
+    alglib_impl::ae_state_init(&_state);
+    if( setjmp(_break_jump) )
+    {
+        if( p_struct!=NULL )
+        {
+            alglib_impl::_knnmodel_destroy(p_struct);
+            alglib_impl::ae_free(p_struct);
+        }
+        p_struct = NULL;
+#if !defined(AE_NO_EXCEPTIONS)
+        _ALGLIB_CPP_EXCEPTION(_state.error_msg);
+#else
+        _ALGLIB_SET_ERROR_FLAG(_state.error_msg);
+        return;
+#endif
+    }
+    alglib_impl::ae_state_set_break_jump(&_state, &_break_jump);
+    p_struct = NULL;
+    p_struct = (alglib_impl::knnmodel*)alglib_impl::ae_malloc(sizeof(alglib_impl::knnmodel), &_state);
+    memset(p_struct, 0, sizeof(alglib_impl::knnmodel));
+    alglib_impl::_knnmodel_init(p_struct, &_state, ae_false);
+    ae_state_clear(&_state);
+}
+
+_knnmodel_owner::_knnmodel_owner(const _knnmodel_owner &rhs)
+{
+    jmp_buf _break_jump;
+    alglib_impl::ae_state _state;
+    
+    alglib_impl::ae_state_init(&_state);
+    if( setjmp(_break_jump) )
+    {
+        if( p_struct!=NULL )
+        {
+            alglib_impl::_knnmodel_destroy(p_struct);
+            alglib_impl::ae_free(p_struct);
+        }
+        p_struct = NULL;
+#if !defined(AE_NO_EXCEPTIONS)
+        _ALGLIB_CPP_EXCEPTION(_state.error_msg);
+#else
+        _ALGLIB_SET_ERROR_FLAG(_state.error_msg);
+        return;
+#endif
+    }
+    alglib_impl::ae_state_set_break_jump(&_state, &_break_jump);
+    p_struct = NULL;
+    alglib_impl::ae_assert(rhs.p_struct!=NULL, "ALGLIB: knnmodel copy constructor failure (source is not initialized)", &_state);
+    p_struct = (alglib_impl::knnmodel*)alglib_impl::ae_malloc(sizeof(alglib_impl::knnmodel), &_state);
+    memset(p_struct, 0, sizeof(alglib_impl::knnmodel));
+    alglib_impl::_knnmodel_init_copy(p_struct, const_cast<alglib_impl::knnmodel*>(rhs.p_struct), &_state, ae_false);
+    ae_state_clear(&_state);
+}
+
+_knnmodel_owner& _knnmodel_owner::operator=(const _knnmodel_owner &rhs)
+{
+    if( this==&rhs )
+        return *this;
+    jmp_buf _break_jump;
+    alglib_impl::ae_state _state;
+    
+    alglib_impl::ae_state_init(&_state);
+    if( setjmp(_break_jump) )
+    {
+#if !defined(AE_NO_EXCEPTIONS)
+        _ALGLIB_CPP_EXCEPTION(_state.error_msg);
+#else
+        _ALGLIB_SET_ERROR_FLAG(_state.error_msg);
+        return *this;
+#endif
+    }
+    alglib_impl::ae_state_set_break_jump(&_state, &_break_jump);
+    alglib_impl::ae_assert(p_struct!=NULL, "ALGLIB: knnmodel assignment constructor failure (destination is not initialized)", &_state);
+    alglib_impl::ae_assert(rhs.p_struct!=NULL, "ALGLIB: knnmodel assignment constructor failure (source is not initialized)", &_state);
+    alglib_impl::_knnmodel_destroy(p_struct);
+    memset(p_struct, 0, sizeof(alglib_impl::knnmodel));
+    alglib_impl::_knnmodel_init_copy(p_struct, const_cast<alglib_impl::knnmodel*>(rhs.p_struct), &_state, ae_false);
+    ae_state_clear(&_state);
+    return *this;
+}
+
+_knnmodel_owner::~_knnmodel_owner()
+{
+    if( p_struct!=NULL )
+    {
+        alglib_impl::_knnmodel_destroy(p_struct);
+        ae_free(p_struct);
+    }
+}
+
+alglib_impl::knnmodel* _knnmodel_owner::c_ptr()
+{
+    return p_struct;
+}
+
+alglib_impl::knnmodel* _knnmodel_owner::c_ptr() const
+{
+    return const_cast<alglib_impl::knnmodel*>(p_struct);
+}
+knnmodel::knnmodel() : _knnmodel_owner() 
+{
+}
+
+knnmodel::knnmodel(const knnmodel &rhs):_knnmodel_owner(rhs) 
+{
+}
+
+knnmodel& knnmodel::operator=(const knnmodel &rhs)
+{
+    if( this==&rhs )
+        return *this;
+    _knnmodel_owner::operator=(rhs);
+    return *this;
+}
+
+knnmodel::~knnmodel()
+{
+}
+
+
+/*************************************************************************
+KNN training report.
+
+Following fields store training set errors:
+* relclserror       -   fraction of misclassified cases, [0,1]
+* avgce             -   average cross-entropy in bits per symbol
+* rmserror          -   root-mean-square error
+* avgerror          -   average error
+* avgrelerror       -   average relative error
+
+For classification problems:
+* RMS, AVG and AVGREL errors are calculated for posterior probabilities
+
+For regression problems:
+* RELCLS and AVGCE errors are zero
+*************************************************************************/
+_knnreport_owner::_knnreport_owner()
+{
+    jmp_buf _break_jump;
+    alglib_impl::ae_state _state;
+    
+    alglib_impl::ae_state_init(&_state);
+    if( setjmp(_break_jump) )
+    {
+        if( p_struct!=NULL )
+        {
+            alglib_impl::_knnreport_destroy(p_struct);
+            alglib_impl::ae_free(p_struct);
+        }
+        p_struct = NULL;
+#if !defined(AE_NO_EXCEPTIONS)
+        _ALGLIB_CPP_EXCEPTION(_state.error_msg);
+#else
+        _ALGLIB_SET_ERROR_FLAG(_state.error_msg);
+        return;
+#endif
+    }
+    alglib_impl::ae_state_set_break_jump(&_state, &_break_jump);
+    p_struct = NULL;
+    p_struct = (alglib_impl::knnreport*)alglib_impl::ae_malloc(sizeof(alglib_impl::knnreport), &_state);
+    memset(p_struct, 0, sizeof(alglib_impl::knnreport));
+    alglib_impl::_knnreport_init(p_struct, &_state, ae_false);
+    ae_state_clear(&_state);
+}
+
+_knnreport_owner::_knnreport_owner(const _knnreport_owner &rhs)
+{
+    jmp_buf _break_jump;
+    alglib_impl::ae_state _state;
+    
+    alglib_impl::ae_state_init(&_state);
+    if( setjmp(_break_jump) )
+    {
+        if( p_struct!=NULL )
+        {
+            alglib_impl::_knnreport_destroy(p_struct);
+            alglib_impl::ae_free(p_struct);
+        }
+        p_struct = NULL;
+#if !defined(AE_NO_EXCEPTIONS)
+        _ALGLIB_CPP_EXCEPTION(_state.error_msg);
+#else
+        _ALGLIB_SET_ERROR_FLAG(_state.error_msg);
+        return;
+#endif
+    }
+    alglib_impl::ae_state_set_break_jump(&_state, &_break_jump);
+    p_struct = NULL;
+    alglib_impl::ae_assert(rhs.p_struct!=NULL, "ALGLIB: knnreport copy constructor failure (source is not initialized)", &_state);
+    p_struct = (alglib_impl::knnreport*)alglib_impl::ae_malloc(sizeof(alglib_impl::knnreport), &_state);
+    memset(p_struct, 0, sizeof(alglib_impl::knnreport));
+    alglib_impl::_knnreport_init_copy(p_struct, const_cast<alglib_impl::knnreport*>(rhs.p_struct), &_state, ae_false);
+    ae_state_clear(&_state);
+}
+
+_knnreport_owner& _knnreport_owner::operator=(const _knnreport_owner &rhs)
+{
+    if( this==&rhs )
+        return *this;
+    jmp_buf _break_jump;
+    alglib_impl::ae_state _state;
+    
+    alglib_impl::ae_state_init(&_state);
+    if( setjmp(_break_jump) )
+    {
+#if !defined(AE_NO_EXCEPTIONS)
+        _ALGLIB_CPP_EXCEPTION(_state.error_msg);
+#else
+        _ALGLIB_SET_ERROR_FLAG(_state.error_msg);
+        return *this;
+#endif
+    }
+    alglib_impl::ae_state_set_break_jump(&_state, &_break_jump);
+    alglib_impl::ae_assert(p_struct!=NULL, "ALGLIB: knnreport assignment constructor failure (destination is not initialized)", &_state);
+    alglib_impl::ae_assert(rhs.p_struct!=NULL, "ALGLIB: knnreport assignment constructor failure (source is not initialized)", &_state);
+    alglib_impl::_knnreport_destroy(p_struct);
+    memset(p_struct, 0, sizeof(alglib_impl::knnreport));
+    alglib_impl::_knnreport_init_copy(p_struct, const_cast<alglib_impl::knnreport*>(rhs.p_struct), &_state, ae_false);
+    ae_state_clear(&_state);
+    return *this;
+}
+
+_knnreport_owner::~_knnreport_owner()
+{
+    if( p_struct!=NULL )
+    {
+        alglib_impl::_knnreport_destroy(p_struct);
+        ae_free(p_struct);
+    }
+}
+
+alglib_impl::knnreport* _knnreport_owner::c_ptr()
+{
+    return p_struct;
+}
+
+alglib_impl::knnreport* _knnreport_owner::c_ptr() const
+{
+    return const_cast<alglib_impl::knnreport*>(p_struct);
+}
+knnreport::knnreport() : _knnreport_owner() ,relclserror(p_struct->relclserror),avgce(p_struct->avgce),rmserror(p_struct->rmserror),avgerror(p_struct->avgerror),avgrelerror(p_struct->avgrelerror)
+{
+}
+
+knnreport::knnreport(const knnreport &rhs):_knnreport_owner(rhs) ,relclserror(p_struct->relclserror),avgce(p_struct->avgce),rmserror(p_struct->rmserror),avgerror(p_struct->avgerror),avgrelerror(p_struct->avgrelerror)
+{
+}
+
+knnreport& knnreport::operator=(const knnreport &rhs)
+{
+    if( this==&rhs )
+        return *this;
+    _knnreport_owner::operator=(rhs);
+    return *this;
+}
+
+knnreport::~knnreport()
+{
+}
+
+
+/*************************************************************************
+This function serializes data structure to string.
+
+Important properties of s_out:
+* it contains alphanumeric characters, dots, underscores, minus signs
+* these symbols are grouped into words, which are separated by spaces
+  and Windows-style (CR+LF) newlines
+* although  serializer  uses  spaces and CR+LF as separators, you can 
+  replace any separator character by arbitrary combination of spaces,
+  tabs, Windows or Unix newlines. It allows flexible reformatting  of
+  the  string  in  case you want to include it into text or XML file. 
+  But you should not insert separators into the middle of the "words"
+  nor you should change case of letters.
+* s_out can be freely moved between 32-bit and 64-bit systems, little
+  and big endian machines, and so on. You can serialize structure  on
+  32-bit machine and unserialize it on 64-bit one (or vice versa), or
+  serialize  it  on  SPARC  and  unserialize  on  x86.  You  can also 
+  serialize  it  in  C++ version of ALGLIB and unserialize in C# one, 
+  and vice versa.
+*************************************************************************/
+void knnserialize(knnmodel &obj, std::string &s_out)
+{
+    jmp_buf _break_jump;
+    alglib_impl::ae_state state;
+    alglib_impl::ae_serializer serializer;
+    alglib_impl::ae_int_t ssize;
+
+    alglib_impl::ae_state_init(&state);
+    if( setjmp(_break_jump) )
+    {
+#if !defined(AE_NO_EXCEPTIONS)
+        _ALGLIB_CPP_EXCEPTION(state.error_msg);
+#else
+        _ALGLIB_SET_ERROR_FLAG(state.error_msg);
+        return;
+#endif
+    }
+    ae_state_set_break_jump(&state, &_break_jump);
+    alglib_impl::ae_serializer_init(&serializer);
+    alglib_impl::ae_serializer_alloc_start(&serializer);
+    alglib_impl::knnalloc(&serializer, obj.c_ptr(), &state);
+    ssize = alglib_impl::ae_serializer_get_alloc_size(&serializer);
+    s_out.clear();
+    s_out.reserve((size_t)(ssize+1));
+    alglib_impl::ae_serializer_sstart_str(&serializer, &s_out);
+    alglib_impl::knnserialize(&serializer, obj.c_ptr(), &state);
+    alglib_impl::ae_serializer_stop(&serializer, &state);
+    alglib_impl::ae_assert( s_out.length()<=(size_t)ssize, "ALGLIB: serialization integrity error", &state);
+    alglib_impl::ae_serializer_clear(&serializer);
+    alglib_impl::ae_state_clear(&state);
+}
+/*************************************************************************
+This function unserializes data structure from string.
+*************************************************************************/
+void knnunserialize(const std::string &s_in, knnmodel &obj)
+{
+    jmp_buf _break_jump;
+    alglib_impl::ae_state state;
+    alglib_impl::ae_serializer serializer;
+
+    alglib_impl::ae_state_init(&state);
+    if( setjmp(_break_jump) )
+    {
+#if !defined(AE_NO_EXCEPTIONS)
+        _ALGLIB_CPP_EXCEPTION(state.error_msg);
+#else
+        _ALGLIB_SET_ERROR_FLAG(state.error_msg);
+        return;
+#endif
+    }
+    ae_state_set_break_jump(&state, &_break_jump);
+    alglib_impl::ae_serializer_init(&serializer);
+    alglib_impl::ae_serializer_ustart_str(&serializer, &s_in);
+    alglib_impl::knnunserialize(&serializer, obj.c_ptr(), &state);
+    alglib_impl::ae_serializer_stop(&serializer, &state);
+    alglib_impl::ae_serializer_clear(&serializer);
+    alglib_impl::ae_state_clear(&state);
+}
+
+
+/*************************************************************************
+This function serializes data structure to C++ stream.
+
+Data stream generated by this function is same as  string  representation
+generated  by  string  version  of  serializer - alphanumeric characters,
+dots, underscores, minus signs, which are grouped into words separated by
+spaces and CR+LF.
+
+We recommend you to read comments on string version of serializer to find
+out more about serialization of AlGLIB objects.
+*************************************************************************/
+void knnserialize(knnmodel &obj, std::ostream &s_out)
+{
+    jmp_buf _break_jump;
+    alglib_impl::ae_state state;
+    alglib_impl::ae_serializer serializer;
+
+    alglib_impl::ae_state_init(&state);
+    if( setjmp(_break_jump) )
+    {
+#if !defined(AE_NO_EXCEPTIONS)
+        _ALGLIB_CPP_EXCEPTION(state.error_msg);
+#else
+        _ALGLIB_SET_ERROR_FLAG(state.error_msg);
+        return;
+#endif
+    }
+    ae_state_set_break_jump(&state, &_break_jump);
+    alglib_impl::ae_serializer_init(&serializer);
+    alglib_impl::ae_serializer_alloc_start(&serializer);
+    alglib_impl::knnalloc(&serializer, obj.c_ptr(), &state);
+    alglib_impl::ae_serializer_get_alloc_size(&serializer); // not actually needed, but we have to ask
+    alglib_impl::ae_serializer_sstart_stream(&serializer, &s_out);
+    alglib_impl::knnserialize(&serializer, obj.c_ptr(), &state);
+    alglib_impl::ae_serializer_stop(&serializer, &state);
+    alglib_impl::ae_serializer_clear(&serializer);
+    alglib_impl::ae_state_clear(&state);
+}
+/*************************************************************************
+This function unserializes data structure from stream.
+*************************************************************************/
+void knnunserialize(const std::istream &s_in, knnmodel &obj)
+{
+    jmp_buf _break_jump;
+    alglib_impl::ae_state state;
+    alglib_impl::ae_serializer serializer;
+
+    alglib_impl::ae_state_init(&state);
+    if( setjmp(_break_jump) )
+    {
+#if !defined(AE_NO_EXCEPTIONS)
+        _ALGLIB_CPP_EXCEPTION(state.error_msg);
+#else
+        _ALGLIB_SET_ERROR_FLAG(state.error_msg);
+        return;
+#endif
+    }
+    ae_state_set_break_jump(&state, &_break_jump);
+    alglib_impl::ae_serializer_init(&serializer);
+    alglib_impl::ae_serializer_ustart_stream(&serializer, &s_in);
+    alglib_impl::knnunserialize(&serializer, obj.c_ptr(), &state);
+    alglib_impl::ae_serializer_stop(&serializer, &state);
+    alglib_impl::ae_serializer_clear(&serializer);
+    alglib_impl::ae_state_clear(&state);
+}
+
+/*************************************************************************
+This function creates buffer  structure  which  can  be  used  to  perform
+parallel KNN requests.
+
+KNN subpackage provides two sets of computing functions - ones  which  use
+internal buffer of KNN model (these  functions are single-threaded because
+they use same buffer, which can not  shared  between  threads),  and  ones
+which use external buffer.
+
+This function is used to initialize external buffer.
+
+INPUT PARAMETERS
+    Model       -   KNN model which is associated with newly created buffer
+
+OUTPUT PARAMETERS
+    Buf         -   external buffer.
+
+
+IMPORTANT: buffer object should be used only with model which was used  to
+           initialize buffer. Any attempt to  use  buffer  with  different
+           object is dangerous - you  may   get  integrity  check  failure
+           (exception) because sizes of internal  arrays  do  not  fit  to
+           dimensions of the model structure.
+
+  -- ALGLIB --
+     Copyright 15.02.2019 by Bochkanov Sergey
+*************************************************************************/
+void knncreatebuffer(const knnmodel &model, knnbuffer &buf, const xparams _xparams)
+{
+    jmp_buf _break_jump;
+    alglib_impl::ae_state _alglib_env_state;
+    alglib_impl::ae_state_init(&_alglib_env_state);
+    if( setjmp(_break_jump) )
+    {
+#if !defined(AE_NO_EXCEPTIONS)
+        _ALGLIB_CPP_EXCEPTION(_alglib_env_state.error_msg);
+#else
+        _ALGLIB_SET_ERROR_FLAG(_alglib_env_state.error_msg);
+        return;
+#endif
+    }
+    ae_state_set_break_jump(&_alglib_env_state, &_break_jump);
+    if( _xparams.flags!=0x0 )
+        ae_state_set_flags(&_alglib_env_state, _xparams.flags);
+    alglib_impl::knncreatebuffer(const_cast<alglib_impl::knnmodel*>(model.c_ptr()), const_cast<alglib_impl::knnbuffer*>(buf.c_ptr()), &_alglib_env_state);
+    alglib_impl::ae_state_clear(&_alglib_env_state);
+    return;
+}
+
+/*************************************************************************
+This subroutine creates KNNBuilder object which is used to train KNN models.
+
+By default, new builder stores empty dataset and some  reasonable  default
+settings. At the very least, you should specify dataset prior to  building
+KNN model. You can also tweak settings of the model construction algorithm
+(recommended, although default settings should work well).
+
+Following actions are mandatory:
+* calling knnbuildersetdataset() to specify dataset
+* calling knnbuilderbuildknnmodel() to build KNN model using current
+  dataset and default settings
+
+Additionally, you may call:
+* knnbuildersetnorm() to change norm being used
+
+INPUT PARAMETERS:
+    none
+
+OUTPUT PARAMETERS:
+    S           -   KNN builder
+
+  -- ALGLIB --
+     Copyright 15.02.2019 by Bochkanov Sergey
+*************************************************************************/
+void knnbuildercreate(knnbuilder &s, const xparams _xparams)
+{
+    jmp_buf _break_jump;
+    alglib_impl::ae_state _alglib_env_state;
+    alglib_impl::ae_state_init(&_alglib_env_state);
+    if( setjmp(_break_jump) )
+    {
+#if !defined(AE_NO_EXCEPTIONS)
+        _ALGLIB_CPP_EXCEPTION(_alglib_env_state.error_msg);
+#else
+        _ALGLIB_SET_ERROR_FLAG(_alglib_env_state.error_msg);
+        return;
+#endif
+    }
+    ae_state_set_break_jump(&_alglib_env_state, &_break_jump);
+    if( _xparams.flags!=0x0 )
+        ae_state_set_flags(&_alglib_env_state, _xparams.flags);
+    alglib_impl::knnbuildercreate(const_cast<alglib_impl::knnbuilder*>(s.c_ptr()), &_alglib_env_state);
+    alglib_impl::ae_state_clear(&_alglib_env_state);
+    return;
+}
+
+/*************************************************************************
+Specifies regression problem (one or more continuous  output variables are
+predicted). There also exists "classification" version of this function.
+
+This subroutine adds dense dataset to the internal storage of the  builder
+object. Specifying your dataset in the dense format means that  the  dense
+version of the KNN construction algorithm will be invoked.
+
+INPUT PARAMETERS:
+    S           -   KNN builder object
+    XY          -   array[NPoints,NVars+NOut] (note: actual  size  can  be
+                    larger, only leading part is used anyway), dataset:
+                    * first NVars elements of each row store values of the
+                      independent variables
+                    * next NOut elements store  values  of  the  dependent
+                      variables
+    NPoints     -   number of rows in the dataset, NPoints>=1
+    NVars       -   number of independent variables, NVars>=1
+    NOut        -   number of dependent variables, NOut>=1
+
+OUTPUT PARAMETERS:
+    S           -   KNN builder
+
+  -- ALGLIB --
+     Copyright 15.02.2019 by Bochkanov Sergey
+*************************************************************************/
+void knnbuildersetdatasetreg(const knnbuilder &s, const real_2d_array &xy, const ae_int_t npoints, const ae_int_t nvars, const ae_int_t nout, const xparams _xparams)
+{
+    jmp_buf _break_jump;
+    alglib_impl::ae_state _alglib_env_state;
+    alglib_impl::ae_state_init(&_alglib_env_state);
+    if( setjmp(_break_jump) )
+    {
+#if !defined(AE_NO_EXCEPTIONS)
+        _ALGLIB_CPP_EXCEPTION(_alglib_env_state.error_msg);
+#else
+        _ALGLIB_SET_ERROR_FLAG(_alglib_env_state.error_msg);
+        return;
+#endif
+    }
+    ae_state_set_break_jump(&_alglib_env_state, &_break_jump);
+    if( _xparams.flags!=0x0 )
+        ae_state_set_flags(&_alglib_env_state, _xparams.flags);
+    alglib_impl::knnbuildersetdatasetreg(const_cast<alglib_impl::knnbuilder*>(s.c_ptr()), const_cast<alglib_impl::ae_matrix*>(xy.c_ptr()), npoints, nvars, nout, &_alglib_env_state);
+    alglib_impl::ae_state_clear(&_alglib_env_state);
+    return;
+}
+
+/*************************************************************************
+Specifies classification problem (two  or  more  classes  are  predicted).
+There also exists "regression" version of this function.
+
+This subroutine adds dense dataset to the internal storage of the  builder
+object. Specifying your dataset in the dense format means that  the  dense
+version of the KNN construction algorithm will be invoked.
+
+INPUT PARAMETERS:
+    S           -   KNN builder object
+    XY          -   array[NPoints,NVars+1] (note:   actual   size  can  be
+                    larger, only leading part is used anyway), dataset:
+                    * first NVars elements of each row store values of the
+                      independent variables
+                    * next element stores class index, in [0,NClasses)
+    NPoints     -   number of rows in the dataset, NPoints>=1
+    NVars       -   number of independent variables, NVars>=1
+    NClasses    -   number of classes, NClasses>=2
+
+OUTPUT PARAMETERS:
+    S           -   KNN builder
+
+  -- ALGLIB --
+     Copyright 15.02.2019 by Bochkanov Sergey
+*************************************************************************/
+void knnbuildersetdatasetcls(const knnbuilder &s, const real_2d_array &xy, const ae_int_t npoints, const ae_int_t nvars, const ae_int_t nclasses, const xparams _xparams)
+{
+    jmp_buf _break_jump;
+    alglib_impl::ae_state _alglib_env_state;
+    alglib_impl::ae_state_init(&_alglib_env_state);
+    if( setjmp(_break_jump) )
+    {
+#if !defined(AE_NO_EXCEPTIONS)
+        _ALGLIB_CPP_EXCEPTION(_alglib_env_state.error_msg);
+#else
+        _ALGLIB_SET_ERROR_FLAG(_alglib_env_state.error_msg);
+        return;
+#endif
+    }
+    ae_state_set_break_jump(&_alglib_env_state, &_break_jump);
+    if( _xparams.flags!=0x0 )
+        ae_state_set_flags(&_alglib_env_state, _xparams.flags);
+    alglib_impl::knnbuildersetdatasetcls(const_cast<alglib_impl::knnbuilder*>(s.c_ptr()), const_cast<alglib_impl::ae_matrix*>(xy.c_ptr()), npoints, nvars, nclasses, &_alglib_env_state);
+    alglib_impl::ae_state_clear(&_alglib_env_state);
+    return;
+}
+
+/*************************************************************************
+This function sets norm type used for neighbor search.
+
+INPUT PARAMETERS:
+    S           -   decision forest builder object
+    NormType    -   norm type:
+                    * 0      inf-norm
+                    * 1      1-norm
+                    * 2      Euclidean norm (default)
+
+OUTPUT PARAMETERS:
+    S           -   decision forest builder
+
+  -- ALGLIB --
+     Copyright 15.02.2019 by Bochkanov Sergey
+*************************************************************************/
+void knnbuildersetnorm(const knnbuilder &s, const ae_int_t nrmtype, const xparams _xparams)
+{
+    jmp_buf _break_jump;
+    alglib_impl::ae_state _alglib_env_state;
+    alglib_impl::ae_state_init(&_alglib_env_state);
+    if( setjmp(_break_jump) )
+    {
+#if !defined(AE_NO_EXCEPTIONS)
+        _ALGLIB_CPP_EXCEPTION(_alglib_env_state.error_msg);
+#else
+        _ALGLIB_SET_ERROR_FLAG(_alglib_env_state.error_msg);
+        return;
+#endif
+    }
+    ae_state_set_break_jump(&_alglib_env_state, &_break_jump);
+    if( _xparams.flags!=0x0 )
+        ae_state_set_flags(&_alglib_env_state, _xparams.flags);
+    alglib_impl::knnbuildersetnorm(const_cast<alglib_impl::knnbuilder*>(s.c_ptr()), nrmtype, &_alglib_env_state);
+    alglib_impl::ae_state_clear(&_alglib_env_state);
+    return;
+}
+
+/*************************************************************************
+This subroutine builds KNN model  according  to  current  settings,  using
+dataset internally stored in the builder object.
+
+The model being built performs inference using Eps-approximate  K  nearest
+neighbors search algorithm, with:
+* K=1,  Eps=0 corresponding to the "nearest neighbor algorithm"
+* K>1,  Eps=0 corresponding to the "K nearest neighbors algorithm"
+* K>=1, Eps>0 corresponding to "approximate nearest neighbors algorithm"
+
+An approximate KNN is a good option for high-dimensional  datasets  (exact
+KNN works slowly when dimensions count grows).
+
+An ALGLIB implementation of kd-trees is used to perform k-nn searches.
+
+  ! COMMERCIAL EDITION OF ALGLIB:
+  !
+  ! Commercial Edition of ALGLIB includes following important improvements
+  ! of this function:
+  ! * high-performance native backend with same C# interface (C# version)
+  ! * multithreading support (C++ and C# versions)
+  !
+  ! We recommend you to read 'Working with commercial version' section  of
+  ! ALGLIB Reference Manual in order to find out how to  use  performance-
+  ! related features provided by commercial edition of ALGLIB.
+
+INPUT PARAMETERS:
+    S       -   KNN builder object
+    K       -   number of neighbors to search for, K>=1
+    Eps     -   approximation factor:
+                * Eps=0 means that exact kNN search is performed
+                * Eps>0 means that (1+Eps)-approximate search is performed
+
+OUTPUT PARAMETERS:
+    Model       -   KNN model
+    Rep         -   report
+
+  -- ALGLIB --
+     Copyright 15.02.2019 by Bochkanov Sergey
+*************************************************************************/
+void knnbuilderbuildknnmodel(const knnbuilder &s, const ae_int_t k, const double eps, knnmodel &model, knnreport &rep, const xparams _xparams)
+{
+    jmp_buf _break_jump;
+    alglib_impl::ae_state _alglib_env_state;
+    alglib_impl::ae_state_init(&_alglib_env_state);
+    if( setjmp(_break_jump) )
+    {
+#if !defined(AE_NO_EXCEPTIONS)
+        _ALGLIB_CPP_EXCEPTION(_alglib_env_state.error_msg);
+#else
+        _ALGLIB_SET_ERROR_FLAG(_alglib_env_state.error_msg);
+        return;
+#endif
+    }
+    ae_state_set_break_jump(&_alglib_env_state, &_break_jump);
+    if( _xparams.flags!=0x0 )
+        ae_state_set_flags(&_alglib_env_state, _xparams.flags);
+    alglib_impl::knnbuilderbuildknnmodel(const_cast<alglib_impl::knnbuilder*>(s.c_ptr()), k, eps, const_cast<alglib_impl::knnmodel*>(model.c_ptr()), const_cast<alglib_impl::knnreport*>(rep.c_ptr()), &_alglib_env_state);
+    alglib_impl::ae_state_clear(&_alglib_env_state);
+    return;
+}
+
+/*************************************************************************
+Changing search settings of KNN model.
+
+K and EPS parameters of KNN  (AKNN)  search  are  specified  during  model
+construction. However, plain KNN algorithm with Euclidean distance  allows
+you to change them at any moment.
+
+NOTE: future versions of KNN model may support advanced versions  of  KNN,
+      such as NCA or LMNN. It is possible that such algorithms won't allow
+      you to change search settings on the fly. If you call this  function
+      for an algorithm which does not support on-the-fly changes, it  will
+      throw an exception.
+
+INPUT PARAMETERS:
+    Model   -   KNN model
+    K       -   K>=1, neighbors count
+    EPS     -   accuracy of the EPS-approximate NN search. Set to 0.0,  if
+                you want to perform "classic" KNN search.  Specify  larger
+                values  if  you  need  to  speed-up  high-dimensional  KNN
+                queries.
+
+OUTPUT PARAMETERS:
+    nothing on success, exception on failure
+
+  -- ALGLIB --
+     Copyright 15.02.2019 by Bochkanov Sergey
+*************************************************************************/
+void knnrewritekeps(const knnmodel &model, const ae_int_t k, const double eps, const xparams _xparams)
+{
+    jmp_buf _break_jump;
+    alglib_impl::ae_state _alglib_env_state;
+    alglib_impl::ae_state_init(&_alglib_env_state);
+    if( setjmp(_break_jump) )
+    {
+#if !defined(AE_NO_EXCEPTIONS)
+        _ALGLIB_CPP_EXCEPTION(_alglib_env_state.error_msg);
+#else
+        _ALGLIB_SET_ERROR_FLAG(_alglib_env_state.error_msg);
+        return;
+#endif
+    }
+    ae_state_set_break_jump(&_alglib_env_state, &_break_jump);
+    if( _xparams.flags!=0x0 )
+        ae_state_set_flags(&_alglib_env_state, _xparams.flags);
+    alglib_impl::knnrewritekeps(const_cast<alglib_impl::knnmodel*>(model.c_ptr()), k, eps, &_alglib_env_state);
+    alglib_impl::ae_state_clear(&_alglib_env_state);
+    return;
+}
+
+/*************************************************************************
+Inference using KNN model.
+
+See also knnprocess0(), knnprocessi() and knnclassify() for options with a
+bit more convenient interface.
+
+IMPORTANT: this function is thread-unsafe and modifies internal structures
+           of the model! You can not use same model  object  for  parallel
+           evaluation from several threads.
+
+           Use knntsprocess() with independent  thread-local  buffers,  if
+           you need thread-safe evaluation.
+
+INPUT PARAMETERS:
+    Model   -   KNN model
+    X       -   input vector,  array[0..NVars-1].
+    Y       -   possible preallocated buffer. Reused if long enough.
+
+OUTPUT PARAMETERS:
+    Y       -   result. Regression estimate when solving regression  task,
+                vector of posterior probabilities for classification task.
+
+  -- ALGLIB --
+     Copyright 15.02.2019 by Bochkanov Sergey
+*************************************************************************/
+void knnprocess(const knnmodel &model, const real_1d_array &x, real_1d_array &y, const xparams _xparams)
+{
+    jmp_buf _break_jump;
+    alglib_impl::ae_state _alglib_env_state;
+    alglib_impl::ae_state_init(&_alglib_env_state);
+    if( setjmp(_break_jump) )
+    {
+#if !defined(AE_NO_EXCEPTIONS)
+        _ALGLIB_CPP_EXCEPTION(_alglib_env_state.error_msg);
+#else
+        _ALGLIB_SET_ERROR_FLAG(_alglib_env_state.error_msg);
+        return;
+#endif
+    }
+    ae_state_set_break_jump(&_alglib_env_state, &_break_jump);
+    if( _xparams.flags!=0x0 )
+        ae_state_set_flags(&_alglib_env_state, _xparams.flags);
+    alglib_impl::knnprocess(const_cast<alglib_impl::knnmodel*>(model.c_ptr()), const_cast<alglib_impl::ae_vector*>(x.c_ptr()), const_cast<alglib_impl::ae_vector*>(y.c_ptr()), &_alglib_env_state);
+    alglib_impl::ae_state_clear(&_alglib_env_state);
+    return;
+}
+
+/*************************************************************************
+This function returns first component of the  inferred  vector  (i.e.  one
+with index #0).
+
+It is a convenience wrapper for knnprocess() intended for either:
+* 1-dimensional regression problems
+* 2-class classification problems
+
+In the former case this function returns inference result as scalar, which
+is definitely more convenient that wrapping it as vector.  In  the  latter
+case it returns probability of object belonging to class #0.
+
+If you call it for anything different from two cases above, it  will  work
+as defined, i.e. return y[0], although it is of less use in such cases.
+
+IMPORTANT: this function is thread-unsafe and modifies internal structures
+           of the model! You can not use same model  object  for  parallel
+           evaluation from several threads.
+
+           Use knntsprocess() with independent  thread-local  buffers,  if
+           you need thread-safe evaluation.
+
+INPUT PARAMETERS:
+    Model   -   KNN model
+    X       -   input vector,  array[0..NVars-1].
+
+RESULT:
+    Y[0]
+
+  -- ALGLIB --
+     Copyright 15.02.2019 by Bochkanov Sergey
+*************************************************************************/
+double knnprocess0(const knnmodel &model, const real_1d_array &x, const xparams _xparams)
+{
+    jmp_buf _break_jump;
+    alglib_impl::ae_state _alglib_env_state;
+    alglib_impl::ae_state_init(&_alglib_env_state);
+    if( setjmp(_break_jump) )
+    {
+#if !defined(AE_NO_EXCEPTIONS)
+        _ALGLIB_CPP_EXCEPTION(_alglib_env_state.error_msg);
+#else
+        _ALGLIB_SET_ERROR_FLAG(_alglib_env_state.error_msg);
+        return 0;
+#endif
+    }
+    ae_state_set_break_jump(&_alglib_env_state, &_break_jump);
+    if( _xparams.flags!=0x0 )
+        ae_state_set_flags(&_alglib_env_state, _xparams.flags);
+    double result = alglib_impl::knnprocess0(const_cast<alglib_impl::knnmodel*>(model.c_ptr()), const_cast<alglib_impl::ae_vector*>(x.c_ptr()), &_alglib_env_state);
+    alglib_impl::ae_state_clear(&_alglib_env_state);
+    return *(reinterpret_cast<double*>(&result));
+}
+
+/*************************************************************************
+This function returns most probable class number for an  input  X.  It  is
+same as calling knnprocess(model,x,y), then determining i=argmax(y[i]) and
+returning i.
+
+A class number in [0,NOut) range in returned for classification  problems,
+-1 is returned when this function is called for regression problems.
+
+IMPORTANT: this function is thread-unsafe and modifies internal structures
+           of the model! You can not use same model  object  for  parallel
+           evaluation from several threads.
+
+           Use knntsprocess() with independent  thread-local  buffers,  if
+           you need thread-safe evaluation.
+
+INPUT PARAMETERS:
+    Model   -   KNN model
+    X       -   input vector,  array[0..NVars-1].
+
+RESULT:
+    class number, -1 for regression tasks
+
+  -- ALGLIB --
+     Copyright 15.02.2019 by Bochkanov Sergey
+*************************************************************************/
+ae_int_t knnclassify(const knnmodel &model, const real_1d_array &x, const xparams _xparams)
+{
+    jmp_buf _break_jump;
+    alglib_impl::ae_state _alglib_env_state;
+    alglib_impl::ae_state_init(&_alglib_env_state);
+    if( setjmp(_break_jump) )
+    {
+#if !defined(AE_NO_EXCEPTIONS)
+        _ALGLIB_CPP_EXCEPTION(_alglib_env_state.error_msg);
+#else
+        _ALGLIB_SET_ERROR_FLAG(_alglib_env_state.error_msg);
+        return 0;
+#endif
+    }
+    ae_state_set_break_jump(&_alglib_env_state, &_break_jump);
+    if( _xparams.flags!=0x0 )
+        ae_state_set_flags(&_alglib_env_state, _xparams.flags);
+    alglib_impl::ae_int_t result = alglib_impl::knnclassify(const_cast<alglib_impl::knnmodel*>(model.c_ptr()), const_cast<alglib_impl::ae_vector*>(x.c_ptr()), &_alglib_env_state);
+    alglib_impl::ae_state_clear(&_alglib_env_state);
+    return *(reinterpret_cast<ae_int_t*>(&result));
+}
+
+/*************************************************************************
+'interactive' variant of knnprocess()  for  languages  like  Python  which
+support constructs like "y = knnprocessi(model,x)" and interactive mode of
+the interpreter.
+
+This function allocates new array on each call,  so  it  is  significantly
+slower than its 'non-interactive' counterpart, but it is  more  convenient
+when you call it from command line.
+
+IMPORTANT: this  function  is  thread-unsafe  and  may   modify   internal
+           structures of the model! You can not use same model  object for
+           parallel evaluation from several threads.
+
+           Use knntsprocess()  with  independent  thread-local  buffers if
+           you need thread-safe evaluation.
+
+  -- ALGLIB --
+     Copyright 15.02.2019 by Bochkanov Sergey
+*************************************************************************/
+void knnprocessi(const knnmodel &model, const real_1d_array &x, real_1d_array &y, const xparams _xparams)
+{
+    jmp_buf _break_jump;
+    alglib_impl::ae_state _alglib_env_state;
+    alglib_impl::ae_state_init(&_alglib_env_state);
+    if( setjmp(_break_jump) )
+    {
+#if !defined(AE_NO_EXCEPTIONS)
+        _ALGLIB_CPP_EXCEPTION(_alglib_env_state.error_msg);
+#else
+        _ALGLIB_SET_ERROR_FLAG(_alglib_env_state.error_msg);
+        return;
+#endif
+    }
+    ae_state_set_break_jump(&_alglib_env_state, &_break_jump);
+    if( _xparams.flags!=0x0 )
+        ae_state_set_flags(&_alglib_env_state, _xparams.flags);
+    alglib_impl::knnprocessi(const_cast<alglib_impl::knnmodel*>(model.c_ptr()), const_cast<alglib_impl::ae_vector*>(x.c_ptr()), const_cast<alglib_impl::ae_vector*>(y.c_ptr()), &_alglib_env_state);
+    alglib_impl::ae_state_clear(&_alglib_env_state);
+    return;
+}
+
+/*************************************************************************
+Thread-safe procesing using external buffer for temporaries.
+
+This function is thread-safe (i.e .  you  can  use  same  KNN  model  from
+multiple threads) as long as you use different buffer objects for different
+threads.
+
+INPUT PARAMETERS:
+    Model   -   KNN model
+    Buf     -   buffer object, must be  allocated  specifically  for  this
+                model with knncreatebuffer().
+    X       -   input vector,  array[NVars]
+
+OUTPUT PARAMETERS:
+    Y       -   result, array[NOut].   Regression  estimate  when  solving
+                regression task,  vector  of  posterior  probabilities for
+                a classification task.
+
+  -- ALGLIB --
+     Copyright 15.02.2019 by Bochkanov Sergey
+*************************************************************************/
+void knntsprocess(const knnmodel &model, const knnbuffer &buf, const real_1d_array &x, real_1d_array &y, const xparams _xparams)
+{
+    jmp_buf _break_jump;
+    alglib_impl::ae_state _alglib_env_state;
+    alglib_impl::ae_state_init(&_alglib_env_state);
+    if( setjmp(_break_jump) )
+    {
+#if !defined(AE_NO_EXCEPTIONS)
+        _ALGLIB_CPP_EXCEPTION(_alglib_env_state.error_msg);
+#else
+        _ALGLIB_SET_ERROR_FLAG(_alglib_env_state.error_msg);
+        return;
+#endif
+    }
+    ae_state_set_break_jump(&_alglib_env_state, &_break_jump);
+    if( _xparams.flags!=0x0 )
+        ae_state_set_flags(&_alglib_env_state, _xparams.flags);
+    alglib_impl::knntsprocess(const_cast<alglib_impl::knnmodel*>(model.c_ptr()), const_cast<alglib_impl::knnbuffer*>(buf.c_ptr()), const_cast<alglib_impl::ae_vector*>(x.c_ptr()), const_cast<alglib_impl::ae_vector*>(y.c_ptr()), &_alglib_env_state);
+    alglib_impl::ae_state_clear(&_alglib_env_state);
+    return;
+}
+
+/*************************************************************************
+Relative classification error on the test set
+
+INPUT PARAMETERS:
+    Model   -   KNN model
+    XY      -   test set
+    NPoints -   test set size
+
+RESULT:
+    percent of incorrectly classified cases.
+    Zero if model solves regression task.
+
+NOTE: if  you  need several different kinds of error metrics, it is better
+      to use knnallerrors() which computes all error metric  with just one
+      pass over dataset.
+
+  -- ALGLIB --
+     Copyright 15.02.2019 by Bochkanov Sergey
+*************************************************************************/
+double knnrelclserror(const knnmodel &model, const real_2d_array &xy, const ae_int_t npoints, const xparams _xparams)
+{
+    jmp_buf _break_jump;
+    alglib_impl::ae_state _alglib_env_state;
+    alglib_impl::ae_state_init(&_alglib_env_state);
+    if( setjmp(_break_jump) )
+    {
+#if !defined(AE_NO_EXCEPTIONS)
+        _ALGLIB_CPP_EXCEPTION(_alglib_env_state.error_msg);
+#else
+        _ALGLIB_SET_ERROR_FLAG(_alglib_env_state.error_msg);
+        return 0;
+#endif
+    }
+    ae_state_set_break_jump(&_alglib_env_state, &_break_jump);
+    if( _xparams.flags!=0x0 )
+        ae_state_set_flags(&_alglib_env_state, _xparams.flags);
+    double result = alglib_impl::knnrelclserror(const_cast<alglib_impl::knnmodel*>(model.c_ptr()), const_cast<alglib_impl::ae_matrix*>(xy.c_ptr()), npoints, &_alglib_env_state);
+    alglib_impl::ae_state_clear(&_alglib_env_state);
+    return *(reinterpret_cast<double*>(&result));
+}
+
+/*************************************************************************
+Average cross-entropy (in bits per element) on the test set
+
+INPUT PARAMETERS:
+    Model   -   KNN model
+    XY      -   test set
+    NPoints -   test set size
+
+RESULT:
+    CrossEntropy/NPoints.
+    Zero if model solves regression task.
+
+NOTE: the cross-entropy metric is too unstable when used to  evaluate  KNN
+      models (such models can report exactly  zero probabilities),  so  we
+      do not recommend using it.
+
+NOTE: if  you  need several different kinds of error metrics, it is better
+      to use knnallerrors() which computes all error metric  with just one
+      pass over dataset.
+
+  -- ALGLIB --
+     Copyright 15.02.2019 by Bochkanov Sergey
+*************************************************************************/
+double knnavgce(const knnmodel &model, const real_2d_array &xy, const ae_int_t npoints, const xparams _xparams)
+{
+    jmp_buf _break_jump;
+    alglib_impl::ae_state _alglib_env_state;
+    alglib_impl::ae_state_init(&_alglib_env_state);
+    if( setjmp(_break_jump) )
+    {
+#if !defined(AE_NO_EXCEPTIONS)
+        _ALGLIB_CPP_EXCEPTION(_alglib_env_state.error_msg);
+#else
+        _ALGLIB_SET_ERROR_FLAG(_alglib_env_state.error_msg);
+        return 0;
+#endif
+    }
+    ae_state_set_break_jump(&_alglib_env_state, &_break_jump);
+    if( _xparams.flags!=0x0 )
+        ae_state_set_flags(&_alglib_env_state, _xparams.flags);
+    double result = alglib_impl::knnavgce(const_cast<alglib_impl::knnmodel*>(model.c_ptr()), const_cast<alglib_impl::ae_matrix*>(xy.c_ptr()), npoints, &_alglib_env_state);
+    alglib_impl::ae_state_clear(&_alglib_env_state);
+    return *(reinterpret_cast<double*>(&result));
+}
+
+/*************************************************************************
+RMS error on the test set.
+
+Its meaning for regression task is obvious. As for classification problems,
+RMS error means error when estimating posterior probabilities.
+
+INPUT PARAMETERS:
+    Model   -   KNN model
+    XY      -   test set
+    NPoints -   test set size
+
+RESULT:
+    root mean square error.
+
+NOTE: if  you  need several different kinds of error metrics, it is better
+      to use knnallerrors() which computes all error metric  with just one
+      pass over dataset.
+
+  -- ALGLIB --
+     Copyright 15.02.2019 by Bochkanov Sergey
+*************************************************************************/
+double knnrmserror(const knnmodel &model, const real_2d_array &xy, const ae_int_t npoints, const xparams _xparams)
+{
+    jmp_buf _break_jump;
+    alglib_impl::ae_state _alglib_env_state;
+    alglib_impl::ae_state_init(&_alglib_env_state);
+    if( setjmp(_break_jump) )
+    {
+#if !defined(AE_NO_EXCEPTIONS)
+        _ALGLIB_CPP_EXCEPTION(_alglib_env_state.error_msg);
+#else
+        _ALGLIB_SET_ERROR_FLAG(_alglib_env_state.error_msg);
+        return 0;
+#endif
+    }
+    ae_state_set_break_jump(&_alglib_env_state, &_break_jump);
+    if( _xparams.flags!=0x0 )
+        ae_state_set_flags(&_alglib_env_state, _xparams.flags);
+    double result = alglib_impl::knnrmserror(const_cast<alglib_impl::knnmodel*>(model.c_ptr()), const_cast<alglib_impl::ae_matrix*>(xy.c_ptr()), npoints, &_alglib_env_state);
+    alglib_impl::ae_state_clear(&_alglib_env_state);
+    return *(reinterpret_cast<double*>(&result));
+}
+
+/*************************************************************************
+Average error on the test set
+
+Its meaning for regression task is obvious. As for classification problems,
+average error means error when estimating posterior probabilities.
+
+INPUT PARAMETERS:
+    Model   -   KNN model
+    XY      -   test set
+    NPoints -   test set size
+
+RESULT:
+    average error
+
+NOTE: if  you  need several different kinds of error metrics, it is better
+      to use knnallerrors() which computes all error metric  with just one
+      pass over dataset.
+
+  -- ALGLIB --
+     Copyright 15.02.2019 by Bochkanov Sergey
+*************************************************************************/
+double knnavgerror(const knnmodel &model, const real_2d_array &xy, const ae_int_t npoints, const xparams _xparams)
+{
+    jmp_buf _break_jump;
+    alglib_impl::ae_state _alglib_env_state;
+    alglib_impl::ae_state_init(&_alglib_env_state);
+    if( setjmp(_break_jump) )
+    {
+#if !defined(AE_NO_EXCEPTIONS)
+        _ALGLIB_CPP_EXCEPTION(_alglib_env_state.error_msg);
+#else
+        _ALGLIB_SET_ERROR_FLAG(_alglib_env_state.error_msg);
+        return 0;
+#endif
+    }
+    ae_state_set_break_jump(&_alglib_env_state, &_break_jump);
+    if( _xparams.flags!=0x0 )
+        ae_state_set_flags(&_alglib_env_state, _xparams.flags);
+    double result = alglib_impl::knnavgerror(const_cast<alglib_impl::knnmodel*>(model.c_ptr()), const_cast<alglib_impl::ae_matrix*>(xy.c_ptr()), npoints, &_alglib_env_state);
+    alglib_impl::ae_state_clear(&_alglib_env_state);
+    return *(reinterpret_cast<double*>(&result));
+}
+
+/*************************************************************************
+Average relative error on the test set
+
+Its meaning for regression task is obvious. As for classification problems,
+average relative error means error when estimating posterior probabilities.
+
+INPUT PARAMETERS:
+    Model   -   KNN model
+    XY      -   test set
+    NPoints -   test set size
+
+RESULT:
+    average relative error
+
+NOTE: if  you  need several different kinds of error metrics, it is better
+      to use knnallerrors() which computes all error metric  with just one
+      pass over dataset.
+
+  -- ALGLIB --
+     Copyright 15.02.2019 by Bochkanov Sergey
+*************************************************************************/
+double knnavgrelerror(const knnmodel &model, const real_2d_array &xy, const ae_int_t npoints, const xparams _xparams)
+{
+    jmp_buf _break_jump;
+    alglib_impl::ae_state _alglib_env_state;
+    alglib_impl::ae_state_init(&_alglib_env_state);
+    if( setjmp(_break_jump) )
+    {
+#if !defined(AE_NO_EXCEPTIONS)
+        _ALGLIB_CPP_EXCEPTION(_alglib_env_state.error_msg);
+#else
+        _ALGLIB_SET_ERROR_FLAG(_alglib_env_state.error_msg);
+        return 0;
+#endif
+    }
+    ae_state_set_break_jump(&_alglib_env_state, &_break_jump);
+    if( _xparams.flags!=0x0 )
+        ae_state_set_flags(&_alglib_env_state, _xparams.flags);
+    double result = alglib_impl::knnavgrelerror(const_cast<alglib_impl::knnmodel*>(model.c_ptr()), const_cast<alglib_impl::ae_matrix*>(xy.c_ptr()), npoints, &_alglib_env_state);
+    alglib_impl::ae_state_clear(&_alglib_env_state);
+    return *(reinterpret_cast<double*>(&result));
+}
+
+/*************************************************************************
+Calculates all kinds of errors for the model in one call.
+
+INPUT PARAMETERS:
+    Model   -   KNN model
+    XY      -   test set:
+                * one row per point
+                * first NVars columns store independent variables
+                * depending on problem type:
+                  * next column stores class number in [0,NClasses) -  for
+                    classification problems
+                  * next NOut columns  store  dependent  variables  -  for
+                    regression problems
+    NPoints -   test set size, NPoints>=0
+
+OUTPUT PARAMETERS:
+    Rep     -   following fields are loaded with errors for both regression
+                and classification models:
+                * rep.rmserror - RMS error for the output
+                * rep.avgerror - average error
+                * rep.avgrelerror - average relative error
+                following fields are set only  for classification  models,
+                zero for regression ones:
+                * relclserror   - relative classification error, in [0,1]
+                * avgce - average cross-entropy in bits per dataset entry
+
+NOTE: the cross-entropy metric is too unstable when used to  evaluate  KNN
+      models (such models can report exactly  zero probabilities),  so  we
+      do not recommend using it.
+
+  -- ALGLIB --
+     Copyright 15.02.2019 by Bochkanov Sergey
+*************************************************************************/
+void knnallerrors(const knnmodel &model, const real_2d_array &xy, const ae_int_t npoints, knnreport &rep, const xparams _xparams)
+{
+    jmp_buf _break_jump;
+    alglib_impl::ae_state _alglib_env_state;
+    alglib_impl::ae_state_init(&_alglib_env_state);
+    if( setjmp(_break_jump) )
+    {
+#if !defined(AE_NO_EXCEPTIONS)
+        _ALGLIB_CPP_EXCEPTION(_alglib_env_state.error_msg);
+#else
+        _ALGLIB_SET_ERROR_FLAG(_alglib_env_state.error_msg);
+        return;
+#endif
+    }
+    ae_state_set_break_jump(&_alglib_env_state, &_break_jump);
+    if( _xparams.flags!=0x0 )
+        ae_state_set_flags(&_alglib_env_state, _xparams.flags);
+    alglib_impl::knnallerrors(const_cast<alglib_impl::knnmodel*>(model.c_ptr()), const_cast<alglib_impl::ae_matrix*>(xy.c_ptr()), npoints, const_cast<alglib_impl::knnreport*>(rep.c_ptr()), &_alglib_env_state);
     alglib_impl::ae_state_clear(&_alglib_env_state);
     return;
 }
@@ -14651,7 +16990,12 @@ static ae_int_t dforest_innernodewidth = 3;
 static ae_int_t dforest_leafnodewidth = 2;
 static ae_int_t dforest_dfusestrongsplits = 1;
 static ae_int_t dforest_dfuseevs = 2;
-static ae_int_t dforest_dffirstversion = 0;
+static ae_int_t dforest_dfuncompressedv0 = 0;
+static ae_int_t dforest_dfcompressedv0 = 1;
+static ae_int_t dforest_needtrngini = 1;
+static ae_int_t dforest_needoobgini = 2;
+static ae_int_t dforest_needpermutation = 3;
+static ae_int_t dforest_permutationimportancebatchsize = 512;
 static void dforest_buildrandomtree(decisionforestbuilder* s,
      ae_int_t treeidx0,
      ae_int_t treeidx1,
@@ -14670,9 +17014,48 @@ static void dforest_buildrandomtreerec(decisionforestbuilder* s,
      ae_int_t idx1,
      ae_int_t oobidx0,
      ae_int_t oobidx1,
+     double meanloss,
+     double topmostmeanloss,
      ae_int_t* treesize,
      ae_state *_state);
-static void dforest_cleanreport(dfreport* rep, ae_state *_state);
+static void dforest_estimatevariableimportance(decisionforestbuilder* s,
+     ae_int_t sessionseed,
+     decisionforest* df,
+     ae_int_t ntrees,
+     dfreport* rep,
+     ae_state *_state);
+ae_bool _trypexec_dforest_estimatevariableimportance(decisionforestbuilder* s,
+    ae_int_t sessionseed,
+    decisionforest* df,
+    ae_int_t ntrees,
+    dfreport* rep, ae_state *_state);
+static void dforest_estimatepermutationimportances(decisionforestbuilder* s,
+     decisionforest* df,
+     ae_int_t ntrees,
+     ae_shared_pool* permpool,
+     ae_int_t idx0,
+     ae_int_t idx1,
+     ae_state *_state);
+ae_bool _trypexec_dforest_estimatepermutationimportances(decisionforestbuilder* s,
+    decisionforest* df,
+    ae_int_t ntrees,
+    ae_shared_pool* permpool,
+    ae_int_t idx0,
+    ae_int_t idx1, ae_state *_state);
+static void dforest_cleanreport(decisionforestbuilder* s,
+     dfreport* rep,
+     ae_state *_state);
+static double dforest_meannrms2(ae_int_t nclasses,
+     /* Integer */ ae_vector* trnlabelsi,
+     /* Real    */ ae_vector* trnlabelsr,
+     ae_int_t trnidx0,
+     ae_int_t trnidx1,
+     /* Integer */ ae_vector* tstlabelsi,
+     /* Real    */ ae_vector* tstlabelsr,
+     ae_int_t tstidx0,
+     ae_int_t tstidx1,
+     /* Integer */ ae_vector* tmpi,
+     ae_state *_state);
 static void dforest_choosecurrentsplitdense(decisionforestbuilder* s,
      dfworkbuf* workbuf,
      ae_int_t* varsinpool,
@@ -14738,17 +17121,70 @@ static void dforest_mergetrees(decisionforestbuilder* s,
      decisionforest* df,
      ae_state *_state);
 static void dforest_processvotingresults(decisionforestbuilder* s,
+     ae_int_t ntrees,
      dfvotebuf* buf,
      dfreport* rep,
+     ae_state *_state);
+static double dforest_binarycompression(decisionforest* df,
+     ae_bool usemantissa8,
+     ae_state *_state);
+static ae_int_t dforest_computecompressedsizerec(decisionforest* df,
+     ae_bool usemantissa8,
+     ae_int_t treeroot,
+     ae_int_t treepos,
+     /* Integer */ ae_vector* compressedsizes,
+     ae_bool savecompressedsizes,
+     ae_state *_state);
+static void dforest_compressrec(decisionforest* df,
+     ae_bool usemantissa8,
+     ae_int_t treeroot,
+     ae_int_t treepos,
+     /* Integer */ ae_vector* compressedsizes,
+     ae_vector* buf,
+     ae_int_t* dstoffs,
+     ae_state *_state);
+static ae_int_t dforest_computecompresseduintsize(ae_int_t v,
+     ae_state *_state);
+static void dforest_streamuint(ae_vector* buf,
+     ae_int_t* offs,
+     ae_int_t v,
+     ae_state *_state);
+static ae_int_t dforest_unstreamuint(ae_vector* buf,
+     ae_int_t* offs,
+     ae_state *_state);
+static void dforest_streamfloat(ae_vector* buf,
+     ae_bool usemantissa8,
+     ae_int_t* offs,
+     double v,
+     ae_state *_state);
+static double dforest_unstreamfloat(ae_vector* buf,
+     ae_bool usemantissa8,
+     ae_int_t* offs,
      ae_state *_state);
 static ae_int_t dforest_dfclserror(decisionforest* df,
      /* Real    */ ae_matrix* xy,
      ae_int_t npoints,
      ae_state *_state);
-static void dforest_dfprocessinternal(decisionforest* df,
+static void dforest_dfprocessinternaluncompressed(decisionforest* df,
+     ae_int_t subtreeroot,
+     ae_int_t nodeoffs,
+     /* Real    */ ae_vector* x,
+     /* Real    */ ae_vector* y,
+     ae_state *_state);
+static void dforest_dfprocessinternalcompressed(decisionforest* df,
      ae_int_t offs,
      /* Real    */ ae_vector* x,
      /* Real    */ ae_vector* y,
+     ae_state *_state);
+static double dforest_xfastpow(double r, ae_int_t n, ae_state *_state);
+
+
+#endif
+#if defined(AE_COMPILE_KNN) || !defined(AE_PARTIAL_BUILD)
+static ae_int_t knn_knnfirstversion = 0;
+static void knn_clearreport(knnreport* rep, ae_state *_state);
+static void knn_processinternal(knnmodel* model,
+     knnbuffer* buf,
      ae_state *_state);
 
 
@@ -15164,8 +17600,13 @@ OUTPUT PARAMETERS:
                     matrix, whose columns store basis vectors.
                     
 NOTE: passing eps=0 and maxits=0 results in small eps  being  selected  as
-stopping condition. Exact value of automatically selected eps is  version-
--dependent.
+      a stopping condition. Exact value of automatically selected  eps  is
+      version-dependent.
+
+NOTE: zero  MaxIts  is  silently  replaced  by some reasonable value which
+      prevents eternal loops (possible when inputs are degenerate and  too
+      stringent stopping criteria are specified). In  current  version  it
+      is 50+2*NVars.
 
   -- ALGLIB --
      Copyright 10.01.2017 by Bochkanov Sergey
@@ -15268,6 +17709,14 @@ void pcatruncatedsubspacesparse(sparsematrix* x,
      */
     ae_vector_set_length(&b1, npoints, _state);
     ae_vector_set_length(&z1, nvars, _state);
+    if( ae_fp_eq(eps,(double)(0))&&maxits==0 )
+    {
+        eps = 1.0E-6;
+    }
+    if( maxits==0 )
+    {
+        maxits = 50+2*nvars;
+    }
     
     /*
      * Calculate mean values
@@ -23375,8 +25824,14 @@ static void mlpbase_mlpcreate(ae_int_t nin,
     ae_vector_set_length(&network->derror, ntotal-1+1, _state);
     
     /*
-     * Fill structure: global info
+     * Fill structure:
+     * * first, fill by dummy values to avoid spurious reports by Valgrind
+     * * then fill global info header
      */
+    for(i=0; i<=ssize-1; i++)
+    {
+        network->structinfo.ptr.p_int[i] = -999999;
+    }
     network->structinfo.ptr.p_int[0] = ssize;
     network->structinfo.ptr.p_int[1] = nin;
     network->structinfo.ptr.p_int[2] = nout;
@@ -42050,8 +44505,47 @@ void _kmeansreport_destroy(void* _p)
 
 
 /*************************************************************************
+This function creates buffer  structure  which  can  be  used  to  perform
+parallel inference requests.
+
+DF subpackage  provides two sets of computing functions - ones  which  use
+internal buffer of DF model  (these  functions are single-threaded because
+they use same buffer, which can not  shared  between  threads),  and  ones
+which use external buffer.
+
+This function is used to initialize external buffer.
+
+INPUT PARAMETERS
+    Model       -   DF model which is associated with newly created buffer
+
+OUTPUT PARAMETERS
+    Buf         -   external buffer.
+    
+    
+IMPORTANT: buffer object should be used only with model which was used  to
+           initialize buffer. Any attempt to  use  buffer  with  different
+           object is dangerous - you  may   get  integrity  check  failure
+           (exception) because sizes of internal  arrays  do  not  fit  to
+           dimensions of the model structure.
+
+  -- ALGLIB --
+     Copyright 15.02.2019 by Bochkanov Sergey
+*************************************************************************/
+void dfcreatebuffer(decisionforest* model,
+     decisionforestbuffer* buf,
+     ae_state *_state)
+{
+
+    _decisionforestbuffer_clear(buf);
+
+    ae_vector_set_length(&buf->x, model->nvars, _state);
+    ae_vector_set_length(&buf->y, model->nclasses, _state);
+}
+
+
+/*************************************************************************
 This subroutine creates DecisionForestBuilder  object  which  is  used  to
-train random forests.
+train decision forests.
 
 By default, new builder stores empty dataset and some  reasonable  default
 settings. At the very least, you should specify dataset prior to  building
@@ -42060,8 +44554,8 @@ algorithm (recommended, although default setting should work well).
 
 Following actions are mandatory:
 * calling dfbuildersetdataset() to specify dataset
-* calling dfbuilderbuildrandomforest() to build random forest using current
-  dataset and default settings
+* calling dfbuilderbuildrandomforest()  to  build  decision  forest  using
+  current dataset and default settings
   
 Additionally, you may call:
 * dfbuildersetrndvars() or dfbuildersetrndvarsratio() to specify number of
@@ -42101,6 +44595,7 @@ void dfbuildercreate(decisionforestbuilder* s, ae_state *_state)
     s->rdfvars = 0.0;
     s->rdfglobalseed = 0;
     s->rdfsplitstrength = 2;
+    s->rdfimportance = 0;
     
     /*
      * Other fields
@@ -42203,8 +44698,8 @@ void dfbuildersetdataset(decisionforestbuilder* s,
 
 
 /*************************************************************************
-This function sets number of variables (in [1,NVars] range) used by random
-forest construction algorithm.
+This function sets number  of  variables  (in  [1,NVars]  range)  used  by
+decision forest construction algorithm.
 
 The default option is to use roughly sqrt(NVars) variables.
 
@@ -42230,7 +44725,7 @@ void dfbuildersetrndvars(decisionforestbuilder* s,
 
 
 /*************************************************************************
-This function sets number of variables used by random forest  construction
+This function sets number of variables used by decision forest construction
 algorithm as a fraction of total variable count (0,1) range.
 
 The default option is to use roughly sqrt(NVars) variables.
@@ -42257,8 +44752,8 @@ void dfbuildersetrndvarsratio(decisionforestbuilder* s,
 
 
 /*************************************************************************
-This function tells random forest builder to automatically  choose  number
-of  variables  used  by  random  forest  construction  algorithm.  Roughly
+This function tells decision forest builder to automatically choose number
+of  variables  used  by  decision forest construction  algorithm.  Roughly
 sqrt(NVars) variables will be used.
 
 INPUT PARAMETERS:
@@ -42279,7 +44774,7 @@ void dfbuildersetrndvarsauto(decisionforestbuilder* s, ae_state *_state)
 
 
 /*************************************************************************
-This function sets size of dataset subsample generated the  random  forest
+This function sets size of dataset subsample generated the decision forest
 construction algorithm. Size is specified as a fraction of  total  dataset
 size.
 
@@ -42315,7 +44810,7 @@ void dfbuildersetsubsampleratio(decisionforestbuilder* s,
 This function sets seed used by internal RNG for  random  subsampling  and
 random selection of variable subsets.
 
-By default, random seed is used, i.e. every time you build random  forest,
+By default random seed is used, i.e. every time you build decision forest,
 we seed generator with new value  obtained  from  system-wide  RNG.  Thus,
 decision forest builder returns non-deterministic results. You can  change
 such behavior by specyfing fixed positive seed value.
@@ -42325,11 +44820,11 @@ INPUT PARAMETERS:
     SeedVal     -   seed value:
                     * positive values are used for seeding RNG with fixed
                       seed, i.e. subsequent runs on same data will return
-                      same random forests
+                      same decision forests
                     * non-positive seed means that random seed is used
                       for every run of builder, i.e. subsequent  runs  on
-                      same datasets will return slightly different random
-                      forests
+                      same  datasets  will  return   slightly   different
+                      decision forests
 
 OUTPUT PARAMETERS:
     S           -   decision forest builder, see
@@ -42350,7 +44845,7 @@ void dfbuildersetseed(decisionforestbuilder* s,
 /*************************************************************************
 This function sets random decision forest construction algorithm.
 
-As for now, only one random forest construction algorithm is  supported  -
+As for now, only one decision forest construction algorithm is supported -
 a dense "baseline" RDF algorithm.
 
 INPUT PARAMETERS:
@@ -42376,7 +44871,7 @@ void dfbuildersetrdfalgo(decisionforestbuilder* s,
 
 
 /*************************************************************************
-This  function  sets  split  selection  algorithm  used  by random forests
+This  function  sets  split  selection  algorithm used by decision  forest
 classifier. You may choose several algorithms, with  different  speed  and
 quality of the results.
 
@@ -42405,12 +44900,256 @@ void dfbuildersetrdfsplitstrength(decisionforestbuilder* s,
 
 
 /*************************************************************************
-This function is used to peek into random forest construction process from
-other thread and get current progress indicator. It returns value in [0,1].
+This  function  tells  decision  forest  construction  algorithm  to   use
+Gini impurity based variable importance estimation (also known as MDI).
+
+This version of importance estimation algorithm analyzes mean decrease  in
+impurity (MDI) on training sample during  splits.  The result  is  divided
+by impurity at the root node in order to produce estimate in [0,1] range.
+
+Such estimates are fast to calculate and beautifully  normalized  (sum  to
+one) but have following downsides:
+* They ALWAYS sum to 1.0, even if output is completely unpredictable. I.e.
+  MDI allows to order variables by importance, but does not  tell us about
+  "absolute" importances of variables
+* there exist some bias towards continuous and high-cardinality categorical
+  variables
+  
+NOTE: informally speaking, MDA (permutation importance) rating answers the
+      question  "what  part  of  the  model  predictive power is ruined by
+      permuting k-th variable?" while MDI tells us "what part of the model
+      predictive power was achieved due to usage of k-th variable".
+
+      Thus, MDA rates each variable independently at "0 to 1"  scale while
+      MDI (and OOB-MDI too) tends to divide "unit  amount  of  importance"
+      between several important variables.
+      
+      If  all  variables  are  equally  important,  they  will  have  same
+      MDI/OOB-MDI rating, equal (for OOB-MDI: roughly equal)  to  1/NVars.
+      However, roughly  same  picture  will  be  produced   for  the  "all
+      variables provide information no one is critical" situation  and for
+      the "all variables are critical, drop any one, everything is ruined"
+      situation.
+      
+      Contrary to that, MDA will rate critical variable as ~1.0 important,
+      and important but non-critical variable will  have  less  than  unit
+      rating.
+
+NOTE: quite an often MDA and MDI return same results. It generally happens
+      on problems with low test set error (a few  percents  at  most)  and
+      large enough training set to avoid overfitting.
+      
+      The difference between MDA, MDI and OOB-MDI becomes  important  only
+      on "hard" tasks with high test set error and/or small training set.
 
 INPUT PARAMETERS:
-    S           -   decision forest builder object used  to  build  random
-                    forest in some other thread
+    S           -   decision forest builder object
+
+OUTPUT PARAMETERS:
+    S           -   decision forest builder object. Next call to the forest
+                    construction function will produce:
+                    * importance estimates in rep.varimportances field
+                    * variable ranks in rep.topvars field
+
+  -- ALGLIB --
+     Copyright 29.07.2019 by Bochkanov Sergey
+*************************************************************************/
+void dfbuildersetimportancetrngini(decisionforestbuilder* s,
+     ae_state *_state)
+{
+
+
+    s->rdfimportance = dforest_needtrngini;
+}
+
+
+/*************************************************************************
+This  function  tells  decision  forest  construction  algorithm  to   use
+out-of-bag version of Gini variable importance estimation (also  known  as
+OOB-MDI).
+
+This version of importance estimation algorithm analyzes mean decrease  in
+impurity (MDI) on out-of-bag sample during splits. The result  is  divided
+by impurity at the root node in order to produce estimate in [0,1] range.
+
+Such estimates are fast to calculate and resistant to  overfitting  issues
+(thanks to the  out-of-bag  estimates  used). However, OOB Gini rating has
+following downsides:
+* there exist some bias towards continuous and high-cardinality categorical
+  variables
+* Gini rating allows us to order variables by importance, but it  is  hard
+  to define importance of the variable by itself.
+  
+NOTE: informally speaking, MDA (permutation importance) rating answers the
+      question  "what  part  of  the  model  predictive power is ruined by
+      permuting k-th variable?" while MDI tells us "what part of the model
+      predictive power was achieved due to usage of k-th variable".
+
+      Thus, MDA rates each variable independently at "0 to 1"  scale while
+      MDI (and OOB-MDI too) tends to divide "unit  amount  of  importance"
+      between several important variables.
+      
+      If  all  variables  are  equally  important,  they  will  have  same
+      MDI/OOB-MDI rating, equal (for OOB-MDI: roughly equal)  to  1/NVars.
+      However, roughly  same  picture  will  be  produced   for  the  "all
+      variables provide information no one is critical" situation  and for
+      the "all variables are critical, drop any one, everything is ruined"
+      situation.
+      
+      Contrary to that, MDA will rate critical variable as ~1.0 important,
+      and important but non-critical variable will  have  less  than  unit
+      rating.
+
+NOTE: quite an often MDA and MDI return same results. It generally happens
+      on problems with low test set error (a few  percents  at  most)  and
+      large enough training set to avoid overfitting.
+      
+      The difference between MDA, MDI and OOB-MDI becomes  important  only
+      on "hard" tasks with high test set error and/or small training set.
+
+INPUT PARAMETERS:
+    S           -   decision forest builder object
+
+OUTPUT PARAMETERS:
+    S           -   decision forest builder object. Next call to the forest
+                    construction function will produce:
+                    * importance estimates in rep.varimportances field
+                    * variable ranks in rep.topvars field
+
+  -- ALGLIB --
+     Copyright 29.07.2019 by Bochkanov Sergey
+*************************************************************************/
+void dfbuildersetimportanceoobgini(decisionforestbuilder* s,
+     ae_state *_state)
+{
+
+
+    s->rdfimportance = dforest_needoobgini;
+}
+
+
+/*************************************************************************
+This  function  tells  decision  forest  construction  algorithm  to   use
+permutation variable importance estimator (also known as MDA).
+
+This version of importance estimation algorithm analyzes mean increase  in
+out-of-bag sum of squared  residuals  after  random  permutation  of  J-th
+variable. The result is divided by error computed with all variables being
+perturbed in order to produce R-squared-like estimate in [0,1] range.
+
+Such estimate  is  slower to calculate than Gini-based rating  because  it
+needs multiple inference runs for each of variables being studied.
+
+ALGLIB uses parallelized and highly  optimized  algorithm  which  analyzes
+path through the decision tree and allows  to  handle  most  perturbations
+in O(1) time; nevertheless, requesting MDA importances may increase forest
+construction time from 10% to 200% (or more,  if  you  have  thousands  of
+variables).
+
+However, MDA rating has following benefits over Gini-based ones:
+* no bias towards specific variable types
+* ability to directly evaluate "absolute" importance of some  variable  at
+  "0 to 1" scale (contrary to Gini-based rating, which returns comparative
+  importances).
+  
+NOTE: informally speaking, MDA (permutation importance) rating answers the
+      question  "what  part  of  the  model  predictive power is ruined by
+      permuting k-th variable?" while MDI tells us "what part of the model
+      predictive power was achieved due to usage of k-th variable".
+
+      Thus, MDA rates each variable independently at "0 to 1"  scale while
+      MDI (and OOB-MDI too) tends to divide "unit  amount  of  importance"
+      between several important variables.
+      
+      If  all  variables  are  equally  important,  they  will  have  same
+      MDI/OOB-MDI rating, equal (for OOB-MDI: roughly equal)  to  1/NVars.
+      However, roughly  same  picture  will  be  produced   for  the  "all
+      variables provide information no one is critical" situation  and for
+      the "all variables are critical, drop any one, everything is ruined"
+      situation.
+      
+      Contrary to that, MDA will rate critical variable as ~1.0 important,
+      and important but non-critical variable will  have  less  than  unit
+      rating.
+
+NOTE: quite an often MDA and MDI return same results. It generally happens
+      on problems with low test set error (a few  percents  at  most)  and
+      large enough training set to avoid overfitting.
+      
+      The difference between MDA, MDI and OOB-MDI becomes  important  only
+      on "hard" tasks with high test set error and/or small training set.
+
+INPUT PARAMETERS:
+    S           -   decision forest builder object
+
+OUTPUT PARAMETERS:
+    S           -   decision forest builder object. Next call to the forest
+                    construction function will produce:
+                    * importance estimates in rep.varimportances field
+                    * variable ranks in rep.topvars field
+
+  -- ALGLIB --
+     Copyright 29.07.2019 by Bochkanov Sergey
+*************************************************************************/
+void dfbuildersetimportancepermutation(decisionforestbuilder* s,
+     ae_state *_state)
+{
+
+
+    s->rdfimportance = dforest_needpermutation;
+}
+
+
+/*************************************************************************
+This  function  tells  decision  forest  construction  algorithm  to  skip
+variable importance estimation.
+
+INPUT PARAMETERS:
+    S           -   decision forest builder object
+
+OUTPUT PARAMETERS:
+    S           -   decision forest builder object. Next call to the forest
+                    construction function will result in forest being built
+                    without variable importance estimation.
+
+  -- ALGLIB --
+     Copyright 29.07.2019 by Bochkanov Sergey
+*************************************************************************/
+void dfbuildersetimportancenone(decisionforestbuilder* s,
+     ae_state *_state)
+{
+
+
+    s->rdfimportance = 0;
+}
+
+
+/*************************************************************************
+This function is an alias for dfbuilderpeekprogress(), left in ALGLIB  for
+backward compatibility reasons.
+
+  -- ALGLIB --
+     Copyright 21.05.2018 by Bochkanov Sergey
+*************************************************************************/
+double dfbuildergetprogress(decisionforestbuilder* s, ae_state *_state)
+{
+    double result;
+
+
+    result = dfbuilderpeekprogress(s, _state);
+    return result;
+}
+
+
+/*************************************************************************
+This function is used to peek into  decision  forest  construction process
+from some other thread and get current progress indicator.
+
+It returns value in [0,1].
+
+INPUT PARAMETERS:
+    S           -   decision forest builder object used  to  build  forest
+                    in some other thread
 
 RESULT:
     progress value, in [0,1]
@@ -42418,7 +45157,7 @@ RESULT:
   -- ALGLIB --
      Copyright 21.05.2018 by Bochkanov Sergey
 *************************************************************************/
-double dfbuildergetprogress(decisionforestbuilder* s, ae_state *_state)
+double dfbuilderpeekprogress(decisionforestbuilder* s, ae_state *_state)
 {
     double result;
 
@@ -42431,11 +45170,23 @@ double dfbuildergetprogress(decisionforestbuilder* s, ae_state *_state)
 
 
 /*************************************************************************
-This subroutine builds random forest according to current settings,  using
+This subroutine builds decision forest according to current settings using
 dataset internally stored in the builder object. Dense algorithm is used.
 
 NOTE: this   function   uses   dense  algorithm  for  forest  construction
       independently from the dataset format (dense or sparse).
+  
+NOTE: forest built with this function is  stored  in-memory  using  64-bit
+      data structures for offsets/indexes/split values. It is possible  to
+      convert  forest  into  more  memory-efficient   compressed    binary
+      representation.  Depending  on  the  problem  properties,  3.7x-5.7x
+      compression factors are possible.
+      
+      The downsides of compression are (a) slight reduction in  the  model
+      accuracy and (b) ~1.5x reduction in  the  inference  speed  (due  to
+      increased complexity of the storage format).
+      
+      See comments on dfbinarycompression() for more info.
 
 Default settings are used by the algorithm; you can tweak  them  with  the
 help of the following functions:
@@ -42460,8 +45211,35 @@ INPUT PARAMETERS:
     NTrees      -   NTrees>=1, number of trees to train
 
 OUTPUT PARAMETERS:
-    DF          -   decision forest
-    Rep         -   report
+    DF          -   decision forest. You can compress this forest to  more
+                    compact 16-bit representation with dfbinarycompression()
+    Rep         -   report, see below for information on its fields.
+    
+=== report information produced by forest construction function ==========
+
+Decision forest training report includes following information:
+* training set errors
+* out-of-bag estimates of errors
+* variable importance ratings
+
+Following fields are used to store information:
+* training set errors are stored in rep.relclserror, rep.avgce, rep.rmserror,
+  rep.avgerror and rep.avgrelerror
+* out-of-bag estimates of errors are stored in rep.oobrelclserror, rep.oobavgce,
+  rep.oobrmserror, rep.oobavgerror and rep.oobavgrelerror
+
+Variable importance reports, if requested by dfbuildersetimportancegini(),
+dfbuildersetimportancetrngini() or dfbuildersetimportancepermutation()
+call, are stored in:
+* rep.varimportances field stores importance ratings
+* rep.topvars stores variable indexes ordered from the most important to
+  less important ones
+
+You can find more information about report fields in:
+* comments on dfreport structure
+* comments on dfbuildersetimportancegini function
+* comments on dfbuildersetimportancetrngini function
+* comments on dfbuildersetimportancepermutation function
 
   -- ALGLIB --
      Copyright 21.05.2018 by Bochkanov Sergey
@@ -42474,11 +45252,13 @@ void dfbuilderbuildrandomforest(decisionforestbuilder* s,
 {
     ae_frame _frame_block;
     ae_int_t i;
+    ae_int_t j;
     ae_int_t nvars;
     ae_int_t nclasses;
     ae_int_t npoints;
     ae_int_t trnsize;
     ae_int_t maxtreesize;
+    ae_int_t sessionseed;
     dfworkbuf workbufseed;
     dfvotebuf votebufseed;
     dftreebuf treebufseed;
@@ -42494,7 +45274,7 @@ void dfbuilderbuildrandomforest(decisionforestbuilder* s,
     _dftreebuf_init(&treebufseed, _state, ae_true);
 
     ae_assert(ntrees>=1, "DFBuilderBuildRandomForest: ntrees<1", _state);
-    dforest_cleanreport(rep, _state);
+    dforest_cleanreport(s, rep, _state);
     npoints = s->npoints;
     nvars = s->nvars;
     nclasses = s->nclasses;
@@ -42503,14 +45283,19 @@ void dfbuilderbuildrandomforest(decisionforestbuilder* s,
      * Set up progress counter
      */
     s->rdfprogress = 0;
-    s->rdftotal = ntrees;
+    s->rdftotal = ntrees*npoints;
+    if( s->rdfimportance==dforest_needpermutation )
+    {
+        s->rdftotal = s->rdftotal+ntrees*npoints;
+    }
     
     /*
      * Quick exit for empty dataset
      */
-    if( s->dstype==-1 )
+    if( s->dstype==-1||npoints==0 )
     {
         ae_assert(dforest_leafnodewidth==2, "DFBuilderBuildRandomForest: integrity check failed", _state);
+        df->forestformat = dforest_dfuncompressedv0;
         df->nvars = s->nvars;
         df->nclasses = s->nclasses;
         df->ntrees = 1;
@@ -42519,9 +45304,11 @@ void dfbuilderbuildrandomforest(decisionforestbuilder* s,
         df->trees.ptr.p_double[0] = (double)(1+dforest_leafnodewidth);
         df->trees.ptr.p_double[1] = (double)(-1);
         df->trees.ptr.p_double[2] = 0.0;
+        dfcreatebuffer(df, &df->buffer, _state);
         ae_frame_leave(_state);
         return;
     }
+    ae_assert(npoints>0, "DFBuilderBuildRandomForest: integrity check failed", _state);
     
     /*
      * Analyze dataset statistics, perform preprocessing
@@ -42529,7 +45316,7 @@ void dfbuilderbuildrandomforest(decisionforestbuilder* s,
     dforest_analyzeandpreprocessdataset(s, _state);
     
     /*
-     * Prepare "work", "vote" and "tree" pools
+     * Prepare "work", "vote" and "tree" pools and other settings
      */
     trnsize = ae_round(npoints*s->rdfratio, _state);
     trnsize = ae_maxint(trnsize, 1, _state);
@@ -42546,6 +45333,8 @@ void dfbuilderbuildrandomforest(decisionforestbuilder* s,
     ae_vector_set_length(&workbufseed.tmp3r, npoints, _state);
     ae_vector_set_length(&workbufseed.trnlabelsi, npoints, _state);
     ae_vector_set_length(&workbufseed.trnlabelsr, npoints, _state);
+    ae_vector_set_length(&workbufseed.ooblabelsi, npoints, _state);
+    ae_vector_set_length(&workbufseed.ooblabelsr, npoints, _state);
     ae_vector_set_length(&workbufseed.curvals, npoints, _state);
     ae_vector_set_length(&workbufseed.bestvals, npoints, _state);
     ae_vector_set_length(&workbufseed.classpriors, nclasses, _state);
@@ -42569,10 +45358,46 @@ void dfbuilderbuildrandomforest(decisionforestbuilder* s,
         votebufseed.trncounts.ptr.p_int[i] = 0;
         votebufseed.oobcounts.ptr.p_int[i] = 0;
     }
+    ae_vector_set_length(&votebufseed.giniimportances, nvars, _state);
+    for(i=0; i<=nvars-1; i++)
+    {
+        votebufseed.giniimportances.ptr.p_double[i] = 0.0;
+    }
+    treebufseed.treeidx = -1;
     ae_shared_pool_set_seed(&s->workpool, &workbufseed, sizeof(workbufseed), _dfworkbuf_init, _dfworkbuf_init_copy, _dfworkbuf_destroy, _state);
     ae_shared_pool_set_seed(&s->votepool, &votebufseed, sizeof(votebufseed), _dfvotebuf_init, _dfvotebuf_init_copy, _dfvotebuf_destroy, _state);
     ae_shared_pool_set_seed(&s->treepool, &treebufseed, sizeof(treebufseed), _dftreebuf_init, _dftreebuf_init_copy, _dftreebuf_destroy, _state);
     ae_shared_pool_set_seed(&s->treefactory, &treebufseed, sizeof(treebufseed), _dftreebuf_init, _dftreebuf_init_copy, _dftreebuf_destroy, _state);
+    
+    /*
+     * Select session seed (individual trees are constructed using
+     * combination of session and local seeds).
+     */
+    sessionseed = s->rdfglobalseed;
+    if( s->rdfglobalseed<=0 )
+    {
+        sessionseed = ae_randominteger(30000, _state);
+    }
+    
+    /*
+     * Prepare In-and-Out-of-Bag matrix, if needed
+     */
+    s->neediobmatrix = s->rdfimportance==dforest_needpermutation;
+    if( s->neediobmatrix )
+    {
+        
+        /*
+         * Prepare default state of In-and-Out-of-Bag matrix
+         */
+        bmatrixsetlengthatleast(&s->iobmatrix, ntrees, npoints, _state);
+        for(i=0; i<=ntrees-1; i++)
+        {
+            for(j=0; j<=npoints-1; j++)
+            {
+                s->iobmatrix.ptr.pp_bool[i][j] = ae_false;
+            }
+        }
+    }
     
     /*
      * Build trees (in parallel, if possible)
@@ -42585,9 +45410,16 @@ void dfbuilderbuildrandomforest(decisionforestbuilder* s,
     dforest_mergetrees(s, df, _state);
     
     /*
-     * Process voting results and output training set and OOB errors
+     * Process voting results and output training set and OOB errors.
+     * Finalize tree construction.
      */
-    dforest_processvotingresults(s, &votebufseed, rep, _state);
+    dforest_processvotingresults(s, ntrees, &votebufseed, rep, _state);
+    dfcreatebuffer(df, &df->buffer, _state);
+    
+    /*
+     * Perform variable importance estimation
+     */
+    dforest_estimatevariableimportance(s, sessionseed, df, ntrees, rep, _state);
     
     /*
      * Update progress counter
@@ -42598,17 +45430,92 @@ void dfbuilderbuildrandomforest(decisionforestbuilder* s,
 
 
 /*************************************************************************
-Procesing
+This function performs binary compression of the decision forest.
+
+Original decision forest produced by the  forest  builder  is stored using
+64-bit representation for all numbers - offsets, variable  indexes,  split
+points.
+
+It is possible to significantly reduce model size by means of:
+* using compressed  dynamic encoding for integers  (offsets  and  variable
+  indexes), which uses just 1 byte to store small ints  (less  than  128),
+  just 2 bytes for larger values (less than 128^2) and so on
+* storing floating point numbers using 8-bit exponent and 16-bit mantissa
+
+As  result,  model  needs  significantly  less  memory (compression factor
+depends on  variable and class counts). In particular:
+* NVars<128   and NClasses<128 result in 4.4x-5.7x model size reduction
+* NVars<16384 and NClasses<128 result in 3.7x-4.5x model size reduction
+
+Such storage format performs lossless compression  of  all  integers,  but
+compression of floating point values (split values) is lossy, with roughly
+0.01% relative error introduced during rounding. Thus, we recommend you to
+re-evaluate model accuracy after compression.
+
+Another downside  of  compression  is  ~1.5x reduction  in  the  inference
+speed due to necessity of dynamic decompression of the compressed model.
+
+INPUT PARAMETERS:
+    DF      -   decision forest built by forest builder
+
+OUTPUT PARAMETERS:
+    DF      -   replaced by compressed forest
+
+RESULT:
+    compression factor (in-RAM size of the compressed model vs than of the
+    uncompressed one), positive number larger than 1.0
+
+  -- ALGLIB --
+     Copyright 22.07.2019 by Bochkanov Sergey
+*************************************************************************/
+double dfbinarycompression(decisionforest* df, ae_state *_state)
+{
+    double result;
+
+
+    result = dforest_binarycompression(df, ae_false, _state);
+    return result;
+}
+
+
+/*************************************************************************
+This is a 8-bit version of dfbinarycompression.
+Not recommended for external use because it is too lossy.
+
+  -- ALGLIB --
+     Copyright 22.07.2019 by Bochkanov Sergey
+*************************************************************************/
+double dfbinarycompression8(decisionforest* df, ae_state *_state)
+{
+    double result;
+
+
+    result = dforest_binarycompression(df, ae_true, _state);
+    return result;
+}
+
+
+/*************************************************************************
+Inference using decision forest
+
+IMPORTANT: this  function  is  thread-unsafe  and  may   modify   internal
+           structures of the model! You can not use same model  object for
+           parallel evaluation from several threads.
+           
+           Use dftsprocess()  with  independent  thread-local  buffers  if
+           you need thread-safe evaluation.
 
 INPUT PARAMETERS:
     DF      -   decision forest model
-    X       -   input vector,  array[0..NVars-1].
+    X       -   input vector,  array[NVars]
+    Y       -   possibly preallocated buffer, reallocated if too small
 
 OUTPUT PARAMETERS:
     Y       -   result. Regression estimate when solving regression  task,
                 vector of posterior probabilities for classification task.
 
 See also DFProcessI.
+      
 
   -- ALGLIB --
      Copyright 16.02.2009 by Bochkanov Sergey
@@ -42621,34 +45528,59 @@ void dfprocess(decisionforest* df,
     ae_int_t offs;
     ae_int_t i;
     double v;
+    ae_int_t treesize;
+    ae_bool processed;
 
 
     
     /*
-     * Proceed
+     * Process
+     *
+     * Although comments above warn you about thread-unsafety of this
+     * function, it is de facto thread-safe. However, thread safety is
+     * an accidental side-effect of the specific inference algorithm
+     * being used. It may disappear in the future versions of the DF
+     * models, so you should NOT rely on it.
      */
     if( y->cnt<df->nclasses )
     {
         ae_vector_set_length(y, df->nclasses, _state);
     }
-    offs = 0;
     for(i=0; i<=df->nclasses-1; i++)
     {
         y->ptr.p_double[i] = (double)(0);
     }
-    for(i=0; i<=df->ntrees-1; i++)
+    processed = ae_false;
+    if( df->forestformat==dforest_dfuncompressedv0 )
     {
         
         /*
-         * Process basic tree
+         * Process trees stored in uncompressed format
          */
-        dforest_dfprocessinternal(df, offs, x, y, _state);
+        offs = 0;
+        for(i=0; i<=df->ntrees-1; i++)
+        {
+            dforest_dfprocessinternaluncompressed(df, offs, offs+1, x, y, _state);
+            offs = offs+ae_round(df->trees.ptr.p_double[offs], _state);
+        }
+        processed = ae_true;
+    }
+    if( df->forestformat==dforest_dfcompressedv0 )
+    {
         
         /*
-         * Next tree
+         * Process trees stored in compressed format
          */
-        offs = offs+ae_round(df->trees.ptr.p_double[offs], _state);
+        offs = 0;
+        for(i=0; i<=df->ntrees-1; i++)
+        {
+            treesize = dforest_unstreamuint(&df->trees8, &offs, _state);
+            dforest_dfprocessinternalcompressed(df, offs, x, y, _state);
+            offs = offs+treesize;
+        }
+        processed = ae_true;
     }
+    ae_assert(processed, "DFProcess: integrity check failed (unexpected format?)", _state);
     v = (double)1/(double)df->ntrees;
     ae_v_muld(&y->ptr.p_double[0], 1, ae_v_len(0,df->nclasses-1), v);
 }
@@ -42662,6 +45594,13 @@ This function allocates new array on each call,  so  it  is  significantly
 slower than its 'non-interactive' counterpart, but it is  more  convenient
 when you call it from command line.
 
+IMPORTANT: this  function  is  thread-unsafe  and  may   modify   internal
+           structures of the model! You can not use same model  object for
+           parallel evaluation from several threads.
+           
+           Use dftsprocess()  with  independent  thread-local  buffers  if
+           you need thread-safe evaluation.
+
   -- ALGLIB --
      Copyright 28.02.2010 by Bochkanov Sergey
 *************************************************************************/
@@ -42673,6 +45612,163 @@ void dfprocessi(decisionforest* df,
 
     ae_vector_clear(y);
 
+    dfprocess(df, x, y, _state);
+}
+
+
+/*************************************************************************
+This function returns first component of the  inferred  vector  (i.e.  one
+with index #0).
+
+It is a convenience wrapper for dfprocess() intended for either:
+* 1-dimensional regression problems
+* 2-class classification problems
+
+In the former case this function returns inference result as scalar, which
+is definitely more convenient that wrapping it as vector.  In  the  latter
+case it returns probability of object belonging to class #0.
+
+If you call it for anything different from two cases above, it  will  work
+as defined, i.e. return y[0], although it is of less use in such cases.
+
+IMPORTANT: this function is thread-unsafe and modifies internal structures
+           of the model! You can not use same model  object  for  parallel
+           evaluation from several threads.
+           
+           Use dftsprocess() with  independent  thread-local  buffers,  if
+           you need thread-safe evaluation.
+
+INPUT PARAMETERS:
+    Model   -   DF model
+    X       -   input vector,  array[0..NVars-1].
+
+RESULT:
+    Y[0]
+
+  -- ALGLIB --
+     Copyright 15.02.2019 by Bochkanov Sergey
+*************************************************************************/
+double dfprocess0(decisionforest* model,
+     /* Real    */ ae_vector* x,
+     ae_state *_state)
+{
+    ae_int_t i;
+    ae_int_t nvars;
+    double result;
+
+
+    nvars = model->nvars;
+    for(i=0; i<=nvars-1; i++)
+    {
+        model->buffer.x.ptr.p_double[i] = x->ptr.p_double[i];
+    }
+    dfprocess(model, &model->buffer.x, &model->buffer.y, _state);
+    result = model->buffer.y.ptr.p_double[0];
+    return result;
+}
+
+
+/*************************************************************************
+This function returns most probable class number for an  input  X.  It  is
+same as calling  dfprocess(model,x,y), then determining i=argmax(y[i]) and
+returning i.
+
+A class number in [0,NOut) range in returned for classification  problems,
+-1 is returned when this function is called for regression problems.
+
+IMPORTANT: this function is thread-unsafe and modifies internal structures
+           of the model! You can not use same model  object  for  parallel
+           evaluation from several threads.
+           
+           Use dftsprocess()  with independent  thread-local  buffers,  if
+           you need thread-safe evaluation.
+
+INPUT PARAMETERS:
+    Model   -   decision forest model
+    X       -   input vector,  array[0..NVars-1].
+
+RESULT:
+    class number, -1 for regression tasks
+
+  -- ALGLIB --
+     Copyright 15.02.2019 by Bochkanov Sergey
+*************************************************************************/
+ae_int_t dfclassify(decisionforest* model,
+     /* Real    */ ae_vector* x,
+     ae_state *_state)
+{
+    ae_int_t i;
+    ae_int_t nvars;
+    ae_int_t nout;
+    ae_int_t result;
+
+
+    if( model->nclasses<2 )
+    {
+        result = -1;
+        return result;
+    }
+    nvars = model->nvars;
+    nout = model->nclasses;
+    for(i=0; i<=nvars-1; i++)
+    {
+        model->buffer.x.ptr.p_double[i] = x->ptr.p_double[i];
+    }
+    dfprocess(model, &model->buffer.x, &model->buffer.y, _state);
+    result = 0;
+    for(i=1; i<=nout-1; i++)
+    {
+        if( model->buffer.y.ptr.p_double[i]>model->buffer.y.ptr.p_double[result] )
+        {
+            result = i;
+        }
+    }
+    return result;
+}
+
+
+/*************************************************************************
+Inference using decision forest
+
+Thread-safe procesing using external buffer for temporaries.
+
+This function is thread-safe (i.e .  you  can  use  same  DF   model  from
+multiple threads) as long as you use different buffer objects for different
+threads.
+
+INPUT PARAMETERS:
+    DF      -   decision forest model
+    Buf     -   buffer object, must be  allocated  specifically  for  this
+                model with dfcreatebuffer().
+    X       -   input vector,  array[NVars]
+    Y       -   possibly preallocated buffer, reallocated if too small
+
+OUTPUT PARAMETERS:
+    Y       -   result. Regression estimate when solving regression  task,
+                vector of posterior probabilities for classification task.
+
+See also DFProcessI.
+      
+
+  -- ALGLIB --
+     Copyright 16.02.2009 by Bochkanov Sergey
+*************************************************************************/
+void dftsprocess(decisionforest* df,
+     decisionforestbuffer* buf,
+     /* Real    */ ae_vector* x,
+     /* Real    */ ae_vector* y,
+     ae_state *_state)
+{
+
+
+    
+    /*
+     * Although docs warn you about thread-unsafety of the dfprocess()
+     * function, it is de facto thread-safe. However, thread safety is
+     * an accidental side-effect of the specific inference algorithm
+     * being used. It may disappear in the future versions of the DF
+     * models, so you should NOT rely on it.
+     */
     dfprocess(df, x, y, _state);
 }
 
@@ -43036,15 +46132,40 @@ OUTPUT PARAMETERS:
 *************************************************************************/
 void dfcopy(decisionforest* df1, decisionforest* df2, ae_state *_state)
 {
+    ae_int_t i;
+    ae_int_t bufsize;
 
     _decisionforest_clear(df2);
 
-    df2->nvars = df1->nvars;
-    df2->nclasses = df1->nclasses;
-    df2->ntrees = df1->ntrees;
-    df2->bufsize = df1->bufsize;
-    ae_vector_set_length(&df2->trees, df1->bufsize-1+1, _state);
-    ae_v_move(&df2->trees.ptr.p_double[0], 1, &df1->trees.ptr.p_double[0], 1, ae_v_len(0,df1->bufsize-1));
+    if( df1->forestformat==dforest_dfuncompressedv0 )
+    {
+        df2->forestformat = df1->forestformat;
+        df2->nvars = df1->nvars;
+        df2->nclasses = df1->nclasses;
+        df2->ntrees = df1->ntrees;
+        df2->bufsize = df1->bufsize;
+        ae_vector_set_length(&df2->trees, df1->bufsize, _state);
+        ae_v_move(&df2->trees.ptr.p_double[0], 1, &df1->trees.ptr.p_double[0], 1, ae_v_len(0,df1->bufsize-1));
+        dfcreatebuffer(df2, &df2->buffer, _state);
+        return;
+    }
+    if( df1->forestformat==dforest_dfcompressedv0 )
+    {
+        df2->forestformat = df1->forestformat;
+        df2->usemantissa8 = df1->usemantissa8;
+        df2->nvars = df1->nvars;
+        df2->nclasses = df1->nclasses;
+        df2->ntrees = df1->ntrees;
+        bufsize = df1->trees8.cnt;
+        ae_vector_set_length(&(df2->trees8), bufsize, _state);
+        for(i=0; i<=bufsize-1; i++)
+        {
+            df2->trees8.ptr.p_ubyte[i] = (unsigned char)(df1->trees8.ptr.p_ubyte[i]);
+        }
+        dfcreatebuffer(df2, &df2->buffer, _state);
+        return;
+    }
+    ae_assert(ae_false, "DFCopy: unexpected forest format", _state);
 }
 
 
@@ -43058,13 +46179,29 @@ void dfalloc(ae_serializer* s, decisionforest* forest, ae_state *_state)
 {
 
 
-    ae_serializer_alloc_entry(s);
-    ae_serializer_alloc_entry(s);
-    ae_serializer_alloc_entry(s);
-    ae_serializer_alloc_entry(s);
-    ae_serializer_alloc_entry(s);
-    ae_serializer_alloc_entry(s);
-    allocrealarray(s, &forest->trees, forest->bufsize, _state);
+    if( forest->forestformat==dforest_dfuncompressedv0 )
+    {
+        ae_serializer_alloc_entry(s);
+        ae_serializer_alloc_entry(s);
+        ae_serializer_alloc_entry(s);
+        ae_serializer_alloc_entry(s);
+        ae_serializer_alloc_entry(s);
+        ae_serializer_alloc_entry(s);
+        allocrealarray(s, &forest->trees, forest->bufsize, _state);
+        return;
+    }
+    if( forest->forestformat==dforest_dfcompressedv0 )
+    {
+        ae_serializer_alloc_entry(s);
+        ae_serializer_alloc_entry(s);
+        ae_serializer_alloc_entry(s);
+        ae_serializer_alloc_entry(s);
+        ae_serializer_alloc_entry(s);
+        ae_serializer_alloc_entry(s);
+        ae_serializer_alloc_byte_array(s, &forest->trees8);
+        return;
+    }
+    ae_assert(ae_false, "DFAlloc: unexpected forest format", _state);
 }
 
 
@@ -43080,13 +46217,29 @@ void dfserialize(ae_serializer* s,
 {
 
 
-    ae_serializer_serialize_int(s, getrdfserializationcode(_state), _state);
-    ae_serializer_serialize_int(s, dforest_dffirstversion, _state);
-    ae_serializer_serialize_int(s, forest->nvars, _state);
-    ae_serializer_serialize_int(s, forest->nclasses, _state);
-    ae_serializer_serialize_int(s, forest->ntrees, _state);
-    ae_serializer_serialize_int(s, forest->bufsize, _state);
-    serializerealarray(s, &forest->trees, forest->bufsize, _state);
+    if( forest->forestformat==dforest_dfuncompressedv0 )
+    {
+        ae_serializer_serialize_int(s, getrdfserializationcode(_state), _state);
+        ae_serializer_serialize_int(s, dforest_dfuncompressedv0, _state);
+        ae_serializer_serialize_int(s, forest->nvars, _state);
+        ae_serializer_serialize_int(s, forest->nclasses, _state);
+        ae_serializer_serialize_int(s, forest->ntrees, _state);
+        ae_serializer_serialize_int(s, forest->bufsize, _state);
+        serializerealarray(s, &forest->trees, forest->bufsize, _state);
+        return;
+    }
+    if( forest->forestformat==dforest_dfcompressedv0 )
+    {
+        ae_serializer_serialize_int(s, getrdfserializationcode(_state), _state);
+        ae_serializer_serialize_int(s, forest->forestformat, _state);
+        ae_serializer_serialize_bool(s, forest->usemantissa8, _state);
+        ae_serializer_serialize_int(s, forest->nvars, _state);
+        ae_serializer_serialize_int(s, forest->nclasses, _state);
+        ae_serializer_serialize_int(s, forest->ntrees, _state);
+        ae_serializer_serialize_byte_array(s, &forest->trees8, _state);
+        return;
+    }
+    ae_assert(ae_false, "DFSerialize: unexpected forest format", _state);
 }
 
 
@@ -43101,7 +46254,8 @@ void dfunserialize(ae_serializer* s,
      ae_state *_state)
 {
     ae_int_t i0;
-    ae_int_t i1;
+    ae_int_t forestformat;
+    ae_bool processed;
 
     _decisionforest_clear(forest);
 
@@ -43111,17 +46265,46 @@ void dfunserialize(ae_serializer* s,
      */
     ae_serializer_unserialize_int(s, &i0, _state);
     ae_assert(i0==getrdfserializationcode(_state), "DFUnserialize: stream header corrupted", _state);
-    ae_serializer_unserialize_int(s, &i1, _state);
-    ae_assert(i1==dforest_dffirstversion, "DFUnserialize: stream header corrupted", _state);
     
     /*
-     * Unserialize data
+     * Read forest
      */
-    ae_serializer_unserialize_int(s, &forest->nvars, _state);
-    ae_serializer_unserialize_int(s, &forest->nclasses, _state);
-    ae_serializer_unserialize_int(s, &forest->ntrees, _state);
-    ae_serializer_unserialize_int(s, &forest->bufsize, _state);
-    unserializerealarray(s, &forest->trees, _state);
+    ae_serializer_unserialize_int(s, &forestformat, _state);
+    processed = ae_false;
+    if( forestformat==dforest_dfuncompressedv0 )
+    {
+        
+        /*
+         * Unserialize data
+         */
+        forest->forestformat = forestformat;
+        ae_serializer_unserialize_int(s, &forest->nvars, _state);
+        ae_serializer_unserialize_int(s, &forest->nclasses, _state);
+        ae_serializer_unserialize_int(s, &forest->ntrees, _state);
+        ae_serializer_unserialize_int(s, &forest->bufsize, _state);
+        unserializerealarray(s, &forest->trees, _state);
+        processed = ae_true;
+    }
+    if( forestformat==dforest_dfcompressedv0 )
+    {
+        
+        /*
+         * Unserialize data
+         */
+        forest->forestformat = forestformat;
+        ae_serializer_unserialize_bool(s, &forest->usemantissa8, _state);
+        ae_serializer_unserialize_int(s, &forest->nvars, _state);
+        ae_serializer_unserialize_int(s, &forest->nclasses, _state);
+        ae_serializer_unserialize_int(s, &forest->ntrees, _state);
+        ae_serializer_unserialize_byte_array(s, &forest->trees8, _state);
+        processed = ae_true;
+    }
+    ae_assert(processed, "DFUnserialize: unexpected forest format", _state);
+    
+    /*
+     * Prepare buffer
+     */
+    dfcreatebuffer(forest, &forest->buffer, _state);
 }
 
 
@@ -43258,7 +46441,7 @@ void dfbuildinternal(/* Real    */ ae_matrix* xy,
 
 
 /*************************************************************************
-Builds a range of random trees [TreeIdx0,TreeIdx1) using random forest
+Builds a range of random trees [TreeIdx0,TreeIdx1) using decision forest
 algorithm. Tree index is used to seed per-tree RNG.
 
   -- ALGLIB --
@@ -43286,6 +46469,7 @@ static void dforest_buildrandomtree(decisionforestbuilder* s,
     ae_int_t treesize;
     ae_int_t varstoselect;
     ae_int_t workingsetsize;
+    double meanloss;
 
     ae_frame_make(_state, &_frame_block);
     memset(&rs, 0, sizeof(rs));
@@ -43376,10 +46560,23 @@ static void dforest_buildrandomtree(decisionforestbuilder* s,
         {
             workbuf->trnlabelsr.ptr.p_double[i] = s->dsrval.ptr.p_double[workbuf->tmp0i.ptr.p_int[i]];
         }
+        if( s->neediobmatrix )
+        {
+            s->iobmatrix.ptr.pp_bool[treeidx][workbuf->trnset.ptr.p_int[i]] = ae_true;
+        }
     }
     for(i=0; i<=workbuf->oobsize-1; i++)
     {
-        workbuf->oobset.ptr.p_int[i] = workbuf->tmp0i.ptr.p_int[workbuf->trnsize+i];
+        j = workbuf->tmp0i.ptr.p_int[workbuf->trnsize+i];
+        workbuf->oobset.ptr.p_int[i] = j;
+        if( nclasses>1 )
+        {
+            workbuf->ooblabelsi.ptr.p_int[i] = s->dsival.ptr.p_int[j];
+        }
+        else
+        {
+            workbuf->ooblabelsr.ptr.p_double[i] = s->dsrval.ptr.p_double[j];
+        }
     }
     varstoselect = ae_round(ae_sqrt((double)(nvars), _state), _state);
     if( ae_fp_greater(s->rdfvars,(double)(0)) )
@@ -43396,8 +46593,16 @@ static void dforest_buildrandomtree(decisionforestbuilder* s,
     /*
      * Perform recurrent construction
      */
+    if( s->rdfimportance==dforest_needtrngini )
+    {
+        meanloss = dforest_meannrms2(nclasses, &workbuf->trnlabelsi, &workbuf->trnlabelsr, 0, workbuf->trnsize, &workbuf->trnlabelsi, &workbuf->trnlabelsr, 0, workbuf->trnsize, &workbuf->tmpnrms2, _state);
+    }
+    else
+    {
+        meanloss = dforest_meannrms2(nclasses, &workbuf->trnlabelsi, &workbuf->trnlabelsr, 0, workbuf->trnsize, &workbuf->ooblabelsi, &workbuf->ooblabelsr, 0, workbuf->oobsize, &workbuf->tmpnrms2, _state);
+    }
     treesize = 1;
-    dforest_buildrandomtreerec(s, workbuf, workingsetsize, varstoselect, &workbuf->treebuf, votebuf, &rs, 0, workbuf->trnsize, 0, workbuf->oobsize, &treesize, _state);
+    dforest_buildrandomtreerec(s, workbuf, workingsetsize, varstoselect, &workbuf->treebuf, votebuf, &rs, 0, workbuf->trnsize, 0, workbuf->oobsize, meanloss, meanloss, &treesize, _state);
     workbuf->treebuf.ptr.p_double[0] = (double)(treesize);
     
     /*
@@ -43409,6 +46614,7 @@ static void dforest_buildrandomtree(decisionforestbuilder* s,
     {
         treebuf->treebuf.ptr.p_double[i] = workbuf->treebuf.ptr.p_double[i];
     }
+    treebuf->treeidx = treeidx;
     ae_shared_pool_recycle(&s->treepool, &_treebuf, _state);
     
     /*
@@ -43420,7 +46626,7 @@ static void dforest_buildrandomtree(decisionforestbuilder* s,
     /*
      * Update progress indicator
      */
-    threadunsafeinc(&s->rdfprogress, _state);
+    threadunsafeincby(&s->rdfprogress, npoints, _state);
     ae_frame_leave(_state);
 }
 
@@ -43448,6 +46654,9 @@ Following iterms are processed:
 TreeSize on input must be 1 (header element of the tree), on output it
 contains size of the tree.
 
+OOBLoss on input must contain value of MeanNRMS2(...) computed for entire
+dataset.
+
 Variables from #0 to #WorkingSet-1 from WorkBuf.VarPool are used (for
 block algorithm: blocks, not vars)
 
@@ -43465,11 +46674,12 @@ static void dforest_buildrandomtreerec(decisionforestbuilder* s,
      ae_int_t idx1,
      ae_int_t oobidx0,
      ae_int_t oobidx1,
+     double meanloss,
+     double topmostmeanloss,
      ae_int_t* treesize,
      ae_state *_state)
 {
     ae_int_t npoints;
-    ae_int_t nvars;
     ae_int_t nclasses;
     ae_int_t i;
     ae_int_t j;
@@ -43483,13 +46693,14 @@ static void dforest_buildrandomtreerec(decisionforestbuilder* s,
     ae_int_t i2;
     ae_int_t idxtrn;
     ae_int_t idxoob;
+    double meanloss0;
+    double meanloss1;
 
 
     ae_assert(s->dstype==0, "not supported skbdgfsi!", _state);
     ae_assert(idx0<idx1, "BuildRandomTreeRec: integrity check failed (3445)", _state);
     ae_assert(oobidx0<=oobidx1, "BuildRandomTreeRec: integrity check failed (7452)", _state);
     npoints = s->npoints;
-    nvars = s->nvars;
     nclasses = s->nclasses;
     
     /*
@@ -43559,7 +46770,6 @@ static void dforest_buildrandomtreerec(decisionforestbuilder* s,
      * Good split WAS found, we can perform it:
      * * first, we split training set
      * * then, we similarly split OOB set
-     * * and only then we perform recursive call
      */
     ae_assert(s->dstype==0, "not supported 54bfdh", _state);
     offs = npoints*varbest;
@@ -43632,6 +46842,18 @@ static void dforest_buildrandomtreerec(decisionforestbuilder* s,
             j = workbuf->oobset.ptr.p_int[i1];
             workbuf->oobset.ptr.p_int[i1] = workbuf->oobset.ptr.p_int[i2];
             workbuf->oobset.ptr.p_int[i2] = j;
+            if( nclasses>1 )
+            {
+                j = workbuf->ooblabelsi.ptr.p_int[i1];
+                workbuf->ooblabelsi.ptr.p_int[i1] = workbuf->ooblabelsi.ptr.p_int[i2];
+                workbuf->ooblabelsi.ptr.p_int[i2] = j;
+            }
+            else
+            {
+                v = workbuf->ooblabelsr.ptr.p_double[i1];
+                workbuf->ooblabelsr.ptr.p_double[i1] = workbuf->ooblabelsr.ptr.p_double[i2];
+                workbuf->ooblabelsr.ptr.p_double[i2] = v;
+            }
             i1 = i1+1;
             i2 = i2-1;
         }
@@ -43642,13 +46864,563 @@ static void dforest_buildrandomtreerec(decisionforestbuilder* s,
     {
         idxoob = oobidx0;
     }
+    
+    /*
+     * Compute estimates of NRMS2 loss over TRN or OOB subsets, update Gini importances
+     */
+    if( s->rdfimportance==dforest_needtrngini )
+    {
+        meanloss0 = dforest_meannrms2(nclasses, &workbuf->trnlabelsi, &workbuf->trnlabelsr, idx0, idxtrn, &workbuf->trnlabelsi, &workbuf->trnlabelsr, idx0, idxtrn, &workbuf->tmpnrms2, _state);
+        meanloss1 = dforest_meannrms2(nclasses, &workbuf->trnlabelsi, &workbuf->trnlabelsr, idxtrn, idx1, &workbuf->trnlabelsi, &workbuf->trnlabelsr, idxtrn, idx1, &workbuf->tmpnrms2, _state);
+    }
+    else
+    {
+        meanloss0 = dforest_meannrms2(nclasses, &workbuf->trnlabelsi, &workbuf->trnlabelsr, idx0, idxtrn, &workbuf->ooblabelsi, &workbuf->ooblabelsr, oobidx0, idxoob, &workbuf->tmpnrms2, _state);
+        meanloss1 = dforest_meannrms2(nclasses, &workbuf->trnlabelsi, &workbuf->trnlabelsr, idxtrn, idx1, &workbuf->ooblabelsi, &workbuf->ooblabelsr, idxoob, oobidx1, &workbuf->tmpnrms2, _state);
+    }
+    votebuf->giniimportances.ptr.p_double[varbest] = votebuf->giniimportances.ptr.p_double[varbest]+(meanloss-(meanloss0+meanloss1))/(topmostmeanloss+1.0e-20);
+    
+    /*
+     * Generate tree node and subtrees (recursively)
+     */
     treebuf->ptr.p_double[*treesize] = (double)(varbest);
     treebuf->ptr.p_double[*treesize+1] = splitbest;
     i = *treesize;
     *treesize = *treesize+dforest_innernodewidth;
-    dforest_buildrandomtreerec(s, workbuf, workingset, varstoselect, treebuf, votebuf, rs, idx0, idxtrn, oobidx0, idxoob, treesize, _state);
+    dforest_buildrandomtreerec(s, workbuf, workingset, varstoselect, treebuf, votebuf, rs, idx0, idxtrn, oobidx0, idxoob, meanloss0, topmostmeanloss, treesize, _state);
     treebuf->ptr.p_double[i+2] = (double)(*treesize);
-    dforest_buildrandomtreerec(s, workbuf, workingset, varstoselect, treebuf, votebuf, rs, idxtrn, idx1, idxoob, oobidx1, treesize, _state);
+    dforest_buildrandomtreerec(s, workbuf, workingset, varstoselect, treebuf, votebuf, rs, idxtrn, idx1, idxoob, oobidx1, meanloss1, topmostmeanloss, treesize, _state);
+}
+
+
+/*************************************************************************
+Estimates permutation variable importance ratings for a range of dataset
+points.
+
+Initial call to this function should span entire range of the dataset,
+[Idx0,Idx1)=[0,NPoints), because function performs initialization of some
+internal structures when called with these arguments.
+
+  -- ALGLIB --
+     Copyright 21.05.2018 by Bochkanov Sergey
+*************************************************************************/
+static void dforest_estimatevariableimportance(decisionforestbuilder* s,
+     ae_int_t sessionseed,
+     decisionforest* df,
+     ae_int_t ntrees,
+     dfreport* rep,
+     ae_state *_state)
+{
+    ae_frame _frame_block;
+    ae_int_t npoints;
+    ae_int_t nvars;
+    ae_int_t nclasses;
+    ae_int_t nperm;
+    ae_int_t i;
+    ae_int_t j;
+    ae_int_t k;
+    dfvotebuf *vote;
+    ae_smart_ptr _vote;
+    ae_vector tmpr0;
+    ae_vector tmpr1;
+    ae_vector tmpi0;
+    ae_vector losses;
+    dfpermimpbuf permseed;
+    dfpermimpbuf *permresult;
+    ae_smart_ptr _permresult;
+    ae_shared_pool permpool;
+    double nopermloss;
+    double totalpermloss;
+    hqrndstate varimprs;
+
+    ae_frame_make(_state, &_frame_block);
+    memset(&_vote, 0, sizeof(_vote));
+    memset(&tmpr0, 0, sizeof(tmpr0));
+    memset(&tmpr1, 0, sizeof(tmpr1));
+    memset(&tmpi0, 0, sizeof(tmpi0));
+    memset(&losses, 0, sizeof(losses));
+    memset(&permseed, 0, sizeof(permseed));
+    memset(&_permresult, 0, sizeof(_permresult));
+    memset(&permpool, 0, sizeof(permpool));
+    memset(&varimprs, 0, sizeof(varimprs));
+    ae_smart_ptr_init(&_vote, (void**)&vote, _state, ae_true);
+    ae_vector_init(&tmpr0, 0, DT_REAL, _state, ae_true);
+    ae_vector_init(&tmpr1, 0, DT_REAL, _state, ae_true);
+    ae_vector_init(&tmpi0, 0, DT_INT, _state, ae_true);
+    ae_vector_init(&losses, 0, DT_REAL, _state, ae_true);
+    _dfpermimpbuf_init(&permseed, _state, ae_true);
+    ae_smart_ptr_init(&_permresult, (void**)&permresult, _state, ae_true);
+    ae_shared_pool_init(&permpool, _state, ae_true);
+    _hqrndstate_init(&varimprs, _state, ae_true);
+
+    npoints = s->npoints;
+    nvars = s->nvars;
+    nclasses = s->nclasses;
+    
+    /*
+     * No importance rating
+     */
+    if( s->rdfimportance==0 )
+    {
+        ae_frame_leave(_state);
+        return;
+    }
+    
+    /*
+     * Gini importance
+     */
+    if( s->rdfimportance==dforest_needtrngini||s->rdfimportance==dforest_needoobgini )
+    {
+        
+        /*
+         * Merge OOB Gini importances computed during tree generation
+         */
+        ae_shared_pool_first_recycled(&s->votepool, &_vote, _state);
+        while(vote!=NULL)
+        {
+            for(i=0; i<=nvars-1; i++)
+            {
+                rep->varimportances.ptr.p_double[i] = rep->varimportances.ptr.p_double[i]+vote->giniimportances.ptr.p_double[i]/ntrees;
+            }
+            ae_shared_pool_next_recycled(&s->votepool, &_vote, _state);
+        }
+        for(i=0; i<=nvars-1; i++)
+        {
+            rep->varimportances.ptr.p_double[i] = boundval(rep->varimportances.ptr.p_double[i], (double)(0), (double)(1), _state);
+        }
+        
+        /*
+         * Compute topvars[] array
+         */
+        ae_vector_set_length(&tmpr0, nvars, _state);
+        for(j=0; j<=nvars-1; j++)
+        {
+            tmpr0.ptr.p_double[j] = -rep->varimportances.ptr.p_double[j];
+            rep->topvars.ptr.p_int[j] = j;
+        }
+        tagsortfasti(&tmpr0, &rep->topvars, &tmpr1, &tmpi0, nvars, _state);
+        ae_frame_leave(_state);
+        return;
+    }
+    
+    /*
+     * Permutation importance
+     */
+    if( s->rdfimportance==dforest_needpermutation )
+    {
+        ae_assert(df->forestformat==dforest_dfuncompressedv0, "EstimateVariableImportance: integrity check failed (ff)", _state);
+        ae_assert(s->iobmatrix.rows>=ntrees&&s->iobmatrix.cols>=npoints, "EstimateVariableImportance: integrity check failed (IOB)", _state);
+        
+        /*
+         * Generate packed representation of the shuffle which is applied to all variables
+         *
+         * Ideally we want to apply different permutations to different variables,
+         * i.e. we have to generate and store NPoints*NVars random numbers.
+         * However due to performance and memory restrictions we prefer to use compact
+         * representation:
+         * * we store one "reference" permutation P_ref in VarImpShuffle2[0:NPoints-1]
+         * * a permutation P_j applied to variable J is obtained by circularly shifting
+         *   elements in P_ref by VarImpShuffle2[NPoints+J]
+         */
+        hqrndseed(sessionseed, 1117, &varimprs, _state);
+        ivectorsetlengthatleast(&s->varimpshuffle2, npoints+nvars, _state);
+        for(i=0; i<=npoints-1; i++)
+        {
+            s->varimpshuffle2.ptr.p_int[i] = i;
+        }
+        for(i=0; i<=npoints-2; i++)
+        {
+            j = i+hqrnduniformi(&varimprs, npoints-i, _state);
+            k = s->varimpshuffle2.ptr.p_int[i];
+            s->varimpshuffle2.ptr.p_int[i] = s->varimpshuffle2.ptr.p_int[j];
+            s->varimpshuffle2.ptr.p_int[j] = k;
+        }
+        for(i=0; i<=nvars-1; i++)
+        {
+            s->varimpshuffle2.ptr.p_int[npoints+i] = hqrnduniformi(&varimprs, npoints, _state);
+        }
+        
+        /*
+         * Prepare buffer object, seed pool
+         */
+        nperm = nvars+2;
+        ae_vector_set_length(&permseed.losses, nperm, _state);
+        for(j=0; j<=nperm-1; j++)
+        {
+            permseed.losses.ptr.p_double[j] = (double)(0);
+        }
+        ae_vector_set_length(&permseed.yv, nperm*nclasses, _state);
+        ae_vector_set_length(&permseed.xraw, nvars, _state);
+        ae_vector_set_length(&permseed.xdist, nvars, _state);
+        ae_vector_set_length(&permseed.xcur, nvars, _state);
+        ae_vector_set_length(&permseed.targety, nclasses, _state);
+        ae_vector_set_length(&permseed.startnodes, nvars, _state);
+        ae_vector_set_length(&permseed.y, nclasses, _state);
+        ae_shared_pool_set_seed(&permpool, &permseed, sizeof(permseed), _dfpermimpbuf_init, _dfpermimpbuf_init_copy, _dfpermimpbuf_destroy, _state);
+        
+        /*
+         * Recursively split subset and process (using parallel capabilities, if possible)
+         */
+        dforest_estimatepermutationimportances(s, df, ntrees, &permpool, 0, npoints, _state);
+        
+        /*
+         * Merge results
+         */
+        ae_vector_set_length(&losses, nperm, _state);
+        for(j=0; j<=nperm-1; j++)
+        {
+            losses.ptr.p_double[j] = 1.0e-20;
+        }
+        ae_shared_pool_first_recycled(&permpool, &_permresult, _state);
+        while(permresult!=NULL)
+        {
+            for(j=0; j<=nperm-1; j++)
+            {
+                losses.ptr.p_double[j] = losses.ptr.p_double[j]+permresult->losses.ptr.p_double[j];
+            }
+            ae_shared_pool_next_recycled(&permpool, &_permresult, _state);
+        }
+        
+        /*
+         * Compute importances
+         */
+        nopermloss = losses.ptr.p_double[nvars+1];
+        totalpermloss = losses.ptr.p_double[nvars];
+        for(i=0; i<=nvars-1; i++)
+        {
+            rep->varimportances.ptr.p_double[i] = 1-nopermloss/totalpermloss-(1-losses.ptr.p_double[i]/totalpermloss);
+            rep->varimportances.ptr.p_double[i] = boundval(rep->varimportances.ptr.p_double[i], (double)(0), (double)(1), _state);
+        }
+        
+        /*
+         * Compute topvars[] array
+         */
+        ae_vector_set_length(&tmpr0, nvars, _state);
+        for(j=0; j<=nvars-1; j++)
+        {
+            tmpr0.ptr.p_double[j] = -rep->varimportances.ptr.p_double[j];
+            rep->topvars.ptr.p_int[j] = j;
+        }
+        tagsortfasti(&tmpr0, &rep->topvars, &tmpr1, &tmpi0, nvars, _state);
+        ae_frame_leave(_state);
+        return;
+    }
+    ae_assert(ae_false, "EstimateVariableImportance: unexpected importance type", _state);
+    ae_frame_leave(_state);
+}
+
+
+/*************************************************************************
+Serial stub for GPL edition.
+*************************************************************************/
+ae_bool _trypexec_dforest_estimatevariableimportance(decisionforestbuilder* s,
+    ae_int_t sessionseed,
+    decisionforest* df,
+    ae_int_t ntrees,
+    dfreport* rep,
+    ae_state *_state)
+{
+    return ae_false;
+}
+
+
+/*************************************************************************
+Estimates permutation variable importance ratings for a range of dataset
+points.
+
+Initial call to this function should span entire range of the dataset,
+[Idx0,Idx1)=[0,NPoints), because function performs initialization of some
+internal structures when called with these arguments.
+
+  -- ALGLIB --
+     Copyright 21.05.2018 by Bochkanov Sergey
+*************************************************************************/
+static void dforest_estimatepermutationimportances(decisionforestbuilder* s,
+     decisionforest* df,
+     ae_int_t ntrees,
+     ae_shared_pool* permpool,
+     ae_int_t idx0,
+     ae_int_t idx1,
+     ae_state *_state)
+{
+    ae_frame _frame_block;
+    ae_int_t npoints;
+    ae_int_t nvars;
+    ae_int_t nclasses;
+    ae_int_t nperm;
+    ae_int_t i;
+    ae_int_t j;
+    ae_int_t k;
+    double v;
+    ae_int_t treeroot;
+    ae_int_t nodeoffs;
+    double prediction;
+    ae_int_t varidx;
+    ae_int_t oobcounts;
+    ae_int_t srcidx;
+    dfpermimpbuf *permimpbuf;
+    ae_smart_ptr _permimpbuf;
+
+    ae_frame_make(_state, &_frame_block);
+    memset(&_permimpbuf, 0, sizeof(_permimpbuf));
+    ae_smart_ptr_init(&_permimpbuf, (void**)&permimpbuf, _state, ae_true);
+
+    npoints = s->npoints;
+    nvars = s->nvars;
+    nclasses = s->nclasses;
+    ae_assert(df->forestformat==dforest_dfuncompressedv0, "EstimateVariableImportance: integrity check failed (ff)", _state);
+    ae_assert((idx0>=0&&idx0<=idx1)&&idx1<=npoints, "EstimateVariableImportance: integrity check failed (idx)", _state);
+    ae_assert(s->iobmatrix.rows>=ntrees&&s->iobmatrix.cols>=npoints, "EstimateVariableImportance: integrity check failed (IOB)", _state);
+    
+    /*
+     * Perform parallelization if batch is too large
+     */
+    if( idx1-idx0>dforest_permutationimportancebatchsize )
+    {
+        if( _trypexec_dforest_estimatepermutationimportances(s,df,ntrees,permpool,idx0,idx1, _state) )
+        {
+            ae_frame_leave(_state);
+            return;
+        }
+        j = (idx1-idx0)/2;
+        dforest_estimatepermutationimportances(s, df, ntrees, permpool, idx0, idx0+j, _state);
+        dforest_estimatepermutationimportances(s, df, ntrees, permpool, idx0+j, idx1, _state);
+        ae_frame_leave(_state);
+        return;
+    }
+    
+    /*
+     * Retrieve buffer object from pool
+     */
+    ae_shared_pool_retrieve(permpool, &_permimpbuf, _state);
+    
+    /*
+     * Process range of points [idx0,idx1)
+     */
+    nperm = nvars+2;
+    for(i=idx0; i<=idx1-1; i++)
+    {
+        ae_assert(s->dstype==0, "EstimateVariableImportance: unexpected dataset type", _state);
+        for(j=0; j<=nvars-1; j++)
+        {
+            permimpbuf->xraw.ptr.p_double[j] = s->dsdata.ptr.p_double[j*npoints+i];
+            srcidx = s->varimpshuffle2.ptr.p_int[(i+s->varimpshuffle2.ptr.p_int[npoints+j])%npoints];
+            permimpbuf->xdist.ptr.p_double[j] = s->dsdata.ptr.p_double[j*npoints+srcidx];
+        }
+        if( nclasses>1 )
+        {
+            for(j=0; j<=nclasses-1; j++)
+            {
+                permimpbuf->targety.ptr.p_double[j] = (double)(0);
+            }
+            permimpbuf->targety.ptr.p_double[s->dsival.ptr.p_int[i]] = (double)(1);
+        }
+        else
+        {
+            permimpbuf->targety.ptr.p_double[0] = s->dsrval.ptr.p_double[i];
+        }
+        
+        /*
+         * Process all trees, for each tree compute NPerm losses corresponding
+         * to various permutations of variable values
+         */
+        for(j=0; j<=nperm*nclasses-1; j++)
+        {
+            permimpbuf->yv.ptr.p_double[j] = (double)(0);
+        }
+        oobcounts = 0;
+        treeroot = 0;
+        for(k=0; k<=ntrees-1; k++)
+        {
+            if( !s->iobmatrix.ptr.pp_bool[k][i] )
+            {
+                
+                /*
+                 * Process original (unperturbed) point and analyze path from the
+                 * tree root to the final leaf. Output prediction to RawPrediction.
+                 *
+                 * Additionally, for each variable in [0,NVars-1] save offset of
+                 * the first split on this variable. It allows us to quickly compute
+                 * tree decision when perturbation does not change decision path.
+                 */
+                ae_assert(df->forestformat==dforest_dfuncompressedv0, "EstimateVariableImportance: integrity check failed (ff)", _state);
+                nodeoffs = treeroot+1;
+                for(j=0; j<=nvars-1; j++)
+                {
+                    permimpbuf->startnodes.ptr.p_int[j] = -1;
+                }
+                prediction = (double)(0);
+                for(;;)
+                {
+                    if( ae_fp_eq(df->trees.ptr.p_double[nodeoffs],(double)(-1)) )
+                    {
+                        prediction = df->trees.ptr.p_double[nodeoffs+1];
+                        break;
+                    }
+                    j = ae_round(df->trees.ptr.p_double[nodeoffs], _state);
+                    if( permimpbuf->startnodes.ptr.p_int[j]<0 )
+                    {
+                        permimpbuf->startnodes.ptr.p_int[j] = nodeoffs;
+                    }
+                    if( permimpbuf->xraw.ptr.p_double[j]<df->trees.ptr.p_double[nodeoffs+1] )
+                    {
+                        nodeoffs = nodeoffs+dforest_innernodewidth;
+                    }
+                    else
+                    {
+                        nodeoffs = treeroot+ae_round(df->trees.ptr.p_double[nodeoffs+2], _state);
+                    }
+                }
+                
+                /*
+                 * Save loss for unperturbed point
+                 */
+                varidx = nvars+1;
+                if( nclasses>1 )
+                {
+                    j = ae_round(prediction, _state);
+                    permimpbuf->yv.ptr.p_double[varidx*nclasses+j] = permimpbuf->yv.ptr.p_double[varidx*nclasses+j]+1;
+                }
+                else
+                {
+                    permimpbuf->yv.ptr.p_double[varidx] = permimpbuf->yv.ptr.p_double[varidx]+prediction;
+                }
+                
+                /*
+                 * Save loss for all variables being perturbed (XDist).
+                 * This loss is used as a reference loss when we compute R-squared.
+                 */
+                varidx = nvars;
+                for(j=0; j<=nclasses-1; j++)
+                {
+                    permimpbuf->y.ptr.p_double[j] = (double)(0);
+                }
+                dforest_dfprocessinternaluncompressed(df, treeroot, treeroot+1, &permimpbuf->xdist, &permimpbuf->y, _state);
+                for(j=0; j<=nclasses-1; j++)
+                {
+                    permimpbuf->yv.ptr.p_double[varidx*nclasses+j] = permimpbuf->yv.ptr.p_double[varidx*nclasses+j]+permimpbuf->y.ptr.p_double[j];
+                }
+                
+                /*
+                 * Compute losses for variable #VarIdx being perturbed. Quite an often decision
+                 * process does not actually depend on the variable #VarIdx (path from the tree
+                 * root does not include splits on this variable). In such cases we perform
+                 * quick exit from the loop with precomputed value.
+                 */
+                for(j=0; j<=nvars-1; j++)
+                {
+                    permimpbuf->xcur.ptr.p_double[j] = permimpbuf->xraw.ptr.p_double[j];
+                }
+                for(varidx=0; varidx<=nvars-1; varidx++)
+                {
+                    if( permimpbuf->startnodes.ptr.p_int[varidx]>=0 )
+                    {
+                        
+                        /*
+                         * Path from tree root to the final leaf involves split on variable #VarIdx.
+                         * Restart computation from the position first split on #VarIdx.
+                         */
+                        ae_assert(df->forestformat==dforest_dfuncompressedv0, "EstimateVariableImportance: integrity check failed (ff)", _state);
+                        permimpbuf->xcur.ptr.p_double[varidx] = permimpbuf->xdist.ptr.p_double[varidx];
+                        nodeoffs = permimpbuf->startnodes.ptr.p_int[varidx];
+                        for(;;)
+                        {
+                            if( ae_fp_eq(df->trees.ptr.p_double[nodeoffs],(double)(-1)) )
+                            {
+                                if( nclasses>1 )
+                                {
+                                    j = ae_round(df->trees.ptr.p_double[nodeoffs+1], _state);
+                                    permimpbuf->yv.ptr.p_double[varidx*nclasses+j] = permimpbuf->yv.ptr.p_double[varidx*nclasses+j]+1;
+                                }
+                                else
+                                {
+                                    permimpbuf->yv.ptr.p_double[varidx] = permimpbuf->yv.ptr.p_double[varidx]+df->trees.ptr.p_double[nodeoffs+1];
+                                }
+                                break;
+                            }
+                            j = ae_round(df->trees.ptr.p_double[nodeoffs], _state);
+                            if( permimpbuf->xcur.ptr.p_double[j]<df->trees.ptr.p_double[nodeoffs+1] )
+                            {
+                                nodeoffs = nodeoffs+dforest_innernodewidth;
+                            }
+                            else
+                            {
+                                nodeoffs = treeroot+ae_round(df->trees.ptr.p_double[nodeoffs+2], _state);
+                            }
+                        }
+                        permimpbuf->xcur.ptr.p_double[varidx] = permimpbuf->xraw.ptr.p_double[varidx];
+                    }
+                    else
+                    {
+                        
+                        /*
+                         * Path from tree root to the final leaf does NOT involve split on variable #VarIdx.
+                         * Permutation does not change tree output, reuse already computed value.
+                         */
+                        if( nclasses>1 )
+                        {
+                            j = ae_round(prediction, _state);
+                            permimpbuf->yv.ptr.p_double[varidx*nclasses+j] = permimpbuf->yv.ptr.p_double[varidx*nclasses+j]+1;
+                        }
+                        else
+                        {
+                            permimpbuf->yv.ptr.p_double[varidx] = permimpbuf->yv.ptr.p_double[varidx]+prediction;
+                        }
+                    }
+                }
+                
+                /*
+                 * update OOB counter
+                 */
+                inc(&oobcounts, _state);
+            }
+            treeroot = treeroot+ae_round(df->trees.ptr.p_double[treeroot], _state);
+        }
+        
+        /*
+         * Now YV[] stores NPerm versions of the forest output for various permutations of variable values.
+         * Update losses.
+         */
+        for(j=0; j<=nperm-1; j++)
+        {
+            for(k=0; k<=nclasses-1; k++)
+            {
+                permimpbuf->yv.ptr.p_double[j*nclasses+k] = permimpbuf->yv.ptr.p_double[j*nclasses+k]/coalesce((double)(oobcounts), (double)(1), _state);
+            }
+            v = (double)(0);
+            for(k=0; k<=nclasses-1; k++)
+            {
+                v = v+ae_sqr(permimpbuf->yv.ptr.p_double[j*nclasses+k]-permimpbuf->targety.ptr.p_double[k], _state);
+            }
+            permimpbuf->losses.ptr.p_double[j] = permimpbuf->losses.ptr.p_double[j]+v;
+        }
+        
+        /*
+         * Update progress indicator
+         */
+        threadunsafeincby(&s->rdfprogress, ntrees, _state);
+    }
+    
+    /*
+     * Recycle buffer object with updated Losses[] field
+     */
+    ae_shared_pool_recycle(permpool, &_permimpbuf, _state);
+    ae_frame_leave(_state);
+}
+
+
+/*************************************************************************
+Serial stub for GPL edition.
+*************************************************************************/
+ae_bool _trypexec_dforest_estimatepermutationimportances(decisionforestbuilder* s,
+    decisionforest* df,
+    ae_int_t ntrees,
+    ae_shared_pool* permpool,
+    ae_int_t idx0,
+    ae_int_t idx1,
+    ae_state *_state)
+{
+    return ae_false;
 }
 
 
@@ -43658,8 +47430,11 @@ Sets report fields to their default values
   -- ALGLIB --
      Copyright 21.05.2018 by Bochkanov Sergey
 *************************************************************************/
-static void dforest_cleanreport(dfreport* rep, ae_state *_state)
+static void dforest_cleanreport(decisionforestbuilder* s,
+     dfreport* rep,
+     ae_state *_state)
 {
+    ae_int_t i;
 
 
     rep->relclserror = (double)(0);
@@ -43672,6 +47447,125 @@ static void dforest_cleanreport(dfreport* rep, ae_state *_state)
     rep->oobrmserror = (double)(0);
     rep->oobavgerror = (double)(0);
     rep->oobavgrelerror = (double)(0);
+    ae_vector_set_length(&rep->topvars, s->nvars, _state);
+    ae_vector_set_length(&rep->varimportances, s->nvars, _state);
+    for(i=0; i<=s->nvars-1; i++)
+    {
+        rep->topvars.ptr.p_int[i] = i;
+        rep->varimportances.ptr.p_double[i] = (double)(0);
+    }
+}
+
+
+/*************************************************************************
+This function returns NRMS2 loss (sum of squared residuals) for a constant-
+output model:
+* model output is a mean over TRN set being passed (for classification
+  problems - NClasses-dimensional vector of class probabilities)
+* model is evaluated over TST set being passed, with L2 loss being returned
+
+Input parameters:
+    NClasses            -   ">1" for classification, "=1" for regression
+    TrnLabelsI          -   training set labels, class indexes (for NClasses>1)
+    TrnLabelsR          -   training set output values (for NClasses=1)
+    TrnIdx0, TrnIdx1    -   a range [Idx0,Idx1) of elements in LabelsI/R is considered
+    TstLabelsI          -   training set labels, class indexes (for NClasses>1)
+    TstLabelsR          -   training set output values (for NClasses=1)
+    TstIdx0, TstIdx1    -   a range [Idx0,Idx1) of elements in LabelsI/R is considered
+    TmpI        -   temporary array, reallocated as needed
+    
+Result:
+    sum of squared residuals;
+    for NClasses>=2 it coincides with Gini impurity times (Idx1-Idx0)
+
+Following fields of WorkBuf are used as temporaries:
+* TmpMeanNRMS2
+
+  -- ALGLIB --
+     Copyright 21.05.2018 by Bochkanov Sergey
+*************************************************************************/
+static double dforest_meannrms2(ae_int_t nclasses,
+     /* Integer */ ae_vector* trnlabelsi,
+     /* Real    */ ae_vector* trnlabelsr,
+     ae_int_t trnidx0,
+     ae_int_t trnidx1,
+     /* Integer */ ae_vector* tstlabelsi,
+     /* Real    */ ae_vector* tstlabelsr,
+     ae_int_t tstidx0,
+     ae_int_t tstidx1,
+     /* Integer */ ae_vector* tmpi,
+     ae_state *_state)
+{
+    ae_int_t i;
+    ae_int_t k;
+    ae_int_t ntrn;
+    ae_int_t ntst;
+    double v;
+    double vv;
+    double invntrn;
+    double pitrn;
+    double nitst;
+    double result;
+
+
+    ae_assert(trnidx0<=trnidx1, "MeanNRMS2: integrity check failed (8754)", _state);
+    ae_assert(tstidx0<=tstidx1, "MeanNRMS2: integrity check failed (8754)", _state);
+    result = (double)(0);
+    ntrn = trnidx1-trnidx0;
+    ntst = tstidx1-tstidx0;
+    if( ntrn==0||ntst==0 )
+    {
+        return result;
+    }
+    invntrn = 1.0/ntrn;
+    if( nclasses>1 )
+    {
+        
+        /*
+         * Classification problem
+         */
+        ivectorsetlengthatleast(tmpi, 2*nclasses, _state);
+        for(i=0; i<=2*nclasses-1; i++)
+        {
+            tmpi->ptr.p_int[i] = 0;
+        }
+        for(i=trnidx0; i<=trnidx1-1; i++)
+        {
+            k = trnlabelsi->ptr.p_int[i];
+            tmpi->ptr.p_int[k] = tmpi->ptr.p_int[k]+1;
+        }
+        for(i=tstidx0; i<=tstidx1-1; i++)
+        {
+            k = tstlabelsi->ptr.p_int[i];
+            tmpi->ptr.p_int[k+nclasses] = tmpi->ptr.p_int[k+nclasses]+1;
+        }
+        for(i=0; i<=nclasses-1; i++)
+        {
+            pitrn = tmpi->ptr.p_int[i]*invntrn;
+            nitst = (double)(tmpi->ptr.p_int[i+nclasses]);
+            result = result+nitst*(1-pitrn)*(1-pitrn);
+            result = result+(ntst-nitst)*pitrn*pitrn;
+        }
+    }
+    else
+    {
+        
+        /*
+         * regression-specific code
+         */
+        v = (double)(0);
+        for(i=trnidx0; i<=trnidx1-1; i++)
+        {
+            v = v+trnlabelsr->ptr.p_double[i];
+        }
+        v = v*invntrn;
+        for(i=tstidx0; i<=tstidx1-1; i++)
+        {
+            vv = tstlabelsr->ptr.p_double[i]-v;
+            result = result+vv*vv;
+        }
+    }
+    return result;
 }
 
 
@@ -43698,8 +47592,6 @@ static void dforest_choosecurrentsplitdense(decisionforestbuilder* s,
      ae_state *_state)
 {
     ae_int_t npoints;
-    ae_int_t nvars;
-    ae_int_t nclasses;
     double errbest;
     ae_int_t varstried;
     ae_int_t varcur;
@@ -43719,8 +47611,6 @@ static void dforest_choosecurrentsplitdense(decisionforestbuilder* s,
     ae_assert(s->rdfalgo==0, "BuildRandomTreeRec: integrity check failed (1657)", _state);
     ae_assert(idx0<idx1, "BuildRandomTreeRec: integrity check failed (3445)", _state);
     npoints = s->npoints;
-    nvars = s->nvars;
-    nclasses = s->nclasses;
     
     /*
      * Select split according to dense direct RDF algorithm
@@ -43823,8 +47713,6 @@ static void dforest_evaluatedensesplit(decisionforestbuilder* s,
      double* rms,
      ae_state *_state)
 {
-    ae_int_t npoints;
-    ae_int_t nvars;
     ae_int_t nclasses;
     ae_int_t i;
     ae_int_t j;
@@ -43842,8 +47730,6 @@ static void dforest_evaluatedensesplit(decisionforestbuilder* s,
     *rms = 0;
 
     ae_assert(idx0<idx1, "BuildRandomTreeRec: integrity check failed (8754)", _state);
-    npoints = s->npoints;
-    nvars = s->nvars;
     nclasses = s->nclasses;
     if( s->dsbinary.ptr.p_bool[splitvar] )
     {
@@ -43917,7 +47803,7 @@ static void dforest_evaluatedensesplit(decisionforestbuilder* s,
             for(j=0; j<=idx1-idx0-1; j++)
             {
                 v = workbuf->trnlabelsr.ptr.p_double[idx0+j];
-                if( v<*split )
+                if( workbuf->curvals.ptr.p_double[j]<*split )
                 {
                     v = v-v1;
                 }
@@ -44682,33 +48568,83 @@ static void dforest_mergetrees(decisionforestbuilder* s,
     ae_int_t offs;
     dftreebuf *tree;
     ae_smart_ptr _tree;
+    ae_vector treesizes;
+    ae_vector treeoffsets;
 
     ae_frame_make(_state, &_frame_block);
     memset(&_tree, 0, sizeof(_tree));
+    memset(&treesizes, 0, sizeof(treesizes));
+    memset(&treeoffsets, 0, sizeof(treeoffsets));
     ae_smart_ptr_init(&_tree, (void**)&tree, _state, ae_true);
+    ae_vector_init(&treesizes, 0, DT_INT, _state, ae_true);
+    ae_vector_init(&treeoffsets, 0, DT_INT, _state, ae_true);
 
+    df->forestformat = dforest_dfuncompressedv0;
     df->nvars = s->nvars;
     df->nclasses = s->nclasses;
     df->bufsize = 0;
     df->ntrees = 0;
+    
+    /*
+     * Determine trees count
+     */
     ae_shared_pool_first_recycled(&s->treepool, &_tree, _state);
     while(tree!=NULL)
     {
-        df->bufsize = df->bufsize+ae_round(tree->treebuf.ptr.p_double[0], _state);
         df->ntrees = df->ntrees+1;
         ae_shared_pool_next_recycled(&s->treepool, &_tree, _state);
     }
+    ae_assert(df->ntrees>0, "MergeTrees: integrity check failed, zero trees count", _state);
+    
+    /*
+     * Determine individual tree sizes and total buffer size
+     */
+    ae_vector_set_length(&treesizes, df->ntrees, _state);
+    for(i=0; i<=df->ntrees-1; i++)
+    {
+        treesizes.ptr.p_int[i] = -1;
+    }
+    ae_shared_pool_first_recycled(&s->treepool, &_tree, _state);
+    while(tree!=NULL)
+    {
+        ae_assert(tree->treeidx>=0&&tree->treeidx<df->ntrees, "MergeTrees: integrity check failed (wrong TreeIdx)", _state);
+        ae_assert(treesizes.ptr.p_int[tree->treeidx]<0, "MergeTrees: integrity check failed (duplicate TreeIdx)", _state);
+        df->bufsize = df->bufsize+ae_round(tree->treebuf.ptr.p_double[0], _state);
+        treesizes.ptr.p_int[tree->treeidx] = ae_round(tree->treebuf.ptr.p_double[0], _state);
+        ae_shared_pool_next_recycled(&s->treepool, &_tree, _state);
+    }
+    for(i=0; i<=df->ntrees-1; i++)
+    {
+        ae_assert(treesizes.ptr.p_int[i]>0, "MergeTrees: integrity check failed (wrong TreeSize)", _state);
+    }
+    
+    /*
+     * Determine offsets for individual trees in output buffer
+     */
+    ae_vector_set_length(&treeoffsets, df->ntrees, _state);
+    treeoffsets.ptr.p_int[0] = 0;
+    for(i=1; i<=df->ntrees-1; i++)
+    {
+        treeoffsets.ptr.p_int[i] = treeoffsets.ptr.p_int[i-1]+treesizes.ptr.p_int[i-1];
+    }
+    
+    /*
+     * Output trees
+     *
+     * NOTE: since ALGLIB 3.16.0 trees are sorted by tree index prior to
+     *       output (necessary for variable importance estimation), that's
+     *       why we need array of tree offsets
+     */
     ae_vector_set_length(&df->trees, df->bufsize, _state);
     ae_shared_pool_first_recycled(&s->treepool, &_tree, _state);
-    offs = 0;
     while(tree!=NULL)
     {
         cursize = ae_round(tree->treebuf.ptr.p_double[0], _state);
+        offs = treeoffsets.ptr.p_int[tree->treeidx];
         for(i=0; i<=cursize-1; i++)
         {
             df->trees.ptr.p_double[offs+i] = tree->treebuf.ptr.p_double[i];
         }
-        offs = offs+cursize;
         ae_shared_pool_next_recycled(&s->treepool, &_tree, _state);
     }
     ae_frame_leave(_state);
@@ -44720,6 +48656,7 @@ This function post-processes voting array and calculates TRN and OOB errors.
 
 INPUT PARAMETERS:
     S           -   decision forest builder object
+    NTrees      -   number of trees in the forest
     Buf         -   possibly preallocated vote buffer, its contents is
                     overwritten by this function
 
@@ -44730,6 +48667,7 @@ OUTPUT PARAMETERS:
      Copyright 21.05.2018 by Bochkanov Sergey
 *************************************************************************/
 static void dforest_processvotingresults(decisionforestbuilder* s,
+     ae_int_t ntrees,
      dfvotebuf* buf,
      dfreport* rep,
      ae_state *_state)
@@ -44930,6 +48868,652 @@ static void dforest_processvotingresults(decisionforestbuilder* s,
 
 
 /*************************************************************************
+This function performs binary compression of decision forest, using either
+8-bit mantissa (a bit more compact representation) or 16-bit mantissa  for
+splits and regression outputs.
+
+Forest is compressed in-place.
+
+Return value is a compression factor.
+
+  -- ALGLIB --
+     Copyright 22.07.2019 by Bochkanov Sergey
+*************************************************************************/
+static double dforest_binarycompression(decisionforest* df,
+     ae_bool usemantissa8,
+     ae_state *_state)
+{
+    ae_frame _frame_block;
+    ae_int_t size8;
+    ae_int_t size8i;
+    ae_int_t offssrc;
+    ae_int_t offsdst;
+    ae_int_t i;
+    ae_vector dummyi;
+    ae_int_t maxrawtreesize;
+    ae_vector compressedsizes;
+    double result;
+
+    ae_frame_make(_state, &_frame_block);
+    memset(&dummyi, 0, sizeof(dummyi));
+    memset(&compressedsizes, 0, sizeof(compressedsizes));
+    ae_vector_init(&dummyi, 0, DT_INT, _state, ae_true);
+    ae_vector_init(&compressedsizes, 0, DT_INT, _state, ae_true);
+
+    
+    /*
+     * Quick exit if already compressed
+     */
+    if( df->forestformat==dforest_dfcompressedv0 )
+    {
+        result = (double)(1);
+        ae_frame_leave(_state);
+        return result;
+    }
+    
+    /*
+     * Check that source format is supported
+     */
+    ae_assert(df->forestformat==dforest_dfuncompressedv0, "BinaryCompression: unexpected forest format", _state);
+    
+    /*
+     * Compute sizes of uncompressed and compressed trees.
+     */
+    size8 = 0;
+    offssrc = 0;
+    maxrawtreesize = 0;
+    for(i=0; i<=df->ntrees-1; i++)
+    {
+        size8i = dforest_computecompressedsizerec(df, usemantissa8, offssrc, offssrc+1, &dummyi, ae_false, _state);
+        size8 = size8+dforest_computecompresseduintsize(size8i, _state)+size8i;
+        maxrawtreesize = ae_maxint(maxrawtreesize, ae_round(df->trees.ptr.p_double[offssrc], _state), _state);
+        offssrc = offssrc+ae_round(df->trees.ptr.p_double[offssrc], _state);
+    }
+    result = (double)(8*df->trees.cnt)/(double)(size8+1);
+    
+    /*
+     * Allocate memory and perform compression
+     */
+    ae_vector_set_length(&(df->trees8), size8, _state);
+    ae_vector_set_length(&compressedsizes, maxrawtreesize, _state);
+    offssrc = 0;
+    offsdst = 0;
+    for(i=0; i<=df->ntrees-1; i++)
+    {
+        
+        /*
+         * Call compressed size evaluator one more time, now saving subtree sizes into temporary array
+         */
+        size8i = dforest_computecompressedsizerec(df, usemantissa8, offssrc, offssrc+1, &compressedsizes, ae_true, _state);
+        
+        /*
+         * Output tree header (length in bytes)
+         */
+        dforest_streamuint(&df->trees8, &offsdst, size8i, _state);
+        
+        /*
+         * Compress recursively
+         */
+        dforest_compressrec(df, usemantissa8, offssrc, offssrc+1, &compressedsizes, &df->trees8, &offsdst, _state);
+        
+        /*
+         * Next tree
+         */
+        offssrc = offssrc+ae_round(df->trees.ptr.p_double[offssrc], _state);
+    }
+    ae_assert(offsdst==size8, "BinaryCompression: integrity check failed (stream length)", _state);
+    
+    /*
+     * Finalize forest conversion, clear previously allocated memory
+     */
+    df->forestformat = dforest_dfcompressedv0;
+    df->usemantissa8 = usemantissa8;
+    ae_vector_set_length(&df->trees, 0, _state);
+    ae_frame_leave(_state);
+    return result;
+}
+
+
+/*************************************************************************
+This function returns exact number of bytes required to  store  compressed
+version of the tree starting at location TreeBase.
+
+PARAMETERS:
+    DF              -   decision forest
+    UseMantissa8    -   whether 8-bit or 16-bit mantissas are used to store
+                        floating point numbers
+    TreeRoot        -   root of the specific tree being stored (offset in DF.Trees)
+    TreePos         -   position within tree (first location in the tree
+                        is TreeRoot+1)
+    CompressedSizes -   not referenced if SaveCompressedSizes is False;
+                        otherwise, values computed by this function for
+                        specific values of TreePos are stored to
+                        CompressedSizes[TreePos-TreeRoot] (other elements
+                        of the array are not referenced).
+                        This array must be preallocated by caller.
+
+  -- ALGLIB --
+     Copyright 22.07.2019 by Bochkanov Sergey
+*************************************************************************/
+static ae_int_t dforest_computecompressedsizerec(decisionforest* df,
+     ae_bool usemantissa8,
+     ae_int_t treeroot,
+     ae_int_t treepos,
+     /* Integer */ ae_vector* compressedsizes,
+     ae_bool savecompressedsizes,
+     ae_state *_state)
+{
+    ae_int_t jmponbranch;
+    ae_int_t child0size;
+    ae_int_t child1size;
+    ae_int_t fpwidth;
+    ae_int_t result;
+
+
+    if( usemantissa8 )
+    {
+        fpwidth = 2;
+    }
+    else
+    {
+        fpwidth = 3;
+    }
+    
+    /*
+     * Leaf or split?
+     */
+    if( ae_fp_eq(df->trees.ptr.p_double[treepos],(double)(-1)) )
+    {
+        
+        /*
+         * Leaf
+         */
+        result = dforest_computecompresseduintsize(2*df->nvars, _state);
+        if( df->nclasses==1 )
+        {
+            result = result+fpwidth;
+        }
+        else
+        {
+            result = result+dforest_computecompresseduintsize(ae_round(df->trees.ptr.p_double[treepos+1], _state), _state);
+        }
+    }
+    else
+    {
+        
+        /*
+         * Split
+         */
+        jmponbranch = ae_round(df->trees.ptr.p_double[treepos+2], _state);
+        child0size = dforest_computecompressedsizerec(df, usemantissa8, treeroot, treepos+dforest_innernodewidth, compressedsizes, savecompressedsizes, _state);
+        child1size = dforest_computecompressedsizerec(df, usemantissa8, treeroot, treeroot+jmponbranch, compressedsizes, savecompressedsizes, _state);
+        if( child0size<=child1size )
+        {
+            
+            /*
+             * Child #0 comes first because it is shorter
+             */
+            result = dforest_computecompresseduintsize(ae_round(df->trees.ptr.p_double[treepos], _state), _state);
+            result = result+fpwidth;
+            result = result+dforest_computecompresseduintsize(child0size, _state);
+        }
+        else
+        {
+            
+            /*
+             * Child #1 comes first because it is shorter
+             */
+            result = dforest_computecompresseduintsize(ae_round(df->trees.ptr.p_double[treepos], _state)+df->nvars, _state);
+            result = result+fpwidth;
+            result = result+dforest_computecompresseduintsize(child1size, _state);
+        }
+        result = result+child0size+child1size;
+    }
+    
+    /*
+     * Do we have to save compressed sizes?
+     */
+    if( savecompressedsizes )
+    {
+        ae_assert(treepos-treeroot<compressedsizes->cnt, "ComputeCompressedSizeRec: integrity check failed", _state);
+        compressedsizes->ptr.p_int[treepos-treeroot] = result;
+    }
+    return result;
+}
+
+
+/*************************************************************************
+This function returns exact number of bytes required to  store  compressed
+version of the tree starting at location TreeBase.
+
+PARAMETERS:
+    DF              -   decision forest
+    UseMantissa8    -   whether 8-bit or 16-bit mantissas are used to store
+                        floating point numbers
+    TreeRoot        -   root of the specific tree being stored (offset in DF.Trees)
+    TreePos         -   position within tree (first location in the tree
+                        is TreeRoot+1)
+    CompressedSizes -   not referenced if SaveCompressedSizes is False;
+                        otherwise, values computed by this function for
+                        specific values of TreePos are stored to
+                        CompressedSizes[TreePos-TreeRoot] (other elements
+                        of the array are not referenced).
+                        This array must be preallocated by caller.
+
+  -- ALGLIB --
+     Copyright 22.07.2019 by Bochkanov Sergey
+*************************************************************************/
+static void dforest_compressrec(decisionforest* df,
+     ae_bool usemantissa8,
+     ae_int_t treeroot,
+     ae_int_t treepos,
+     /* Integer */ ae_vector* compressedsizes,
+     ae_vector* buf,
+     ae_int_t* dstoffs,
+     ae_state *_state)
+{
+    ae_int_t jmponbranch;
+    ae_int_t child0size;
+    ae_int_t child1size;
+    ae_int_t varidx;
+    double leafval;
+    double splitval;
+    ae_int_t fpwidth;
+    ae_int_t dstoffsold;
+
+
+    dstoffsold = *dstoffs;
+    if( usemantissa8 )
+    {
+        fpwidth = 2;
+    }
+    else
+    {
+        fpwidth = 3;
+    }
+    
+    /*
+     * Leaf or split?
+     */
+    varidx = ae_round(df->trees.ptr.p_double[treepos], _state);
+    if( varidx==-1 )
+    {
+        
+        /*
+         * Leaf node:
+         * * stream special value which denotes leaf (2*NVars)
+         * * then, stream scalar value (floating point) or class number (unsigned integer)
+         */
+        leafval = df->trees.ptr.p_double[treepos+1];
+        dforest_streamuint(buf, dstoffs, 2*df->nvars, _state);
+        if( df->nclasses==1 )
+        {
+            dforest_streamfloat(buf, usemantissa8, dstoffs, leafval, _state);
+        }
+        else
+        {
+            dforest_streamuint(buf, dstoffs, ae_round(leafval, _state), _state);
+        }
+    }
+    else
+    {
+        
+        /*
+         * Split node:
+         * * fetch compressed sizes of child nodes, decide which child goes first
+         */
+        jmponbranch = ae_round(df->trees.ptr.p_double[treepos+2], _state);
+        splitval = df->trees.ptr.p_double[treepos+1];
+        child0size = compressedsizes->ptr.p_int[treepos+dforest_innernodewidth-treeroot];
+        child1size = compressedsizes->ptr.p_int[treeroot+jmponbranch-treeroot];
+        if( child0size<=child1size )
+        {
+            
+            /*
+             * Child #0 comes first because it is shorter:
+             * * stream variable index used for splitting;
+             *   value in [0,NVars) range indicates that split is
+             *   "if VAR<VAL then BRANCH0 else BRANCH1"
+             * * stream value used for splitting
+             * * stream children #0 and #1
+             */
+            dforest_streamuint(buf, dstoffs, varidx, _state);
+            dforest_streamfloat(buf, usemantissa8, dstoffs, splitval, _state);
+            dforest_streamuint(buf, dstoffs, child0size, _state);
+            dforest_compressrec(df, usemantissa8, treeroot, treepos+dforest_innernodewidth, compressedsizes, buf, dstoffs, _state);
+            dforest_compressrec(df, usemantissa8, treeroot, treeroot+jmponbranch, compressedsizes, buf, dstoffs, _state);
+        }
+        else
+        {
+            
+            /*
+             * Child #1 comes first because it is shorter:
+             * * stream variable index used for splitting + NVars;
+             *   value in [NVars,2*NVars) range indicates that split is
+             *   "if VAR>=VAL then BRANCH0 else BRANCH1"
+             * * stream value used for splitting
+             * * stream children #0 and #1
+             */
+            dforest_streamuint(buf, dstoffs, varidx+df->nvars, _state);
+            dforest_streamfloat(buf, usemantissa8, dstoffs, splitval, _state);
+            dforest_streamuint(buf, dstoffs, child1size, _state);
+            dforest_compressrec(df, usemantissa8, treeroot, treeroot+jmponbranch, compressedsizes, buf, dstoffs, _state);
+            dforest_compressrec(df, usemantissa8, treeroot, treepos+dforest_innernodewidth, compressedsizes, buf, dstoffs, _state);
+        }
+    }
+    
+    /*
+     * Integrity check at the end
+     */
+    ae_assert(*dstoffs-dstoffsold==compressedsizes->ptr.p_int[treepos-treeroot], "CompressRec: integrity check failed (compressed size at leaf)", _state);
+}
+
+
+/*************************************************************************
+This function returns exact number of bytes required to  store  compressed
+unsigned integer number (negative  arguments  result  in  assertion  being
+generated).
+
+  -- ALGLIB --
+     Copyright 22.07.2019 by Bochkanov Sergey
+*************************************************************************/
+static ae_int_t dforest_computecompresseduintsize(ae_int_t v,
+     ae_state *_state)
+{
+    ae_int_t result;
+
+
+    ae_assert(v>=0, "Assertion failed", _state);
+    result = 1;
+    while(v>=128)
+    {
+        v = v/128;
+        result = result+1;
+    }
+    return result;
+}
+
+
+/*************************************************************************
+This function stores compressed unsigned integer number (negative arguments
+result in assertion being generated) to byte array at  location  Offs  and
+increments Offs by number of bytes being stored.
+
+  -- ALGLIB --
+     Copyright 22.07.2019 by Bochkanov Sergey
+*************************************************************************/
+static void dforest_streamuint(ae_vector* buf,
+     ae_int_t* offs,
+     ae_int_t v,
+     ae_state *_state)
+{
+    ae_int_t v0;
+
+
+    ae_assert(v>=0, "Assertion failed", _state);
+    for(;;)
+    {
+        
+        /*
+         * Save 7 least significant bits of V, use 8th bit as a flag which
+         * tells us whether subsequent 7-bit packages will be sent.
+         */
+        v0 = v%128;
+        if( v>=128 )
+        {
+            v0 = v0+128;
+        }
+        buf->ptr.p_ubyte[*(offs)] = (unsigned char)(v0);
+        *offs = *offs+1;
+        v = v/128;
+        if( v==0 )
+        {
+            break;
+        }
+    }
+}
+
+
+/*************************************************************************
+This function reads compressed unsigned integer number from byte array
+starting at location Offs and increments Offs by number of bytes being
+read.
+
+  -- ALGLIB --
+     Copyright 22.07.2019 by Bochkanov Sergey
+*************************************************************************/
+static ae_int_t dforest_unstreamuint(ae_vector* buf,
+     ae_int_t* offs,
+     ae_state *_state)
+{
+    ae_int_t v0;
+    ae_int_t p;
+    ae_int_t result;
+
+
+    result = 0;
+    p = 1;
+    for(;;)
+    {
+        
+        /*
+         * Rad 7 bits of V, use 8th bit as a flag which tells us whether
+         * subsequent 7-bit packages will be received.
+         */
+        v0 = buf->ptr.p_ubyte[*(offs)];
+        *offs = *offs+1;
+        result = result+v0%128*p;
+        if( v0<128 )
+        {
+            break;
+        }
+        p = p*128;
+    }
+    return result;
+}
+
+
+/*************************************************************************
+This function stores compressed floating point number  to  byte  array  at
+location  Offs and increments Offs by number of bytes being stored.
+
+Either 8-bit mantissa or 16-bit mantissa is used. The exponent  is  always
+7 bits of exponent + sign. Values which do not fit into exponent range are
+truncated to fit.
+
+  -- ALGLIB --
+     Copyright 22.07.2019 by Bochkanov Sergey
+*************************************************************************/
+static void dforest_streamfloat(ae_vector* buf,
+     ae_bool usemantissa8,
+     ae_int_t* offs,
+     double v,
+     ae_state *_state)
+{
+    ae_int_t signbit;
+    ae_int_t e;
+    ae_int_t m;
+    double twopow30;
+    double twopowm30;
+    double twopow10;
+    double twopowm10;
+
+
+    ae_assert(ae_isfinite(v, _state), "StreamFloat: V is not finite number", _state);
+    
+    /*
+     * Special case: zero
+     */
+    if( v==0.0 )
+    {
+        if( usemantissa8 )
+        {
+            buf->ptr.p_ubyte[*offs+0] = (unsigned char)(0);
+            buf->ptr.p_ubyte[*offs+1] = (unsigned char)(0);
+            *offs = *offs+2;
+        }
+        else
+        {
+            buf->ptr.p_ubyte[*offs+0] = (unsigned char)(0);
+            buf->ptr.p_ubyte[*offs+1] = (unsigned char)(0);
+            buf->ptr.p_ubyte[*offs+2] = (unsigned char)(0);
+            *offs = *offs+3;
+        }
+        return;
+    }
+    
+    /*
+     * Handle sign
+     */
+    signbit = 0;
+    if( v<0.0 )
+    {
+        v = -v;
+        signbit = 128;
+    }
+    
+    /*
+     * Compute exponent
+     */
+    twopow30 = (double)(1073741824);
+    twopow10 = (double)(1024);
+    twopowm30 = 1.0/twopow30;
+    twopowm10 = 1.0/twopow10;
+    e = 0;
+    while(v>=twopow30)
+    {
+        v = v*twopowm30;
+        e = e+30;
+    }
+    while(v>=twopow10)
+    {
+        v = v*twopowm10;
+        e = e+10;
+    }
+    while(v>=1.0)
+    {
+        v = v*0.5;
+        e = e+1;
+    }
+    while(v<twopowm30)
+    {
+        v = v*twopow30;
+        e = e-30;
+    }
+    while(v<twopowm10)
+    {
+        v = v*twopow10;
+        e = e-10;
+    }
+    while(v<0.5)
+    {
+        v = v*2;
+        e = e-1;
+    }
+    ae_assert(v>=0.5&&v<1.0, "StreamFloat: integrity check failed", _state);
+    
+    /*
+     * Handle exponent underflow/overflow
+     */
+    if( e<-63 )
+    {
+        signbit = 0;
+        e = 0;
+        v = (double)(0);
+    }
+    if( e>63 )
+    {
+        e = 63;
+        v = 1.0;
+    }
+    
+    /*
+     * Save to stream
+     */
+    if( usemantissa8 )
+    {
+        m = ae_round(v*256, _state);
+        if( m==256 )
+        {
+            m = m/2;
+            e = ae_minint(e+1, 63, _state);
+        }
+        buf->ptr.p_ubyte[*offs+0] = (unsigned char)(e+64+signbit);
+        buf->ptr.p_ubyte[*offs+1] = (unsigned char)(m);
+        *offs = *offs+2;
+    }
+    else
+    {
+        m = ae_round(v*65536, _state);
+        if( m==65536 )
+        {
+            m = m/2;
+            e = ae_minint(e+1, 63, _state);
+        }
+        buf->ptr.p_ubyte[*offs+0] = (unsigned char)(e+64+signbit);
+        buf->ptr.p_ubyte[*offs+1] = (unsigned char)(m%256);
+        buf->ptr.p_ubyte[*offs+2] = (unsigned char)(m/256);
+        *offs = *offs+3;
+    }
+}
+
+
+/*************************************************************************
+This function reads compressed floating point number from the byte array
+starting from location Offs and increments Offs by number of bytes being
+read.
+
+Either 8-bit mantissa or 16-bit mantissa is used. The exponent  is  always
+7 bits of exponent + sign. Values which do not fit into exponent range are
+truncated to fit.
+
+  -- ALGLIB --
+     Copyright 22.07.2019 by Bochkanov Sergey
+*************************************************************************/
+static double dforest_unstreamfloat(ae_vector* buf,
+     ae_bool usemantissa8,
+     ae_int_t* offs,
+     ae_state *_state)
+{
+    ae_int_t e;
+    double v;
+    double inv256;
+    double result;
+
+
+    
+    /*
+     * Read from stream
+     */
+    inv256 = 1.0/256.0;
+    if( usemantissa8 )
+    {
+        e = buf->ptr.p_ubyte[*offs+0];
+        v = buf->ptr.p_ubyte[*offs+1]*inv256;
+        *offs = *offs+2;
+    }
+    else
+    {
+        e = buf->ptr.p_ubyte[*offs+0];
+        v = (buf->ptr.p_ubyte[*offs+1]*inv256+buf->ptr.p_ubyte[*offs+2])*inv256;
+        *offs = *offs+3;
+    }
+    
+    /*
+     * Decode
+     */
+    if( e>128 )
+    {
+        v = -v;
+        e = e-128;
+    }
+    e = e-64;
+    result = dforest_xfastpow((double)(2), e, _state)*v;
+    return result;
+}
+
+
+/*************************************************************************
 Classification error
 *************************************************************************/
 static ae_int_t dforest_dfclserror(decisionforest* df,
@@ -44985,51 +49569,177 @@ static ae_int_t dforest_dfclserror(decisionforest* df,
 
 
 /*************************************************************************
-Internal subroutine for processing one decision tree starting at Offs
+Internal subroutine for processing one decision tree stored in uncompressed
+format starting at SubtreeRoot (this index points to the header of the tree,
+not its first node). First node being processed is located at NodeOffs.
 *************************************************************************/
-static void dforest_dfprocessinternal(decisionforest* df,
-     ae_int_t offs,
+static void dforest_dfprocessinternaluncompressed(decisionforest* df,
+     ae_int_t subtreeroot,
+     ae_int_t nodeoffs,
      /* Real    */ ae_vector* x,
      /* Real    */ ae_vector* y,
      ae_state *_state)
 {
-    ae_int_t k;
     ae_int_t idx;
 
 
-    
-    /*
-     * Set pointer to the root
-     */
-    k = offs+1;
+    ae_assert(df->forestformat==dforest_dfuncompressedv0, "DFProcessInternal: unexpected forest format", _state);
     
     /*
      * Navigate through the tree
      */
     for(;;)
     {
-        if( ae_fp_eq(df->trees.ptr.p_double[k],(double)(-1)) )
+        if( ae_fp_eq(df->trees.ptr.p_double[nodeoffs],(double)(-1)) )
         {
             if( df->nclasses==1 )
             {
-                y->ptr.p_double[0] = y->ptr.p_double[0]+df->trees.ptr.p_double[k+1];
+                y->ptr.p_double[0] = y->ptr.p_double[0]+df->trees.ptr.p_double[nodeoffs+1];
             }
             else
             {
-                idx = ae_round(df->trees.ptr.p_double[k+1], _state);
+                idx = ae_round(df->trees.ptr.p_double[nodeoffs+1], _state);
                 y->ptr.p_double[idx] = y->ptr.p_double[idx]+1;
             }
             break;
         }
-        if( ae_fp_less(x->ptr.p_double[ae_round(df->trees.ptr.p_double[k], _state)],df->trees.ptr.p_double[k+1]) )
+        if( x->ptr.p_double[ae_round(df->trees.ptr.p_double[nodeoffs], _state)]<df->trees.ptr.p_double[nodeoffs+1] )
         {
-            k = k+dforest_innernodewidth;
+            nodeoffs = nodeoffs+dforest_innernodewidth;
         }
         else
         {
-            k = offs+ae_round(df->trees.ptr.p_double[k+2], _state);
+            nodeoffs = subtreeroot+ae_round(df->trees.ptr.p_double[nodeoffs+2], _state);
         }
     }
+}
+
+
+/*************************************************************************
+Internal subroutine for processing one decision tree stored in compressed
+format starting at Offs (this index points to the first node of the tree,
+right past the header field).
+*************************************************************************/
+static void dforest_dfprocessinternalcompressed(decisionforest* df,
+     ae_int_t offs,
+     /* Real    */ ae_vector* x,
+     /* Real    */ ae_vector* y,
+     ae_state *_state)
+{
+    ae_int_t leafindicator;
+    ae_int_t varidx;
+    double splitval;
+    ae_int_t jmplen;
+    double leafval;
+    ae_int_t leafcls;
+
+
+    ae_assert(df->forestformat==dforest_dfcompressedv0, "DFProcessInternal: unexpected forest format", _state);
+    
+    /*
+     * Navigate through the tree
+     */
+    leafindicator = 2*df->nvars;
+    for(;;)
+    {
+        
+        /*
+         * Read variable idx
+         */
+        varidx = dforest_unstreamuint(&df->trees8, &offs, _state);
+        
+        /*
+         * Is it leaf?
+         */
+        if( varidx==leafindicator )
+        {
+            if( df->nclasses==1 )
+            {
+                
+                /*
+                 * Regression forest
+                 */
+                leafval = dforest_unstreamfloat(&df->trees8, df->usemantissa8, &offs, _state);
+                y->ptr.p_double[0] = y->ptr.p_double[0]+leafval;
+            }
+            else
+            {
+                
+                /*
+                 * Classification forest
+                 */
+                leafcls = dforest_unstreamuint(&df->trees8, &offs, _state);
+                y->ptr.p_double[leafcls] = y->ptr.p_double[leafcls]+1;
+            }
+            break;
+        }
+        
+        /*
+         * Process node
+         */
+        splitval = dforest_unstreamfloat(&df->trees8, df->usemantissa8, &offs, _state);
+        jmplen = dforest_unstreamuint(&df->trees8, &offs, _state);
+        if( varidx<df->nvars )
+        {
+            
+            /*
+             * The split rule is "if VAR<VAL then BRANCH0 else BRANCH1"
+             */
+            if( x->ptr.p_double[varidx]>=splitval )
+            {
+                offs = offs+jmplen;
+            }
+        }
+        else
+        {
+            
+            /*
+             * The split rule is "if VAR>=VAL then BRANCH0 else BRANCH1"
+             */
+            varidx = varidx-df->nvars;
+            if( x->ptr.p_double[varidx]<splitval )
+            {
+                offs = offs+jmplen;
+            }
+        }
+    }
+}
+
+
+/*************************************************************************
+Fast Pow
+
+  -- ALGLIB --
+     Copyright 24.08.2009 by Bochkanov Sergey
+*************************************************************************/
+static double dforest_xfastpow(double r, ae_int_t n, ae_state *_state)
+{
+    double result;
+
+
+    result = (double)(0);
+    if( n>0 )
+    {
+        if( n%2==0 )
+        {
+            result = dforest_xfastpow(r, n/2, _state);
+            result = result*result;
+        }
+        else
+        {
+            result = r*dforest_xfastpow(r, n-1, _state);
+        }
+        return result;
+    }
+    if( n==0 )
+    {
+        result = (double)(1);
+    }
+    if( n<0 )
+    {
+        result = dforest_xfastpow(1/r, -n, _state);
+    }
+    return result;
 }
 
 
@@ -45048,6 +49758,8 @@ void _decisionforestbuilder_init(void* _p, ae_state *_state, ae_bool make_automa
     ae_shared_pool_init(&p->votepool, _state, make_automatic);
     ae_shared_pool_init(&p->treepool, _state, make_automatic);
     ae_shared_pool_init(&p->treefactory, _state, make_automatic);
+    ae_matrix_init(&p->iobmatrix, 0, 0, DT_BOOL, _state, make_automatic);
+    ae_vector_init(&p->varimpshuffle2, 0, DT_INT, _state, make_automatic);
 }
 
 
@@ -45067,6 +49779,7 @@ void _decisionforestbuilder_init_copy(void* _dst, void* _src, ae_state *_state, 
     dst->rdfvars = src->rdfvars;
     dst->rdfglobalseed = src->rdfglobalseed;
     dst->rdfsplitstrength = src->rdfsplitstrength;
+    dst->rdfimportance = src->rdfimportance;
     ae_vector_init_copy(&dst->dsmin, &src->dsmin, _state, make_automatic);
     ae_vector_init_copy(&dst->dsmax, &src->dsmax, _state, make_automatic);
     ae_vector_init_copy(&dst->dsbinary, &src->dsbinary, _state, make_automatic);
@@ -45078,6 +49791,9 @@ void _decisionforestbuilder_init_copy(void* _dst, void* _src, ae_state *_state, 
     ae_shared_pool_init_copy(&dst->votepool, &src->votepool, _state, make_automatic);
     ae_shared_pool_init_copy(&dst->treepool, &src->treepool, _state, make_automatic);
     ae_shared_pool_init_copy(&dst->treefactory, &src->treefactory, _state, make_automatic);
+    dst->neediobmatrix = src->neediobmatrix;
+    ae_matrix_init_copy(&dst->iobmatrix, &src->iobmatrix, _state, make_automatic);
+    ae_vector_init_copy(&dst->varimpshuffle2, &src->varimpshuffle2, _state, make_automatic);
 }
 
 
@@ -45096,6 +49812,8 @@ void _decisionforestbuilder_clear(void* _p)
     ae_shared_pool_clear(&p->votepool);
     ae_shared_pool_clear(&p->treepool);
     ae_shared_pool_clear(&p->treefactory);
+    ae_matrix_clear(&p->iobmatrix);
+    ae_vector_clear(&p->varimpshuffle2);
 }
 
 
@@ -45114,6 +49832,8 @@ void _decisionforestbuilder_destroy(void* _p)
     ae_shared_pool_destroy(&p->votepool);
     ae_shared_pool_destroy(&p->treepool);
     ae_shared_pool_destroy(&p->treefactory);
+    ae_matrix_destroy(&p->iobmatrix);
+    ae_vector_destroy(&p->varimpshuffle2);
 }
 
 
@@ -45127,6 +49847,8 @@ void _dfworkbuf_init(void* _p, ae_state *_state, ae_bool make_automatic)
     ae_vector_init(&p->trnlabelsr, 0, DT_REAL, _state, make_automatic);
     ae_vector_init(&p->trnlabelsi, 0, DT_INT, _state, make_automatic);
     ae_vector_init(&p->oobset, 0, DT_INT, _state, make_automatic);
+    ae_vector_init(&p->ooblabelsr, 0, DT_REAL, _state, make_automatic);
+    ae_vector_init(&p->ooblabelsi, 0, DT_INT, _state, make_automatic);
     ae_vector_init(&p->treebuf, 0, DT_REAL, _state, make_automatic);
     ae_vector_init(&p->curvals, 0, DT_REAL, _state, make_automatic);
     ae_vector_init(&p->bestvals, 0, DT_REAL, _state, make_automatic);
@@ -45136,6 +49858,7 @@ void _dfworkbuf_init(void* _p, ae_state *_state, ae_bool make_automatic)
     ae_vector_init(&p->tmp1r, 0, DT_REAL, _state, make_automatic);
     ae_vector_init(&p->tmp2r, 0, DT_REAL, _state, make_automatic);
     ae_vector_init(&p->tmp3r, 0, DT_REAL, _state, make_automatic);
+    ae_vector_init(&p->tmpnrms2, 0, DT_INT, _state, make_automatic);
     ae_vector_init(&p->classtotals0, 0, DT_INT, _state, make_automatic);
     ae_vector_init(&p->classtotals1, 0, DT_INT, _state, make_automatic);
     ae_vector_init(&p->classtotals01, 0, DT_INT, _state, make_automatic);
@@ -45155,6 +49878,8 @@ void _dfworkbuf_init_copy(void* _dst, void* _src, ae_state *_state, ae_bool make
     ae_vector_init_copy(&dst->trnlabelsi, &src->trnlabelsi, _state, make_automatic);
     ae_vector_init_copy(&dst->oobset, &src->oobset, _state, make_automatic);
     dst->oobsize = src->oobsize;
+    ae_vector_init_copy(&dst->ooblabelsr, &src->ooblabelsr, _state, make_automatic);
+    ae_vector_init_copy(&dst->ooblabelsi, &src->ooblabelsi, _state, make_automatic);
     ae_vector_init_copy(&dst->treebuf, &src->treebuf, _state, make_automatic);
     ae_vector_init_copy(&dst->curvals, &src->curvals, _state, make_automatic);
     ae_vector_init_copy(&dst->bestvals, &src->bestvals, _state, make_automatic);
@@ -45164,6 +49889,7 @@ void _dfworkbuf_init_copy(void* _dst, void* _src, ae_state *_state, ae_bool make
     ae_vector_init_copy(&dst->tmp1r, &src->tmp1r, _state, make_automatic);
     ae_vector_init_copy(&dst->tmp2r, &src->tmp2r, _state, make_automatic);
     ae_vector_init_copy(&dst->tmp3r, &src->tmp3r, _state, make_automatic);
+    ae_vector_init_copy(&dst->tmpnrms2, &src->tmpnrms2, _state, make_automatic);
     ae_vector_init_copy(&dst->classtotals0, &src->classtotals0, _state, make_automatic);
     ae_vector_init_copy(&dst->classtotals1, &src->classtotals1, _state, make_automatic);
     ae_vector_init_copy(&dst->classtotals01, &src->classtotals01, _state, make_automatic);
@@ -45180,6 +49906,8 @@ void _dfworkbuf_clear(void* _p)
     ae_vector_clear(&p->trnlabelsr);
     ae_vector_clear(&p->trnlabelsi);
     ae_vector_clear(&p->oobset);
+    ae_vector_clear(&p->ooblabelsr);
+    ae_vector_clear(&p->ooblabelsi);
     ae_vector_clear(&p->treebuf);
     ae_vector_clear(&p->curvals);
     ae_vector_clear(&p->bestvals);
@@ -45189,6 +49917,7 @@ void _dfworkbuf_clear(void* _p)
     ae_vector_clear(&p->tmp1r);
     ae_vector_clear(&p->tmp2r);
     ae_vector_clear(&p->tmp3r);
+    ae_vector_clear(&p->tmpnrms2);
     ae_vector_clear(&p->classtotals0);
     ae_vector_clear(&p->classtotals1);
     ae_vector_clear(&p->classtotals01);
@@ -45205,6 +49934,8 @@ void _dfworkbuf_destroy(void* _p)
     ae_vector_destroy(&p->trnlabelsr);
     ae_vector_destroy(&p->trnlabelsi);
     ae_vector_destroy(&p->oobset);
+    ae_vector_destroy(&p->ooblabelsr);
+    ae_vector_destroy(&p->ooblabelsi);
     ae_vector_destroy(&p->treebuf);
     ae_vector_destroy(&p->curvals);
     ae_vector_destroy(&p->bestvals);
@@ -45214,6 +49945,7 @@ void _dfworkbuf_destroy(void* _p)
     ae_vector_destroy(&p->tmp1r);
     ae_vector_destroy(&p->tmp2r);
     ae_vector_destroy(&p->tmp3r);
+    ae_vector_destroy(&p->tmpnrms2);
     ae_vector_destroy(&p->classtotals0);
     ae_vector_destroy(&p->classtotals1);
     ae_vector_destroy(&p->classtotals01);
@@ -45228,6 +49960,7 @@ void _dfvotebuf_init(void* _p, ae_state *_state, ae_bool make_automatic)
     ae_vector_init(&p->oobtotals, 0, DT_REAL, _state, make_automatic);
     ae_vector_init(&p->trncounts, 0, DT_INT, _state, make_automatic);
     ae_vector_init(&p->oobcounts, 0, DT_INT, _state, make_automatic);
+    ae_vector_init(&p->giniimportances, 0, DT_REAL, _state, make_automatic);
 }
 
 
@@ -45239,6 +49972,7 @@ void _dfvotebuf_init_copy(void* _dst, void* _src, ae_state *_state, ae_bool make
     ae_vector_init_copy(&dst->oobtotals, &src->oobtotals, _state, make_automatic);
     ae_vector_init_copy(&dst->trncounts, &src->trncounts, _state, make_automatic);
     ae_vector_init_copy(&dst->oobcounts, &src->oobcounts, _state, make_automatic);
+    ae_vector_init_copy(&dst->giniimportances, &src->giniimportances, _state, make_automatic);
 }
 
 
@@ -45250,6 +49984,7 @@ void _dfvotebuf_clear(void* _p)
     ae_vector_clear(&p->oobtotals);
     ae_vector_clear(&p->trncounts);
     ae_vector_clear(&p->oobcounts);
+    ae_vector_clear(&p->giniimportances);
 }
 
 
@@ -45261,6 +49996,67 @@ void _dfvotebuf_destroy(void* _p)
     ae_vector_destroy(&p->oobtotals);
     ae_vector_destroy(&p->trncounts);
     ae_vector_destroy(&p->oobcounts);
+    ae_vector_destroy(&p->giniimportances);
+}
+
+
+void _dfpermimpbuf_init(void* _p, ae_state *_state, ae_bool make_automatic)
+{
+    dfpermimpbuf *p = (dfpermimpbuf*)_p;
+    ae_touch_ptr((void*)p);
+    ae_vector_init(&p->losses, 0, DT_REAL, _state, make_automatic);
+    ae_vector_init(&p->xraw, 0, DT_REAL, _state, make_automatic);
+    ae_vector_init(&p->xdist, 0, DT_REAL, _state, make_automatic);
+    ae_vector_init(&p->xcur, 0, DT_REAL, _state, make_automatic);
+    ae_vector_init(&p->y, 0, DT_REAL, _state, make_automatic);
+    ae_vector_init(&p->yv, 0, DT_REAL, _state, make_automatic);
+    ae_vector_init(&p->targety, 0, DT_REAL, _state, make_automatic);
+    ae_vector_init(&p->startnodes, 0, DT_INT, _state, make_automatic);
+}
+
+
+void _dfpermimpbuf_init_copy(void* _dst, void* _src, ae_state *_state, ae_bool make_automatic)
+{
+    dfpermimpbuf *dst = (dfpermimpbuf*)_dst;
+    dfpermimpbuf *src = (dfpermimpbuf*)_src;
+    ae_vector_init_copy(&dst->losses, &src->losses, _state, make_automatic);
+    ae_vector_init_copy(&dst->xraw, &src->xraw, _state, make_automatic);
+    ae_vector_init_copy(&dst->xdist, &src->xdist, _state, make_automatic);
+    ae_vector_init_copy(&dst->xcur, &src->xcur, _state, make_automatic);
+    ae_vector_init_copy(&dst->y, &src->y, _state, make_automatic);
+    ae_vector_init_copy(&dst->yv, &src->yv, _state, make_automatic);
+    ae_vector_init_copy(&dst->targety, &src->targety, _state, make_automatic);
+    ae_vector_init_copy(&dst->startnodes, &src->startnodes, _state, make_automatic);
+}
+
+
+void _dfpermimpbuf_clear(void* _p)
+{
+    dfpermimpbuf *p = (dfpermimpbuf*)_p;
+    ae_touch_ptr((void*)p);
+    ae_vector_clear(&p->losses);
+    ae_vector_clear(&p->xraw);
+    ae_vector_clear(&p->xdist);
+    ae_vector_clear(&p->xcur);
+    ae_vector_clear(&p->y);
+    ae_vector_clear(&p->yv);
+    ae_vector_clear(&p->targety);
+    ae_vector_clear(&p->startnodes);
+}
+
+
+void _dfpermimpbuf_destroy(void* _p)
+{
+    dfpermimpbuf *p = (dfpermimpbuf*)_p;
+    ae_touch_ptr((void*)p);
+    ae_vector_destroy(&p->losses);
+    ae_vector_destroy(&p->xraw);
+    ae_vector_destroy(&p->xdist);
+    ae_vector_destroy(&p->xcur);
+    ae_vector_destroy(&p->y);
+    ae_vector_destroy(&p->yv);
+    ae_vector_destroy(&p->targety);
+    ae_vector_destroy(&p->startnodes);
 }
 
 
@@ -45277,6 +50073,7 @@ void _dftreebuf_init_copy(void* _dst, void* _src, ae_state *_state, ae_bool make
     dftreebuf *dst = (dftreebuf*)_dst;
     dftreebuf *src = (dftreebuf*)_src;
     ae_vector_init_copy(&dst->treebuf, &src->treebuf, _state, make_automatic);
+    dst->treeidx = src->treeidx;
 }
 
 
@@ -45296,11 +50093,49 @@ void _dftreebuf_destroy(void* _p)
 }
 
 
+void _decisionforestbuffer_init(void* _p, ae_state *_state, ae_bool make_automatic)
+{
+    decisionforestbuffer *p = (decisionforestbuffer*)_p;
+    ae_touch_ptr((void*)p);
+    ae_vector_init(&p->x, 0, DT_REAL, _state, make_automatic);
+    ae_vector_init(&p->y, 0, DT_REAL, _state, make_automatic);
+}
+
+
+void _decisionforestbuffer_init_copy(void* _dst, void* _src, ae_state *_state, ae_bool make_automatic)
+{
+    decisionforestbuffer *dst = (decisionforestbuffer*)_dst;
+    decisionforestbuffer *src = (decisionforestbuffer*)_src;
+    ae_vector_init_copy(&dst->x, &src->x, _state, make_automatic);
+    ae_vector_init_copy(&dst->y, &src->y, _state, make_automatic);
+}
+
+
+void _decisionforestbuffer_clear(void* _p)
+{
+    decisionforestbuffer *p = (decisionforestbuffer*)_p;
+    ae_touch_ptr((void*)p);
+    ae_vector_clear(&p->x);
+    ae_vector_clear(&p->y);
+}
+
+
+void _decisionforestbuffer_destroy(void* _p)
+{
+    decisionforestbuffer *p = (decisionforestbuffer*)_p;
+    ae_touch_ptr((void*)p);
+    ae_vector_destroy(&p->x);
+    ae_vector_destroy(&p->y);
+}
+
+
 void _decisionforest_init(void* _p, ae_state *_state, ae_bool make_automatic)
 {
     decisionforest *p = (decisionforest*)_p;
     ae_touch_ptr((void*)p);
     ae_vector_init(&p->trees, 0, DT_REAL, _state, make_automatic);
+    _decisionforestbuffer_init(&p->buffer, _state, make_automatic);
+    ae_vector_init(&p->trees8, 0, DT_BYTE, _state, make_automatic);
 }
 
 
@@ -45308,11 +50143,15 @@ void _decisionforest_init_copy(void* _dst, void* _src, ae_state *_state, ae_bool
 {
     decisionforest *dst = (decisionforest*)_dst;
     decisionforest *src = (decisionforest*)_src;
+    dst->forestformat = src->forestformat;
+    dst->usemantissa8 = src->usemantissa8;
     dst->nvars = src->nvars;
     dst->nclasses = src->nclasses;
     dst->ntrees = src->ntrees;
     dst->bufsize = src->bufsize;
     ae_vector_init_copy(&dst->trees, &src->trees, _state, make_automatic);
+    _decisionforestbuffer_init_copy(&dst->buffer, &src->buffer, _state, make_automatic);
+    ae_vector_init_copy(&dst->trees8, &src->trees8, _state, make_automatic);
 }
 
 
@@ -45321,6 +50160,8 @@ void _decisionforest_clear(void* _p)
     decisionforest *p = (decisionforest*)_p;
     ae_touch_ptr((void*)p);
     ae_vector_clear(&p->trees);
+    _decisionforestbuffer_clear(&p->buffer);
+    ae_vector_clear(&p->trees8);
 }
 
 
@@ -45329,6 +50170,8 @@ void _decisionforest_destroy(void* _p)
     decisionforest *p = (decisionforest*)_p;
     ae_touch_ptr((void*)p);
     ae_vector_destroy(&p->trees);
+    _decisionforestbuffer_destroy(&p->buffer);
+    ae_vector_destroy(&p->trees8);
 }
 
 
@@ -45336,6 +50179,8 @@ void _dfreport_init(void* _p, ae_state *_state, ae_bool make_automatic)
 {
     dfreport *p = (dfreport*)_p;
     ae_touch_ptr((void*)p);
+    ae_vector_init(&p->topvars, 0, DT_INT, _state, make_automatic);
+    ae_vector_init(&p->varimportances, 0, DT_REAL, _state, make_automatic);
 }
 
 
@@ -45353,6 +50198,8 @@ void _dfreport_init_copy(void* _dst, void* _src, ae_state *_state, ae_bool make_
     dst->oobrmserror = src->oobrmserror;
     dst->oobavgerror = src->oobavgerror;
     dst->oobavgrelerror = src->oobavgrelerror;
+    ae_vector_init_copy(&dst->topvars, &src->topvars, _state, make_automatic);
+    ae_vector_init_copy(&dst->varimportances, &src->varimportances, _state, make_automatic);
 }
 
 
@@ -45360,6 +50207,8 @@ void _dfreport_clear(void* _p)
 {
     dfreport *p = (dfreport*)_p;
     ae_touch_ptr((void*)p);
+    ae_vector_clear(&p->topvars);
+    ae_vector_clear(&p->varimportances);
 }
 
 
@@ -45367,6 +50216,8 @@ void _dfreport_destroy(void* _p)
 {
     dfreport *p = (dfreport*)_p;
     ae_touch_ptr((void*)p);
+    ae_vector_destroy(&p->topvars);
+    ae_vector_destroy(&p->varimportances);
 }
 
 
@@ -45443,6 +50294,1396 @@ void _dfinternalbuffers_destroy(void* _p)
     ae_vector_destroy(&p->varpool);
     ae_vector_destroy(&p->evsbin);
     ae_vector_destroy(&p->evssplits);
+}
+
+
+#endif
+#if defined(AE_COMPILE_KNN) || !defined(AE_PARTIAL_BUILD)
+
+
+/*************************************************************************
+This function creates buffer  structure  which  can  be  used  to  perform
+parallel KNN requests.
+
+KNN subpackage provides two sets of computing functions - ones  which  use
+internal buffer of KNN model (these  functions are single-threaded because
+they use same buffer, which can not  shared  between  threads),  and  ones
+which use external buffer.
+
+This function is used to initialize external buffer.
+
+INPUT PARAMETERS
+    Model       -   KNN model which is associated with newly created buffer
+
+OUTPUT PARAMETERS
+    Buf         -   external buffer.
+    
+    
+IMPORTANT: buffer object should be used only with model which was used  to
+           initialize buffer. Any attempt to  use  buffer  with  different
+           object is dangerous - you  may   get  integrity  check  failure
+           (exception) because sizes of internal  arrays  do  not  fit  to
+           dimensions of the model structure.
+
+  -- ALGLIB --
+     Copyright 15.02.2019 by Bochkanov Sergey
+*************************************************************************/
+void knncreatebuffer(knnmodel* model, knnbuffer* buf, ae_state *_state)
+{
+
+    _knnbuffer_clear(buf);
+
+    if( !model->isdummy )
+    {
+        kdtreecreaterequestbuffer(&model->tree, &buf->treebuf, _state);
+    }
+    ae_vector_set_length(&buf->x, model->nvars, _state);
+    ae_vector_set_length(&buf->y, model->nout, _state);
+}
+
+
+/*************************************************************************
+This subroutine creates KNNBuilder object which is used to train KNN models.
+
+By default, new builder stores empty dataset and some  reasonable  default
+settings. At the very least, you should specify dataset prior to  building
+KNN model. You can also tweak settings of the model construction algorithm
+(recommended, although default settings should work well).
+
+Following actions are mandatory:
+* calling knnbuildersetdataset() to specify dataset
+* calling knnbuilderbuildknnmodel() to build KNN model using current
+  dataset and default settings
+  
+Additionally, you may call:
+* knnbuildersetnorm() to change norm being used
+
+INPUT PARAMETERS:
+    none
+
+OUTPUT PARAMETERS:
+    S           -   KNN builder
+
+  -- ALGLIB --
+     Copyright 15.02.2019 by Bochkanov Sergey
+*************************************************************************/
+void knnbuildercreate(knnbuilder* s, ae_state *_state)
+{
+
+    _knnbuilder_clear(s);
+
+    
+    /*
+     * Empty dataset
+     */
+    s->dstype = -1;
+    s->npoints = 0;
+    s->nvars = 0;
+    s->iscls = ae_false;
+    s->nout = 1;
+    
+    /*
+     * Default training settings
+     */
+    s->knnnrm = 2;
+}
+
+
+/*************************************************************************
+Specifies regression problem (one or more continuous  output variables are
+predicted). There also exists "classification" version of this function.
+
+This subroutine adds dense dataset to the internal storage of the  builder
+object. Specifying your dataset in the dense format means that  the  dense
+version of the KNN construction algorithm will be invoked.
+
+INPUT PARAMETERS:
+    S           -   KNN builder object
+    XY          -   array[NPoints,NVars+NOut] (note: actual  size  can  be
+                    larger, only leading part is used anyway), dataset:
+                    * first NVars elements of each row store values of the
+                      independent variables
+                    * next NOut elements store  values  of  the  dependent
+                      variables
+    NPoints     -   number of rows in the dataset, NPoints>=1
+    NVars       -   number of independent variables, NVars>=1 
+    NOut        -   number of dependent variables, NOut>=1
+
+OUTPUT PARAMETERS:
+    S           -   KNN builder
+
+  -- ALGLIB --
+     Copyright 15.02.2019 by Bochkanov Sergey
+*************************************************************************/
+void knnbuildersetdatasetreg(knnbuilder* s,
+     /* Real    */ ae_matrix* xy,
+     ae_int_t npoints,
+     ae_int_t nvars,
+     ae_int_t nout,
+     ae_state *_state)
+{
+    ae_int_t i;
+    ae_int_t j;
+
+
+    
+    /*
+     * Check parameters
+     */
+    ae_assert(npoints>=1, "knnbuildersetdatasetreg: npoints<1", _state);
+    ae_assert(nvars>=1, "knnbuildersetdatasetreg: nvars<1", _state);
+    ae_assert(nout>=1, "knnbuildersetdatasetreg: nout<1", _state);
+    ae_assert(xy->rows>=npoints, "knnbuildersetdatasetreg: rows(xy)<npoints", _state);
+    ae_assert(xy->cols>=nvars+nout, "knnbuildersetdatasetreg: cols(xy)<nvars+nout", _state);
+    ae_assert(apservisfinitematrix(xy, npoints, nvars+nout, _state), "knnbuildersetdatasetreg: xy parameter contains INFs or NANs", _state);
+    
+    /*
+     * Set dataset
+     */
+    s->dstype = 0;
+    s->iscls = ae_false;
+    s->npoints = npoints;
+    s->nvars = nvars;
+    s->nout = nout;
+    rmatrixsetlengthatleast(&s->dsdata, npoints, nvars, _state);
+    for(i=0; i<=npoints-1; i++)
+    {
+        for(j=0; j<=nvars-1; j++)
+        {
+            s->dsdata.ptr.pp_double[i][j] = xy->ptr.pp_double[i][j];
+        }
+    }
+    rvectorsetlengthatleast(&s->dsrval, npoints*nout, _state);
+    for(i=0; i<=npoints-1; i++)
+    {
+        for(j=0; j<=nout-1; j++)
+        {
+            s->dsrval.ptr.p_double[i*nout+j] = xy->ptr.pp_double[i][nvars+j];
+        }
+    }
+}
+
+
+/*************************************************************************
+Specifies classification problem (two  or  more  classes  are  predicted).
+There also exists "regression" version of this function.
+
+This subroutine adds dense dataset to the internal storage of the  builder
+object. Specifying your dataset in the dense format means that  the  dense
+version of the KNN construction algorithm will be invoked.
+
+INPUT PARAMETERS:
+    S           -   KNN builder object
+    XY          -   array[NPoints,NVars+1] (note:   actual   size  can  be
+                    larger, only leading part is used anyway), dataset:
+                    * first NVars elements of each row store values of the
+                      independent variables
+                    * next element stores class index, in [0,NClasses)
+    NPoints     -   number of rows in the dataset, NPoints>=1
+    NVars       -   number of independent variables, NVars>=1 
+    NClasses    -   number of classes, NClasses>=2
+
+OUTPUT PARAMETERS:
+    S           -   KNN builder
+
+  -- ALGLIB --
+     Copyright 15.02.2019 by Bochkanov Sergey
+*************************************************************************/
+void knnbuildersetdatasetcls(knnbuilder* s,
+     /* Real    */ ae_matrix* xy,
+     ae_int_t npoints,
+     ae_int_t nvars,
+     ae_int_t nclasses,
+     ae_state *_state)
+{
+    ae_int_t i;
+    ae_int_t j;
+
+
+    
+    /*
+     * Check parameters
+     */
+    ae_assert(npoints>=1, "knnbuildersetdatasetcls: npoints<1", _state);
+    ae_assert(nvars>=1, "knnbuildersetdatasetcls: nvars<1", _state);
+    ae_assert(nclasses>=2, "knnbuildersetdatasetcls: nclasses<2", _state);
+    ae_assert(xy->rows>=npoints, "knnbuildersetdatasetcls: rows(xy)<npoints", _state);
+    ae_assert(xy->cols>=nvars+1, "knnbuildersetdatasetcls: cols(xy)<nvars+1", _state);
+    ae_assert(apservisfinitematrix(xy, npoints, nvars+1, _state), "knnbuildersetdatasetcls: xy parameter contains INFs or NANs", _state);
+    for(i=0; i<=npoints-1; i++)
+    {
+        j = ae_round(xy->ptr.pp_double[i][nvars], _state);
+        ae_assert(j>=0&&j<nclasses, "knnbuildersetdatasetcls: last column of xy contains invalid class number", _state);
+    }
+    
+    /*
+     * Set dataset
+     */
+    s->iscls = ae_true;
+    s->dstype = 0;
+    s->npoints = npoints;
+    s->nvars = nvars;
+    s->nout = nclasses;
+    rmatrixsetlengthatleast(&s->dsdata, npoints, nvars, _state);
+    for(i=0; i<=npoints-1; i++)
+    {
+        for(j=0; j<=nvars-1; j++)
+        {
+            s->dsdata.ptr.pp_double[i][j] = xy->ptr.pp_double[i][j];
+        }
+    }
+    ivectorsetlengthatleast(&s->dsival, npoints, _state);
+    for(i=0; i<=npoints-1; i++)
+    {
+        s->dsival.ptr.p_int[i] = ae_round(xy->ptr.pp_double[i][nvars], _state);
+    }
+}
+
+
+/*************************************************************************
+This function sets norm type used for neighbor search.
+
+INPUT PARAMETERS:
+    S           -   decision forest builder object
+    NormType    -   norm type:
+                    * 0      inf-norm
+                    * 1      1-norm
+                    * 2      Euclidean norm (default)
+
+OUTPUT PARAMETERS:
+    S           -   decision forest builder
+
+  -- ALGLIB --
+     Copyright 15.02.2019 by Bochkanov Sergey
+*************************************************************************/
+void knnbuildersetnorm(knnbuilder* s, ae_int_t nrmtype, ae_state *_state)
+{
+
+
+    ae_assert((nrmtype==0||nrmtype==1)||nrmtype==2, "knnbuildersetnorm: unexpected norm type", _state);
+    s->knnnrm = nrmtype;
+}
+
+
+/*************************************************************************
+This subroutine builds KNN model  according  to  current  settings,  using
+dataset internally stored in the builder object.
+
+The model being built performs inference using Eps-approximate  K  nearest
+neighbors search algorithm, with:
+* K=1,  Eps=0 corresponding to the "nearest neighbor algorithm"
+* K>1,  Eps=0 corresponding to the "K nearest neighbors algorithm"
+* K>=1, Eps>0 corresponding to "approximate nearest neighbors algorithm"
+
+An approximate KNN is a good option for high-dimensional  datasets  (exact
+KNN works slowly when dimensions count grows).
+
+An ALGLIB implementation of kd-trees is used to perform k-nn searches.
+
+  ! COMMERCIAL EDITION OF ALGLIB:
+  ! 
+  ! Commercial Edition of ALGLIB includes following important improvements
+  ! of this function:
+  ! * high-performance native backend with same C# interface (C# version)
+  ! * multithreading support (C++ and C# versions)
+  ! 
+  ! We recommend you to read 'Working with commercial version' section  of
+  ! ALGLIB Reference Manual in order to find out how to  use  performance-
+  ! related features provided by commercial edition of ALGLIB.
+
+INPUT PARAMETERS:
+    S       -   KNN builder object
+    K       -   number of neighbors to search for, K>=1
+    Eps     -   approximation factor:
+                * Eps=0 means that exact kNN search is performed
+                * Eps>0 means that (1+Eps)-approximate search is performed
+
+OUTPUT PARAMETERS:
+    Model       -   KNN model
+    Rep         -   report
+
+  -- ALGLIB --
+     Copyright 15.02.2019 by Bochkanov Sergey
+*************************************************************************/
+void knnbuilderbuildknnmodel(knnbuilder* s,
+     ae_int_t k,
+     double eps,
+     knnmodel* model,
+     knnreport* rep,
+     ae_state *_state)
+{
+    ae_frame _frame_block;
+    ae_int_t i;
+    ae_int_t j;
+    ae_int_t nvars;
+    ae_int_t nout;
+    ae_int_t npoints;
+    ae_bool iscls;
+    ae_matrix xy;
+    ae_vector tags;
+
+    ae_frame_make(_state, &_frame_block);
+    memset(&xy, 0, sizeof(xy));
+    memset(&tags, 0, sizeof(tags));
+    _knnmodel_clear(model);
+    _knnreport_clear(rep);
+    ae_matrix_init(&xy, 0, 0, DT_REAL, _state, ae_true);
+    ae_vector_init(&tags, 0, DT_INT, _state, ae_true);
+
+    npoints = s->npoints;
+    nvars = s->nvars;
+    nout = s->nout;
+    iscls = s->iscls;
+    
+    /*
+     * Check settings
+     */
+    ae_assert(k>=1, "knnbuilderbuildknnmodel: k<1", _state);
+    ae_assert(ae_isfinite(eps, _state)&&ae_fp_greater_eq(eps,(double)(0)), "knnbuilderbuildknnmodel: eps<0", _state);
+    
+    /*
+     * Prepare output
+     */
+    knn_clearreport(rep, _state);
+    model->nvars = nvars;
+    model->nout = nout;
+    model->iscls = iscls;
+    model->k = k;
+    model->eps = eps;
+    model->isdummy = ae_false;
+    
+    /*
+     * Quick exit for empty dataset
+     */
+    if( s->dstype==-1 )
+    {
+        model->isdummy = ae_true;
+        ae_frame_leave(_state);
+        return;
+    }
+    
+    /*
+     * Build kd-tree
+     */
+    if( iscls )
+    {
+        ae_matrix_set_length(&xy, npoints, nvars+1, _state);
+        ae_vector_set_length(&tags, npoints, _state);
+        for(i=0; i<=npoints-1; i++)
+        {
+            for(j=0; j<=nvars-1; j++)
+            {
+                xy.ptr.pp_double[i][j] = s->dsdata.ptr.pp_double[i][j];
+            }
+            xy.ptr.pp_double[i][nvars] = (double)(s->dsival.ptr.p_int[i]);
+            tags.ptr.p_int[i] = s->dsival.ptr.p_int[i];
+        }
+        kdtreebuildtagged(&xy, &tags, npoints, nvars, 0, s->knnnrm, &model->tree, _state);
+    }
+    else
+    {
+        ae_matrix_set_length(&xy, npoints, nvars+nout, _state);
+        for(i=0; i<=npoints-1; i++)
+        {
+            for(j=0; j<=nvars-1; j++)
+            {
+                xy.ptr.pp_double[i][j] = s->dsdata.ptr.pp_double[i][j];
+            }
+            for(j=0; j<=nout-1; j++)
+            {
+                xy.ptr.pp_double[i][nvars+j] = s->dsrval.ptr.p_double[i*nout+j];
+            }
+        }
+        kdtreebuild(&xy, npoints, nvars, nout, s->knnnrm, &model->tree, _state);
+    }
+    
+    /*
+     * Build buffer
+     */
+    knncreatebuffer(model, &model->buffer, _state);
+    
+    /*
+     * Report
+     */
+    knnallerrors(model, &xy, npoints, rep, _state);
+    ae_frame_leave(_state);
+}
+
+
+/*************************************************************************
+Changing search settings of KNN model.
+
+K and EPS parameters of KNN  (AKNN)  search  are  specified  during  model
+construction. However, plain KNN algorithm with Euclidean distance  allows
+you to change them at any moment.
+
+NOTE: future versions of KNN model may support advanced versions  of  KNN,
+      such as NCA or LMNN. It is possible that such algorithms won't allow
+      you to change search settings on the fly. If you call this  function
+      for an algorithm which does not support on-the-fly changes, it  will
+      throw an exception.
+
+INPUT PARAMETERS:
+    Model   -   KNN model
+    K       -   K>=1, neighbors count
+    EPS     -   accuracy of the EPS-approximate NN search. Set to 0.0,  if
+                you want to perform "classic" KNN search.  Specify  larger
+                values  if  you  need  to  speed-up  high-dimensional  KNN
+                queries.
+
+OUTPUT PARAMETERS:
+    nothing on success, exception on failure
+
+  -- ALGLIB --
+     Copyright 15.02.2019 by Bochkanov Sergey
+*************************************************************************/
+void knnrewritekeps(knnmodel* model,
+     ae_int_t k,
+     double eps,
+     ae_state *_state)
+{
+
+
+    ae_assert(k>=1, "knnrewritekeps: k<1", _state);
+    ae_assert(ae_isfinite(eps, _state)&&ae_fp_greater_eq(eps,(double)(0)), "knnrewritekeps: eps<0", _state);
+    model->k = k;
+    model->eps = eps;
+}
+
+
+/*************************************************************************
+Inference using KNN model.
+
+See also knnprocess0(), knnprocessi() and knnclassify() for options with a
+bit more convenient interface.
+
+IMPORTANT: this function is thread-unsafe and modifies internal structures
+           of the model! You can not use same model  object  for  parallel
+           evaluation from several threads.
+           
+           Use knntsprocess() with independent  thread-local  buffers,  if
+           you need thread-safe evaluation.
+
+INPUT PARAMETERS:
+    Model   -   KNN model
+    X       -   input vector,  array[0..NVars-1].
+    Y       -   possible preallocated buffer. Reused if long enough.
+
+OUTPUT PARAMETERS:
+    Y       -   result. Regression estimate when solving regression  task,
+                vector of posterior probabilities for classification task.
+
+  -- ALGLIB --
+     Copyright 15.02.2019 by Bochkanov Sergey
+*************************************************************************/
+void knnprocess(knnmodel* model,
+     /* Real    */ ae_vector* x,
+     /* Real    */ ae_vector* y,
+     ae_state *_state)
+{
+
+
+    knntsprocess(model, &model->buffer, x, y, _state);
+}
+
+
+/*************************************************************************
+This function returns first component of the  inferred  vector  (i.e.  one
+with index #0).
+
+It is a convenience wrapper for knnprocess() intended for either:
+* 1-dimensional regression problems
+* 2-class classification problems
+
+In the former case this function returns inference result as scalar, which
+is definitely more convenient that wrapping it as vector.  In  the  latter
+case it returns probability of object belonging to class #0.
+
+If you call it for anything different from two cases above, it  will  work
+as defined, i.e. return y[0], although it is of less use in such cases.
+
+IMPORTANT: this function is thread-unsafe and modifies internal structures
+           of the model! You can not use same model  object  for  parallel
+           evaluation from several threads.
+           
+           Use knntsprocess() with independent  thread-local  buffers,  if
+           you need thread-safe evaluation.
+
+INPUT PARAMETERS:
+    Model   -   KNN model
+    X       -   input vector,  array[0..NVars-1].
+
+RESULT:
+    Y[0]
+
+  -- ALGLIB --
+     Copyright 15.02.2019 by Bochkanov Sergey
+*************************************************************************/
+double knnprocess0(knnmodel* model,
+     /* Real    */ ae_vector* x,
+     ae_state *_state)
+{
+    ae_int_t i;
+    ae_int_t nvars;
+    double result;
+
+
+    nvars = model->nvars;
+    for(i=0; i<=nvars-1; i++)
+    {
+        model->buffer.x.ptr.p_double[i] = x->ptr.p_double[i];
+    }
+    knn_processinternal(model, &model->buffer, _state);
+    result = model->buffer.y.ptr.p_double[0];
+    return result;
+}
+
+
+/*************************************************************************
+This function returns most probable class number for an  input  X.  It  is
+same as calling knnprocess(model,x,y), then determining i=argmax(y[i]) and
+returning i.
+
+A class number in [0,NOut) range in returned for classification  problems,
+-1 is returned when this function is called for regression problems.
+
+IMPORTANT: this function is thread-unsafe and modifies internal structures
+           of the model! You can not use same model  object  for  parallel
+           evaluation from several threads.
+           
+           Use knntsprocess() with independent  thread-local  buffers,  if
+           you need thread-safe evaluation.
+
+INPUT PARAMETERS:
+    Model   -   KNN model
+    X       -   input vector,  array[0..NVars-1].
+
+RESULT:
+    class number, -1 for regression tasks
+
+  -- ALGLIB --
+     Copyright 15.02.2019 by Bochkanov Sergey
+*************************************************************************/
+ae_int_t knnclassify(knnmodel* model,
+     /* Real    */ ae_vector* x,
+     ae_state *_state)
+{
+    ae_int_t i;
+    ae_int_t nvars;
+    ae_int_t nout;
+    ae_int_t result;
+
+
+    if( !model->iscls )
+    {
+        result = -1;
+        return result;
+    }
+    nvars = model->nvars;
+    nout = model->nout;
+    for(i=0; i<=nvars-1; i++)
+    {
+        model->buffer.x.ptr.p_double[i] = x->ptr.p_double[i];
+    }
+    knn_processinternal(model, &model->buffer, _state);
+    result = 0;
+    for(i=1; i<=nout-1; i++)
+    {
+        if( model->buffer.y.ptr.p_double[i]>model->buffer.y.ptr.p_double[result] )
+        {
+            result = i;
+        }
+    }
+    return result;
+}
+
+
+/*************************************************************************
+'interactive' variant of knnprocess()  for  languages  like  Python  which
+support constructs like "y = knnprocessi(model,x)" and interactive mode of
+the interpreter.
+
+This function allocates new array on each call,  so  it  is  significantly
+slower than its 'non-interactive' counterpart, but it is  more  convenient
+when you call it from command line.
+
+IMPORTANT: this  function  is  thread-unsafe  and  may   modify   internal
+           structures of the model! You can not use same model  object for
+           parallel evaluation from several threads.
+           
+           Use knntsprocess()  with  independent  thread-local  buffers if
+           you need thread-safe evaluation.
+
+  -- ALGLIB --
+     Copyright 15.02.2019 by Bochkanov Sergey
+*************************************************************************/
+void knnprocessi(knnmodel* model,
+     /* Real    */ ae_vector* x,
+     /* Real    */ ae_vector* y,
+     ae_state *_state)
+{
+
+    ae_vector_clear(y);
+
+    knnprocess(model, x, y, _state);
+}
+
+
+/*************************************************************************
+Thread-safe procesing using external buffer for temporaries.
+
+This function is thread-safe (i.e .  you  can  use  same  KNN  model  from
+multiple threads) as long as you use different buffer objects for different
+threads.
+
+INPUT PARAMETERS:
+    Model   -   KNN model
+    Buf     -   buffer object, must be  allocated  specifically  for  this
+                model with knncreatebuffer().
+    X       -   input vector,  array[NVars]
+
+OUTPUT PARAMETERS:
+    Y       -   result, array[NOut].   Regression  estimate  when  solving
+                regression task,  vector  of  posterior  probabilities for
+                a classification task.
+
+  -- ALGLIB --
+     Copyright 15.02.2019 by Bochkanov Sergey
+*************************************************************************/
+void knntsprocess(knnmodel* model,
+     knnbuffer* buf,
+     /* Real    */ ae_vector* x,
+     /* Real    */ ae_vector* y,
+     ae_state *_state)
+{
+    ae_int_t i;
+    ae_int_t nvars;
+    ae_int_t nout;
+
+
+    nvars = model->nvars;
+    nout = model->nout;
+    for(i=0; i<=nvars-1; i++)
+    {
+        buf->x.ptr.p_double[i] = x->ptr.p_double[i];
+    }
+    knn_processinternal(model, buf, _state);
+    if( y->cnt<nout )
+    {
+        ae_vector_set_length(y, nout, _state);
+    }
+    for(i=0; i<=nout-1; i++)
+    {
+        y->ptr.p_double[i] = buf->y.ptr.p_double[i];
+    }
+}
+
+
+/*************************************************************************
+Relative classification error on the test set
+
+INPUT PARAMETERS:
+    Model   -   KNN model
+    XY      -   test set
+    NPoints -   test set size
+
+RESULT:
+    percent of incorrectly classified cases.
+    Zero if model solves regression task.
+    
+NOTE: if  you  need several different kinds of error metrics, it is better
+      to use knnallerrors() which computes all error metric  with just one
+      pass over dataset. 
+
+  -- ALGLIB --
+     Copyright 15.02.2019 by Bochkanov Sergey
+*************************************************************************/
+double knnrelclserror(knnmodel* model,
+     /* Real    */ ae_matrix* xy,
+     ae_int_t npoints,
+     ae_state *_state)
+{
+    ae_frame _frame_block;
+    knnreport rep;
+    double result;
+
+    ae_frame_make(_state, &_frame_block);
+    memset(&rep, 0, sizeof(rep));
+    _knnreport_init(&rep, _state, ae_true);
+
+    knnallerrors(model, xy, npoints, &rep, _state);
+    result = rep.relclserror;
+    ae_frame_leave(_state);
+    return result;
+}
+
+
+/*************************************************************************
+Average cross-entropy (in bits per element) on the test set
+
+INPUT PARAMETERS:
+    Model   -   KNN model
+    XY      -   test set
+    NPoints -   test set size
+
+RESULT:
+    CrossEntropy/NPoints.
+    Zero if model solves regression task.
+
+NOTE: the cross-entropy metric is too unstable when used to  evaluate  KNN
+      models (such models can report exactly  zero probabilities),  so  we
+      do not recommend using it.
+    
+NOTE: if  you  need several different kinds of error metrics, it is better
+      to use knnallerrors() which computes all error metric  with just one
+      pass over dataset. 
+
+  -- ALGLIB --
+     Copyright 15.02.2019 by Bochkanov Sergey
+*************************************************************************/
+double knnavgce(knnmodel* model,
+     /* Real    */ ae_matrix* xy,
+     ae_int_t npoints,
+     ae_state *_state)
+{
+    ae_frame _frame_block;
+    knnreport rep;
+    double result;
+
+    ae_frame_make(_state, &_frame_block);
+    memset(&rep, 0, sizeof(rep));
+    _knnreport_init(&rep, _state, ae_true);
+
+    knnallerrors(model, xy, npoints, &rep, _state);
+    result = rep.avgce;
+    ae_frame_leave(_state);
+    return result;
+}
+
+
+/*************************************************************************
+RMS error on the test set.
+
+Its meaning for regression task is obvious. As for classification problems,
+RMS error means error when estimating posterior probabilities.
+
+INPUT PARAMETERS:
+    Model   -   KNN model
+    XY      -   test set
+    NPoints -   test set size
+
+RESULT:
+    root mean square error.
+    
+NOTE: if  you  need several different kinds of error metrics, it is better
+      to use knnallerrors() which computes all error metric  with just one
+      pass over dataset.
+
+  -- ALGLIB --
+     Copyright 15.02.2019 by Bochkanov Sergey
+*************************************************************************/
+double knnrmserror(knnmodel* model,
+     /* Real    */ ae_matrix* xy,
+     ae_int_t npoints,
+     ae_state *_state)
+{
+    ae_frame _frame_block;
+    knnreport rep;
+    double result;
+
+    ae_frame_make(_state, &_frame_block);
+    memset(&rep, 0, sizeof(rep));
+    _knnreport_init(&rep, _state, ae_true);
+
+    knnallerrors(model, xy, npoints, &rep, _state);
+    result = rep.rmserror;
+    ae_frame_leave(_state);
+    return result;
+}
+
+
+/*************************************************************************
+Average error on the test set
+
+Its meaning for regression task is obvious. As for classification problems,
+average error means error when estimating posterior probabilities.
+
+INPUT PARAMETERS:
+    Model   -   KNN model
+    XY      -   test set
+    NPoints -   test set size
+
+RESULT:
+    average error
+    
+NOTE: if  you  need several different kinds of error metrics, it is better
+      to use knnallerrors() which computes all error metric  with just one
+      pass over dataset.
+
+  -- ALGLIB --
+     Copyright 15.02.2019 by Bochkanov Sergey
+*************************************************************************/
+double knnavgerror(knnmodel* model,
+     /* Real    */ ae_matrix* xy,
+     ae_int_t npoints,
+     ae_state *_state)
+{
+    ae_frame _frame_block;
+    knnreport rep;
+    double result;
+
+    ae_frame_make(_state, &_frame_block);
+    memset(&rep, 0, sizeof(rep));
+    _knnreport_init(&rep, _state, ae_true);
+
+    knnallerrors(model, xy, npoints, &rep, _state);
+    result = rep.avgerror;
+    ae_frame_leave(_state);
+    return result;
+}
+
+
+/*************************************************************************
+Average relative error on the test set
+
+Its meaning for regression task is obvious. As for classification problems,
+average relative error means error when estimating posterior probabilities.
+
+INPUT PARAMETERS:
+    Model   -   KNN model
+    XY      -   test set
+    NPoints -   test set size
+
+RESULT:
+    average relative error
+    
+NOTE: if  you  need several different kinds of error metrics, it is better
+      to use knnallerrors() which computes all error metric  with just one
+      pass over dataset.
+
+  -- ALGLIB --
+     Copyright 15.02.2019 by Bochkanov Sergey
+*************************************************************************/
+double knnavgrelerror(knnmodel* model,
+     /* Real    */ ae_matrix* xy,
+     ae_int_t npoints,
+     ae_state *_state)
+{
+    ae_frame _frame_block;
+    knnreport rep;
+    double result;
+
+    ae_frame_make(_state, &_frame_block);
+    memset(&rep, 0, sizeof(rep));
+    _knnreport_init(&rep, _state, ae_true);
+
+    knnallerrors(model, xy, npoints, &rep, _state);
+    result = rep.avgrelerror;
+    ae_frame_leave(_state);
+    return result;
+}
+
+
+/*************************************************************************
+Calculates all kinds of errors for the model in one call.
+
+INPUT PARAMETERS:
+    Model   -   KNN model
+    XY      -   test set:
+                * one row per point
+                * first NVars columns store independent variables
+                * depending on problem type:
+                  * next column stores class number in [0,NClasses) -  for
+                    classification problems
+                  * next NOut columns  store  dependent  variables  -  for
+                    regression problems
+    NPoints -   test set size, NPoints>=0
+
+OUTPUT PARAMETERS:
+    Rep     -   following fields are loaded with errors for both regression
+                and classification models:
+                * rep.rmserror - RMS error for the output
+                * rep.avgerror - average error
+                * rep.avgrelerror - average relative error
+                following fields are set only  for classification  models,
+                zero for regression ones:
+                * relclserror   - relative classification error, in [0,1]
+                * avgce - average cross-entropy in bits per dataset entry
+
+NOTE: the cross-entropy metric is too unstable when used to  evaluate  KNN
+      models (such models can report exactly  zero probabilities),  so  we
+      do not recommend using it.
+
+  -- ALGLIB --
+     Copyright 15.02.2019 by Bochkanov Sergey
+*************************************************************************/
+void knnallerrors(knnmodel* model,
+     /* Real    */ ae_matrix* xy,
+     ae_int_t npoints,
+     knnreport* rep,
+     ae_state *_state)
+{
+    ae_frame _frame_block;
+    knnbuffer buf;
+    ae_vector desiredy;
+    ae_vector errbuf;
+    ae_int_t nvars;
+    ae_int_t nout;
+    ae_int_t ny;
+    ae_bool iscls;
+    ae_int_t i;
+    ae_int_t j;
+
+    ae_frame_make(_state, &_frame_block);
+    memset(&buf, 0, sizeof(buf));
+    memset(&desiredy, 0, sizeof(desiredy));
+    memset(&errbuf, 0, sizeof(errbuf));
+    _knnreport_clear(rep);
+    _knnbuffer_init(&buf, _state, ae_true);
+    ae_vector_init(&desiredy, 0, DT_REAL, _state, ae_true);
+    ae_vector_init(&errbuf, 0, DT_REAL, _state, ae_true);
+
+    nvars = model->nvars;
+    nout = model->nout;
+    iscls = model->iscls;
+    if( iscls )
+    {
+        ny = 1;
+    }
+    else
+    {
+        ny = nout;
+    }
+    
+    /*
+     * Check input
+     */
+    ae_assert(npoints>=0, "knnallerrors: npoints<0", _state);
+    ae_assert(xy->rows>=npoints, "knnallerrors: rows(xy)<npoints", _state);
+    ae_assert(xy->cols>=nvars+ny, "knnallerrors: cols(xy)<nvars+nout", _state);
+    ae_assert(apservisfinitematrix(xy, npoints, nvars+ny, _state), "knnallerrors: xy parameter contains INFs or NANs", _state);
+    
+    /*
+     * Clean up report
+     */
+    knn_clearreport(rep, _state);
+    
+    /*
+     * Quick exit if needed
+     */
+    if( model->isdummy||npoints==0 )
+    {
+        ae_frame_leave(_state);
+        return;
+    }
+    
+    /*
+     * Process using local buffer
+     */
+    knncreatebuffer(model, &buf, _state);
+    if( iscls )
+    {
+        dserrallocate(nout, &errbuf, _state);
+    }
+    else
+    {
+        dserrallocate(-nout, &errbuf, _state);
+    }
+    ae_vector_set_length(&desiredy, ny, _state);
+    for(i=0; i<=npoints-1; i++)
+    {
+        for(j=0; j<=nvars-1; j++)
+        {
+            buf.x.ptr.p_double[j] = xy->ptr.pp_double[i][j];
+        }
+        if( iscls )
+        {
+            j = ae_round(xy->ptr.pp_double[i][nvars], _state);
+            ae_assert(j>=0&&j<nout, "knnallerrors: one of the class labels is not in [0,NClasses)", _state);
+            desiredy.ptr.p_double[0] = (double)(j);
+        }
+        else
+        {
+            for(j=0; j<=nout-1; j++)
+            {
+                desiredy.ptr.p_double[j] = xy->ptr.pp_double[i][nvars+j];
+            }
+        }
+        knn_processinternal(model, &buf, _state);
+        dserraccumulate(&errbuf, &buf.y, &desiredy, _state);
+    }
+    dserrfinish(&errbuf, _state);
+    
+    /*
+     * Extract results
+     */
+    if( iscls )
+    {
+        rep->relclserror = errbuf.ptr.p_double[0];
+        rep->avgce = errbuf.ptr.p_double[1];
+    }
+    rep->rmserror = errbuf.ptr.p_double[2];
+    rep->avgerror = errbuf.ptr.p_double[3];
+    rep->avgrelerror = errbuf.ptr.p_double[4];
+    ae_frame_leave(_state);
+}
+
+
+/*************************************************************************
+Serializer: allocation
+
+  -- ALGLIB --
+     Copyright 15.02.2019 by Bochkanov Sergey
+*************************************************************************/
+void knnalloc(ae_serializer* s, knnmodel* model, ae_state *_state)
+{
+
+
+    ae_serializer_alloc_entry(s);
+    ae_serializer_alloc_entry(s);
+    ae_serializer_alloc_entry(s);
+    ae_serializer_alloc_entry(s);
+    ae_serializer_alloc_entry(s);
+    ae_serializer_alloc_entry(s);
+    ae_serializer_alloc_entry(s);
+    ae_serializer_alloc_entry(s);
+    if( !model->isdummy )
+    {
+        kdtreealloc(s, &model->tree, _state);
+    }
+}
+
+
+/*************************************************************************
+Serializer: serialization
+
+  -- ALGLIB --
+     Copyright 15.02.2019 by Bochkanov Sergey
+*************************************************************************/
+void knnserialize(ae_serializer* s, knnmodel* model, ae_state *_state)
+{
+
+
+    ae_serializer_serialize_int(s, getknnserializationcode(_state), _state);
+    ae_serializer_serialize_int(s, knn_knnfirstversion, _state);
+    ae_serializer_serialize_int(s, model->nvars, _state);
+    ae_serializer_serialize_int(s, model->nout, _state);
+    ae_serializer_serialize_int(s, model->k, _state);
+    ae_serializer_serialize_double(s, model->eps, _state);
+    ae_serializer_serialize_bool(s, model->iscls, _state);
+    ae_serializer_serialize_bool(s, model->isdummy, _state);
+    if( !model->isdummy )
+    {
+        kdtreeserialize(s, &model->tree, _state);
+    }
+}
+
+
+/*************************************************************************
+Serializer: unserialization
+
+  -- ALGLIB --
+     Copyright 15.02.2019 by Bochkanov Sergey
+*************************************************************************/
+void knnunserialize(ae_serializer* s, knnmodel* model, ae_state *_state)
+{
+    ae_int_t i0;
+    ae_int_t i1;
+
+    _knnmodel_clear(model);
+
+    
+    /*
+     * check correctness of header
+     */
+    ae_serializer_unserialize_int(s, &i0, _state);
+    ae_assert(i0==getknnserializationcode(_state), "KNNUnserialize: stream header corrupted", _state);
+    ae_serializer_unserialize_int(s, &i1, _state);
+    ae_assert(i1==knn_knnfirstversion, "KNNUnserialize: stream header corrupted", _state);
+    
+    /*
+     * Unserialize data
+     */
+    ae_serializer_unserialize_int(s, &model->nvars, _state);
+    ae_serializer_unserialize_int(s, &model->nout, _state);
+    ae_serializer_unserialize_int(s, &model->k, _state);
+    ae_serializer_unserialize_double(s, &model->eps, _state);
+    ae_serializer_unserialize_bool(s, &model->iscls, _state);
+    ae_serializer_unserialize_bool(s, &model->isdummy, _state);
+    if( !model->isdummy )
+    {
+        kdtreeunserialize(s, &model->tree, _state);
+    }
+    
+    /*
+     * Prepare local buffer
+     */
+    knncreatebuffer(model, &model->buffer, _state);
+}
+
+
+/*************************************************************************
+Sets report fields to their default values
+
+  -- ALGLIB --
+     Copyright 15.02.2019 by Bochkanov Sergey
+*************************************************************************/
+static void knn_clearreport(knnreport* rep, ae_state *_state)
+{
+
+
+    rep->relclserror = (double)(0);
+    rep->avgce = (double)(0);
+    rep->rmserror = (double)(0);
+    rep->avgerror = (double)(0);
+    rep->avgrelerror = (double)(0);
+}
+
+
+/*************************************************************************
+This function processes buf.X and stores result to buf.Y
+
+INPUT PARAMETERS
+    Model       -   KNN model
+    Buf         -   processing buffer.
+    
+    
+IMPORTANT: buffer object should be used only with model which was used  to
+           initialize buffer. Any attempt to  use  buffer  with  different
+           object is dangerous - you  may   get  integrity  check  failure
+           (exception) because sizes of internal  arrays  do  not  fit  to
+           dimensions of the model structure.
+
+  -- ALGLIB --
+     Copyright 15.02.2019 by Bochkanov Sergey
+*************************************************************************/
+static void knn_processinternal(knnmodel* model,
+     knnbuffer* buf,
+     ae_state *_state)
+{
+    ae_int_t nvars;
+    ae_int_t nout;
+    ae_bool iscls;
+    ae_int_t nncnt;
+    ae_int_t i;
+    ae_int_t j;
+    double v;
+
+
+    nvars = model->nvars;
+    nout = model->nout;
+    iscls = model->iscls;
+    
+    /*
+     * Quick exit if needed
+     */
+    if( model->isdummy )
+    {
+        for(i=0; i<=nout-1; i++)
+        {
+            buf->y.ptr.p_double[i] = (double)(0);
+        }
+        return;
+    }
+    
+    /*
+     * Perform request, average results
+     */
+    for(i=0; i<=nout-1; i++)
+    {
+        buf->y.ptr.p_double[i] = (double)(0);
+    }
+    nncnt = kdtreetsqueryaknn(&model->tree, &buf->treebuf, &buf->x, model->k, ae_true, model->eps, _state);
+    v = 1/coalesce((double)(nncnt), (double)(1), _state);
+    if( iscls )
+    {
+        kdtreetsqueryresultstags(&model->tree, &buf->treebuf, &buf->tags, _state);
+        for(i=0; i<=nncnt-1; i++)
+        {
+            j = buf->tags.ptr.p_int[i];
+            buf->y.ptr.p_double[j] = buf->y.ptr.p_double[j]+v;
+        }
+    }
+    else
+    {
+        kdtreetsqueryresultsxy(&model->tree, &buf->treebuf, &buf->xy, _state);
+        for(i=0; i<=nncnt-1; i++)
+        {
+            for(j=0; j<=nout-1; j++)
+            {
+                buf->y.ptr.p_double[j] = buf->y.ptr.p_double[j]+v*buf->xy.ptr.pp_double[i][nvars+j];
+            }
+        }
+    }
+}
+
+
+void _knnbuffer_init(void* _p, ae_state *_state, ae_bool make_automatic)
+{
+    knnbuffer *p = (knnbuffer*)_p;
+    ae_touch_ptr((void*)p);
+    _kdtreerequestbuffer_init(&p->treebuf, _state, make_automatic);
+    ae_vector_init(&p->x, 0, DT_REAL, _state, make_automatic);
+    ae_vector_init(&p->y, 0, DT_REAL, _state, make_automatic);
+    ae_vector_init(&p->tags, 0, DT_INT, _state, make_automatic);
+    ae_matrix_init(&p->xy, 0, 0, DT_REAL, _state, make_automatic);
+}
+
+
+void _knnbuffer_init_copy(void* _dst, void* _src, ae_state *_state, ae_bool make_automatic)
+{
+    knnbuffer *dst = (knnbuffer*)_dst;
+    knnbuffer *src = (knnbuffer*)_src;
+    _kdtreerequestbuffer_init_copy(&dst->treebuf, &src->treebuf, _state, make_automatic);
+    ae_vector_init_copy(&dst->x, &src->x, _state, make_automatic);
+    ae_vector_init_copy(&dst->y, &src->y, _state, make_automatic);
+    ae_vector_init_copy(&dst->tags, &src->tags, _state, make_automatic);
+    ae_matrix_init_copy(&dst->xy, &src->xy, _state, make_automatic);
+}
+
+
+void _knnbuffer_clear(void* _p)
+{
+    knnbuffer *p = (knnbuffer*)_p;
+    ae_touch_ptr((void*)p);
+    _kdtreerequestbuffer_clear(&p->treebuf);
+    ae_vector_clear(&p->x);
+    ae_vector_clear(&p->y);
+    ae_vector_clear(&p->tags);
+    ae_matrix_clear(&p->xy);
+}
+
+
+void _knnbuffer_destroy(void* _p)
+{
+    knnbuffer *p = (knnbuffer*)_p;
+    ae_touch_ptr((void*)p);
+    _kdtreerequestbuffer_destroy(&p->treebuf);
+    ae_vector_destroy(&p->x);
+    ae_vector_destroy(&p->y);
+    ae_vector_destroy(&p->tags);
+    ae_matrix_destroy(&p->xy);
+}
+
+
+void _knnbuilder_init(void* _p, ae_state *_state, ae_bool make_automatic)
+{
+    knnbuilder *p = (knnbuilder*)_p;
+    ae_touch_ptr((void*)p);
+    ae_matrix_init(&p->dsdata, 0, 0, DT_REAL, _state, make_automatic);
+    ae_vector_init(&p->dsrval, 0, DT_REAL, _state, make_automatic);
+    ae_vector_init(&p->dsival, 0, DT_INT, _state, make_automatic);
+}
+
+
+void _knnbuilder_init_copy(void* _dst, void* _src, ae_state *_state, ae_bool make_automatic)
+{
+    knnbuilder *dst = (knnbuilder*)_dst;
+    knnbuilder *src = (knnbuilder*)_src;
+    dst->dstype = src->dstype;
+    dst->npoints = src->npoints;
+    dst->nvars = src->nvars;
+    dst->iscls = src->iscls;
+    dst->nout = src->nout;
+    ae_matrix_init_copy(&dst->dsdata, &src->dsdata, _state, make_automatic);
+    ae_vector_init_copy(&dst->dsrval, &src->dsrval, _state, make_automatic);
+    ae_vector_init_copy(&dst->dsival, &src->dsival, _state, make_automatic);
+    dst->knnnrm = src->knnnrm;
+}
+
+
+void _knnbuilder_clear(void* _p)
+{
+    knnbuilder *p = (knnbuilder*)_p;
+    ae_touch_ptr((void*)p);
+    ae_matrix_clear(&p->dsdata);
+    ae_vector_clear(&p->dsrval);
+    ae_vector_clear(&p->dsival);
+}
+
+
+void _knnbuilder_destroy(void* _p)
+{
+    knnbuilder *p = (knnbuilder*)_p;
+    ae_touch_ptr((void*)p);
+    ae_matrix_destroy(&p->dsdata);
+    ae_vector_destroy(&p->dsrval);
+    ae_vector_destroy(&p->dsival);
+}
+
+
+void _knnmodel_init(void* _p, ae_state *_state, ae_bool make_automatic)
+{
+    knnmodel *p = (knnmodel*)_p;
+    ae_touch_ptr((void*)p);
+    _kdtree_init(&p->tree, _state, make_automatic);
+    _knnbuffer_init(&p->buffer, _state, make_automatic);
+}
+
+
+void _knnmodel_init_copy(void* _dst, void* _src, ae_state *_state, ae_bool make_automatic)
+{
+    knnmodel *dst = (knnmodel*)_dst;
+    knnmodel *src = (knnmodel*)_src;
+    dst->nvars = src->nvars;
+    dst->nout = src->nout;
+    dst->k = src->k;
+    dst->eps = src->eps;
+    dst->iscls = src->iscls;
+    dst->isdummy = src->isdummy;
+    _kdtree_init_copy(&dst->tree, &src->tree, _state, make_automatic);
+    _knnbuffer_init_copy(&dst->buffer, &src->buffer, _state, make_automatic);
+}
+
+
+void _knnmodel_clear(void* _p)
+{
+    knnmodel *p = (knnmodel*)_p;
+    ae_touch_ptr((void*)p);
+    _kdtree_clear(&p->tree);
+    _knnbuffer_clear(&p->buffer);
+}
+
+
+void _knnmodel_destroy(void* _p)
+{
+    knnmodel *p = (knnmodel*)_p;
+    ae_touch_ptr((void*)p);
+    _kdtree_destroy(&p->tree);
+    _knnbuffer_destroy(&p->buffer);
+}
+
+
+void _knnreport_init(void* _p, ae_state *_state, ae_bool make_automatic)
+{
+    knnreport *p = (knnreport*)_p;
+    ae_touch_ptr((void*)p);
+}
+
+
+void _knnreport_init_copy(void* _dst, void* _src, ae_state *_state, ae_bool make_automatic)
+{
+    knnreport *dst = (knnreport*)_dst;
+    knnreport *src = (knnreport*)_src;
+    dst->relclserror = src->relclserror;
+    dst->avgce = src->avgce;
+    dst->rmserror = src->rmserror;
+    dst->avgerror = src->avgerror;
+    dst->avgrelerror = src->avgrelerror;
+}
+
+
+void _knnreport_clear(void* _p)
+{
+    knnreport *p = (knnreport*)_p;
+    ae_touch_ptr((void*)p);
+}
+
+
+void _knnreport_destroy(void* _p)
+{
+    knnreport *p = (knnreport*)_p;
+    ae_touch_ptr((void*)p);
 }
 
 

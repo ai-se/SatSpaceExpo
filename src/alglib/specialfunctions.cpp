@@ -1,5 +1,5 @@
 /*************************************************************************
-ALGLIB 3.14.0 (source code generated 2018-06-16)
+ALGLIB 3.16.0 (source code generated 2019-12-19)
 Copyright (c) Sergey Bochkanov (ALGLIB project).
 
 >>> SOURCE LICENSE >>>
@@ -329,7 +329,66 @@ double errorfunctionc(const double x, const xparams _xparams)
 }
 
 /*************************************************************************
-Normal distribution function
+Same as normalcdf(), obsolete name.
+*************************************************************************/
+double normaldistribution(const double x, const xparams _xparams)
+{
+    jmp_buf _break_jump;
+    alglib_impl::ae_state _alglib_env_state;
+    alglib_impl::ae_state_init(&_alglib_env_state);
+    if( setjmp(_break_jump) )
+    {
+#if !defined(AE_NO_EXCEPTIONS)
+        _ALGLIB_CPP_EXCEPTION(_alglib_env_state.error_msg);
+#else
+        _ALGLIB_SET_ERROR_FLAG(_alglib_env_state.error_msg);
+        return 0;
+#endif
+    }
+    ae_state_set_break_jump(&_alglib_env_state, &_break_jump);
+    if( _xparams.flags!=0x0 )
+        ae_state_set_flags(&_alglib_env_state, _xparams.flags);
+    double result = alglib_impl::normaldistribution(x, &_alglib_env_state);
+    alglib_impl::ae_state_clear(&_alglib_env_state);
+    return *(reinterpret_cast<double*>(&result));
+}
+
+/*************************************************************************
+Normal distribution PDF
+
+Returns Gaussian probability density function:
+
+               1
+   f(x)  = --------- * exp(-x^2/2)
+           sqrt(2pi)
+
+Cephes Math Library Release 2.8:  June, 2000
+Copyright 1984, 1987, 1988, 1992, 2000 by Stephen L. Moshier
+*************************************************************************/
+double normalpdf(const double x, const xparams _xparams)
+{
+    jmp_buf _break_jump;
+    alglib_impl::ae_state _alglib_env_state;
+    alglib_impl::ae_state_init(&_alglib_env_state);
+    if( setjmp(_break_jump) )
+    {
+#if !defined(AE_NO_EXCEPTIONS)
+        _ALGLIB_CPP_EXCEPTION(_alglib_env_state.error_msg);
+#else
+        _ALGLIB_SET_ERROR_FLAG(_alglib_env_state.error_msg);
+        return 0;
+#endif
+    }
+    ae_state_set_break_jump(&_alglib_env_state, &_break_jump);
+    if( _xparams.flags!=0x0 )
+        ae_state_set_flags(&_alglib_env_state, _xparams.flags);
+    double result = alglib_impl::normalpdf(x, &_alglib_env_state);
+    alglib_impl::ae_state_clear(&_alglib_env_state);
+    return *(reinterpret_cast<double*>(&result));
+}
+
+/*************************************************************************
+Normal distribution CDF
 
 Returns the area under the Gaussian probability density
 function, integrated from minus infinity to x:
@@ -358,7 +417,7 @@ arithmetic   domain     # trials      peak         rms
 Cephes Math Library Release 2.8:  June, 2000
 Copyright 1984, 1987, 1988, 1992, 2000 by Stephen L. Moshier
 *************************************************************************/
-double normaldistribution(const double x, const xparams _xparams)
+double normalcdf(const double x, const xparams _xparams)
 {
     jmp_buf _break_jump;
     alglib_impl::ae_state _alglib_env_state;
@@ -375,7 +434,7 @@ double normaldistribution(const double x, const xparams _xparams)
     ae_state_set_break_jump(&_alglib_env_state, &_break_jump);
     if( _xparams.flags!=0x0 )
         ae_state_set_flags(&_alglib_env_state, _xparams.flags);
-    double result = alglib_impl::normaldistribution(x, &_alglib_env_state);
+    double result = alglib_impl::normalcdf(x, &_alglib_env_state);
     alglib_impl::ae_state_clear(&_alglib_env_state);
     return *(reinterpret_cast<double*>(&result));
 }
@@ -409,7 +468,32 @@ double inverf(const double e, const xparams _xparams)
 }
 
 /*************************************************************************
-Inverse of Normal distribution function
+Same as invnormalcdf(), deprecated name
+*************************************************************************/
+double invnormaldistribution(const double y0, const xparams _xparams)
+{
+    jmp_buf _break_jump;
+    alglib_impl::ae_state _alglib_env_state;
+    alglib_impl::ae_state_init(&_alglib_env_state);
+    if( setjmp(_break_jump) )
+    {
+#if !defined(AE_NO_EXCEPTIONS)
+        _ALGLIB_CPP_EXCEPTION(_alglib_env_state.error_msg);
+#else
+        _ALGLIB_SET_ERROR_FLAG(_alglib_env_state.error_msg);
+        return 0;
+#endif
+    }
+    ae_state_set_break_jump(&_alglib_env_state, &_break_jump);
+    if( _xparams.flags!=0x0 )
+        ae_state_set_flags(&_alglib_env_state, _xparams.flags);
+    double result = alglib_impl::invnormaldistribution(y0, &_alglib_env_state);
+    alglib_impl::ae_state_clear(&_alglib_env_state);
+    return *(reinterpret_cast<double*>(&result));
+}
+
+/*************************************************************************
+Inverse of Normal CDF
 
 Returns the argument, x, for which the area under the
 Gaussian probability density function (integrated from
@@ -433,7 +517,7 @@ arithmetic   domain        # trials      peak         rms
 Cephes Math Library Release 2.8:  June, 2000
 Copyright 1984, 1987, 1988, 1992, 2000 by Stephen L. Moshier
 *************************************************************************/
-double invnormaldistribution(const double y0, const xparams _xparams)
+double invnormalcdf(const double y0, const xparams _xparams)
 {
     jmp_buf _break_jump;
     alglib_impl::ae_state _alglib_env_state;
@@ -450,7 +534,104 @@ double invnormaldistribution(const double y0, const xparams _xparams)
     ae_state_set_break_jump(&_alglib_env_state, &_break_jump);
     if( _xparams.flags!=0x0 )
         ae_state_set_flags(&_alglib_env_state, _xparams.flags);
-    double result = alglib_impl::invnormaldistribution(y0, &_alglib_env_state);
+    double result = alglib_impl::invnormalcdf(y0, &_alglib_env_state);
+    alglib_impl::ae_state_clear(&_alglib_env_state);
+    return *(reinterpret_cast<double*>(&result));
+}
+
+/*************************************************************************
+Bivariate normal PDF
+
+Returns probability density function of the bivariate  Gaussian  with
+correlation parameter equal to Rho:
+
+                         1              (    x^2 - 2*rho*x*y + y^2  )
+    f(x,y,rho) = ----------------- * exp( - ----------------------- )
+                 2pi*sqrt(1-rho^2)      (        2*(1-rho^2)        )
+
+
+with -1<rho<+1 and arbitrary x, y.
+
+This function won't fail as long as Rho is in (-1,+1) range.
+
+  -- ALGLIB --
+     Copyright 15.11.2019 by Bochkanov Sergey
+*************************************************************************/
+double bivariatenormalpdf(const double x, const double y, const double rho, const xparams _xparams)
+{
+    jmp_buf _break_jump;
+    alglib_impl::ae_state _alglib_env_state;
+    alglib_impl::ae_state_init(&_alglib_env_state);
+    if( setjmp(_break_jump) )
+    {
+#if !defined(AE_NO_EXCEPTIONS)
+        _ALGLIB_CPP_EXCEPTION(_alglib_env_state.error_msg);
+#else
+        _ALGLIB_SET_ERROR_FLAG(_alglib_env_state.error_msg);
+        return 0;
+#endif
+    }
+    ae_state_set_break_jump(&_alglib_env_state, &_break_jump);
+    if( _xparams.flags!=0x0 )
+        ae_state_set_flags(&_alglib_env_state, _xparams.flags);
+    double result = alglib_impl::bivariatenormalpdf(x, y, rho, &_alglib_env_state);
+    alglib_impl::ae_state_clear(&_alglib_env_state);
+    return *(reinterpret_cast<double*>(&result));
+}
+
+/*************************************************************************
+Bivariate normal CDF
+
+Returns the area under the bivariate Gaussian  PDF  with  correlation
+parameter equal to Rho, integrated from minus infinity to (x,y):
+
+
+                                          x      y
+                                          -      -
+                            1            | |    | |
+    bvn(x,y,rho) = -------------------   |      |   f(u,v,rho)*du*dv
+                    2pi*sqrt(1-rho^2)  | |    | |
+                                        -      -
+                                       -INF   -INF
+
+
+where
+
+                      (    u^2 - 2*rho*u*v + v^2  )
+    f(u,v,rho)   = exp( - ----------------------- )
+                      (        2*(1-rho^2)        )
+
+
+with -1<rho<+1 and arbitrary x, y.
+
+This subroutine uses high-precision approximation scheme proposed  by
+Alan Genz in "Numerical  Computation  of  Rectangular  Bivariate  and
+Trivariate Normal and  t  probabilities",  which  computes  CDF  with
+absolute error roughly equal to 1e-14.
+
+This function won't fail as long as Rho is in (-1,+1) range.
+
+  -- ALGLIB --
+     Copyright 15.11.2019 by Bochkanov Sergey
+*************************************************************************/
+double bivariatenormalcdf(const double x, const double y, const double rho, const xparams _xparams)
+{
+    jmp_buf _break_jump;
+    alglib_impl::ae_state _alglib_env_state;
+    alglib_impl::ae_state_init(&_alglib_env_state);
+    if( setjmp(_break_jump) )
+    {
+#if !defined(AE_NO_EXCEPTIONS)
+        _ALGLIB_CPP_EXCEPTION(_alglib_env_state.error_msg);
+#else
+        _ALGLIB_SET_ERROR_FLAG(_alglib_env_state.error_msg);
+        return 0;
+#endif
+    }
+    ae_state_set_break_jump(&_alglib_env_state, &_break_jump);
+    if( _xparams.flags!=0x0 )
+        ae_state_set_flags(&_alglib_env_state, _xparams.flags);
+    double result = alglib_impl::bivariatenormalcdf(x, y, rho, &_alglib_env_state);
     alglib_impl::ae_state_clear(&_alglib_env_state);
     return *(reinterpret_cast<double*>(&result));
 }
@@ -3252,6 +3433,21 @@ static double gammafunc_gammastirf(double x, ae_state *_state);
 
 #endif
 #if defined(AE_COMPILE_NORMALDISTR) || !defined(AE_PARTIAL_BUILD)
+static double normaldistr_bvnintegrate3(double rangea,
+     double rangeb,
+     double x,
+     double y,
+     double gw,
+     double gx,
+     ae_state *_state);
+static double normaldistr_bvnintegrate6(double rangea,
+     double rangeb,
+     double x,
+     double y,
+     double s,
+     double gw,
+     double gx,
+     ae_state *_state);
 
 
 #endif
@@ -3844,7 +4040,43 @@ double errorfunctionc(double x, ae_state *_state)
 
 
 /*************************************************************************
-Normal distribution function
+Same as normalcdf(), obsolete name.
+*************************************************************************/
+double normaldistribution(double x, ae_state *_state)
+{
+    double result;
+
+
+    result = 0.5*(errorfunction(x/1.41421356237309504880, _state)+1);
+    return result;
+}
+
+
+/*************************************************************************
+Normal distribution PDF
+
+Returns Gaussian probability density function:
+
+               1
+   f(x)  = --------- * exp(-x^2/2)
+           sqrt(2pi)
+
+Cephes Math Library Release 2.8:  June, 2000
+Copyright 1984, 1987, 1988, 1992, 2000 by Stephen L. Moshier
+*************************************************************************/
+double normalpdf(double x, ae_state *_state)
+{
+    double result;
+
+
+    ae_assert(ae_isfinite(x, _state), "NormalPDF: X is infinite", _state);
+    result = ae_exp(-x*x/2, _state)/ae_sqrt(2*ae_pi, _state);
+    return result;
+}
+
+
+/*************************************************************************
+Normal distribution CDF
 
 Returns the area under the Gaussian probability density
 function, integrated from minus infinity to x:
@@ -3873,7 +4105,7 @@ arithmetic   domain     # trials      peak         rms
 Cephes Math Library Release 2.8:  June, 2000
 Copyright 1984, 1987, 1988, 1992, 2000 by Stephen L. Moshier
 *************************************************************************/
-double normaldistribution(double x, ae_state *_state)
+double normalcdf(double x, ae_state *_state)
 {
     double result;
 
@@ -3900,7 +4132,20 @@ double inverf(double e, ae_state *_state)
 
 
 /*************************************************************************
-Inverse of Normal distribution function
+Same as invnormalcdf(), deprecated name
+*************************************************************************/
+double invnormaldistribution(double y0, ae_state *_state)
+{
+    double result;
+
+
+    result = invnormalcdf(y0, _state);
+    return result;
+}
+
+
+/*************************************************************************
+Inverse of Normal CDF
 
 Returns the argument, x, for which the area under the
 Gaussian probability density function (integrated from
@@ -3924,7 +4169,7 @@ arithmetic   domain        # trials      peak         rms
 Cephes Math Library Release 2.8:  June, 2000
 Copyright 1984, 1987, 1988, 1992, 2000 by Stephen L. Moshier
 *************************************************************************/
-double invnormaldistribution(double y0, ae_state *_state)
+double invnormalcdf(double y0, ae_state *_state)
 {
     double expm2;
     double s2pi;
@@ -4039,6 +4284,260 @@ double invnormaldistribution(double y0, ae_state *_state)
         x = -x;
     }
     result = x;
+    return result;
+}
+
+
+/*************************************************************************
+Bivariate normal PDF
+
+Returns probability density function of the bivariate  Gaussian  with
+correlation parameter equal to Rho:
+
+                         1              (    x^2 - 2*rho*x*y + y^2  )
+    f(x,y,rho) = ----------------- * exp( - ----------------------- )
+                 2pi*sqrt(1-rho^2)      (        2*(1-rho^2)        )
+
+
+with -1<rho<+1 and arbitrary x, y.
+
+This function won't fail as long as Rho is in (-1,+1) range.
+
+  -- ALGLIB --
+     Copyright 15.11.2019 by Bochkanov Sergey
+*************************************************************************/
+double bivariatenormalpdf(double x,
+     double y,
+     double rho,
+     ae_state *_state)
+{
+    double onerho2;
+    double result;
+
+
+    ae_assert(ae_isfinite(x, _state), "BivariateNormalCDF: X is infinite", _state);
+    ae_assert(ae_isfinite(y, _state), "BivariateNormalCDF: Y is infinite", _state);
+    ae_assert(ae_isfinite(rho, _state), "BivariateNormalCDF: Rho is infinite", _state);
+    ae_assert(ae_fp_less((double)(-1),rho)&&ae_fp_less(rho,(double)(1)), "BivariateNormalCDF: Rho is not in (-1,+1) range", _state);
+    onerho2 = (1-rho)*(1+rho);
+    result = ae_exp(-(x*x+y*y-2*rho*x*y)/(2*onerho2), _state)/(2*ae_pi*ae_sqrt(onerho2, _state));
+    return result;
+}
+
+
+/*************************************************************************
+Bivariate normal CDF
+
+Returns the area under the bivariate Gaussian  PDF  with  correlation
+parameter equal to Rho, integrated from minus infinity to (x,y):
+
+
+                                          x      y
+                                          -      -  
+                            1            | |    | | 
+    bvn(x,y,rho) = -------------------   |      |   f(u,v,rho)*du*dv
+                    2pi*sqrt(1-rho^2)  | |    | |    
+                                        -      -
+                                       -INF   -INF
+
+                                       
+where
+
+                      (    u^2 - 2*rho*u*v + v^2  )
+    f(u,v,rho)   = exp( - ----------------------- )
+                      (        2*(1-rho^2)        )
+
+
+with -1<rho<+1 and arbitrary x, y.
+
+This subroutine uses high-precision approximation scheme proposed  by
+Alan Genz in "Numerical  Computation  of  Rectangular  Bivariate  and
+Trivariate Normal and  t  probabilities",  which  computes  CDF  with
+absolute error roughly equal to 1e-14.
+
+This function won't fail as long as Rho is in (-1,+1) range.
+
+  -- ALGLIB --
+     Copyright 15.11.2019 by Bochkanov Sergey
+*************************************************************************/
+double bivariatenormalcdf(double x,
+     double y,
+     double rho,
+     ae_state *_state)
+{
+    double rangea;
+    double rangeb;
+    double s;
+    double v;
+    double v0;
+    double v1;
+    double fxys;
+    double ta;
+    double tb;
+    double tc;
+    double result;
+
+
+    ae_assert(ae_isfinite(x, _state), "BivariateNormalCDF: X is infinite", _state);
+    ae_assert(ae_isfinite(y, _state), "BivariateNormalCDF: Y is infinite", _state);
+    ae_assert(ae_isfinite(rho, _state), "BivariateNormalCDF: Rho is infinite", _state);
+    ae_assert(ae_fp_less((double)(-1),rho)&&ae_fp_less(rho,(double)(1)), "BivariateNormalCDF: Rho is not in (-1,+1) range", _state);
+    if( ae_fp_eq(rho,(double)(0)) )
+    {
+        result = normalcdf(x, _state)*normalcdf(y, _state);
+        return result;
+    }
+    if( ae_fp_less_eq(ae_fabs(rho, _state),0.8) )
+    {
+        
+        /*
+         * Rho is small, compute integral using using formula (3) by Alan Genz, integrated
+         * by means of 10-point Gauss-Legendre quadrature
+         */
+        rangea = (double)(0);
+        rangeb = ae_asin(rho, _state);
+        v = (double)(0);
+        v = v+normaldistr_bvnintegrate3(rangea, rangeb, x, y, 0.2491470458134028, -0.1252334085114689, _state);
+        v = v+normaldistr_bvnintegrate3(rangea, rangeb, x, y, 0.2491470458134028, 0.1252334085114689, _state);
+        v = v+normaldistr_bvnintegrate3(rangea, rangeb, x, y, 0.2334925365383548, -0.3678314989981802, _state);
+        v = v+normaldistr_bvnintegrate3(rangea, rangeb, x, y, 0.2334925365383548, 0.3678314989981802, _state);
+        v = v+normaldistr_bvnintegrate3(rangea, rangeb, x, y, 0.2031674267230659, -0.5873179542866175, _state);
+        v = v+normaldistr_bvnintegrate3(rangea, rangeb, x, y, 0.2031674267230659, 0.5873179542866175, _state);
+        v = v+normaldistr_bvnintegrate3(rangea, rangeb, x, y, 0.1600783285433462, -0.7699026741943047, _state);
+        v = v+normaldistr_bvnintegrate3(rangea, rangeb, x, y, 0.1600783285433462, 0.7699026741943047, _state);
+        v = v+normaldistr_bvnintegrate3(rangea, rangeb, x, y, 0.1069393259953184, -0.9041172563704749, _state);
+        v = v+normaldistr_bvnintegrate3(rangea, rangeb, x, y, 0.1069393259953184, 0.9041172563704749, _state);
+        v = v+normaldistr_bvnintegrate3(rangea, rangeb, x, y, 0.0471753363865118, -0.9815606342467192, _state);
+        v = v+normaldistr_bvnintegrate3(rangea, rangeb, x, y, 0.0471753363865118, 0.9815606342467192, _state);
+        v = v*0.5*(rangeb-rangea)/(2*ae_pi);
+        result = normalcdf(x, _state)*normalcdf(y, _state)+v;
+    }
+    else
+    {
+        
+        /*
+         * Rho is large, compute integral using using formula (6) by Alan Genz, integrated
+         * by means of 20-point Gauss-Legendre quadrature.
+         */
+        x = -x;
+        y = -y;
+        s = (double)(ae_sign(rho, _state));
+        if( ae_fp_greater(s,(double)(0)) )
+        {
+            fxys = normalcdf(-ae_maxreal(x, y, _state), _state);
+        }
+        else
+        {
+            fxys = ae_maxreal(0.0, normalcdf(-x, _state)-normalcdf(y, _state), _state);
+        }
+        rangea = (double)(0);
+        rangeb = ae_sqrt((1-rho)*(1+rho), _state);
+        
+        /*
+         * Compute first term (analytic integral) from formula (6)
+         */
+        ta = rangeb;
+        tb = ae_fabs(x-s*y, _state);
+        tc = (4-s*x*y)/8;
+        v0 = ta*(1-tc*(tb*tb-ta*ta)/3)*ae_exp(-tb*tb/(2*ta*ta), _state)-tb*(1-tc*tb*tb/3)*ae_sqrt(2*ae_pi, _state)*normalcdf(-tb/ta, _state);
+        v0 = v0*ae_exp(-s*x*y/2, _state)/(2*ae_pi);
+        
+        /*
+         * Compute second term (numerical integral, 20-point Gauss-Legendre rule) from formula (6)
+         */
+        v1 = (double)(0);
+        v1 = v1+normaldistr_bvnintegrate6(rangea, rangeb, x, y, s, 0.1527533871307258, -0.0765265211334973, _state);
+        v1 = v1+normaldistr_bvnintegrate6(rangea, rangeb, x, y, s, 0.1527533871307258, 0.0765265211334973, _state);
+        v1 = v1+normaldistr_bvnintegrate6(rangea, rangeb, x, y, s, 0.1491729864726037, -0.2277858511416451, _state);
+        v1 = v1+normaldistr_bvnintegrate6(rangea, rangeb, x, y, s, 0.1491729864726037, 0.2277858511416451, _state);
+        v1 = v1+normaldistr_bvnintegrate6(rangea, rangeb, x, y, s, 0.1420961093183820, -0.3737060887154195, _state);
+        v1 = v1+normaldistr_bvnintegrate6(rangea, rangeb, x, y, s, 0.1420961093183820, 0.3737060887154195, _state);
+        v1 = v1+normaldistr_bvnintegrate6(rangea, rangeb, x, y, s, 0.1316886384491766, -0.5108670019508271, _state);
+        v1 = v1+normaldistr_bvnintegrate6(rangea, rangeb, x, y, s, 0.1316886384491766, 0.5108670019508271, _state);
+        v1 = v1+normaldistr_bvnintegrate6(rangea, rangeb, x, y, s, 0.1181945319615184, -0.6360536807265150, _state);
+        v1 = v1+normaldistr_bvnintegrate6(rangea, rangeb, x, y, s, 0.1181945319615184, 0.6360536807265150, _state);
+        v1 = v1+normaldistr_bvnintegrate6(rangea, rangeb, x, y, s, 0.1019301198172404, -0.7463319064601508, _state);
+        v1 = v1+normaldistr_bvnintegrate6(rangea, rangeb, x, y, s, 0.1019301198172404, 0.7463319064601508, _state);
+        v1 = v1+normaldistr_bvnintegrate6(rangea, rangeb, x, y, s, 0.0832767415767048, -0.8391169718222188, _state);
+        v1 = v1+normaldistr_bvnintegrate6(rangea, rangeb, x, y, s, 0.0832767415767048, 0.8391169718222188, _state);
+        v1 = v1+normaldistr_bvnintegrate6(rangea, rangeb, x, y, s, 0.0626720483341091, -0.9122344282513259, _state);
+        v1 = v1+normaldistr_bvnintegrate6(rangea, rangeb, x, y, s, 0.0626720483341091, 0.9122344282513259, _state);
+        v1 = v1+normaldistr_bvnintegrate6(rangea, rangeb, x, y, s, 0.0406014298003869, -0.9639719272779138, _state);
+        v1 = v1+normaldistr_bvnintegrate6(rangea, rangeb, x, y, s, 0.0406014298003869, 0.9639719272779138, _state);
+        v1 = v1+normaldistr_bvnintegrate6(rangea, rangeb, x, y, s, 0.0176140071391521, -0.9931285991850949, _state);
+        v1 = v1+normaldistr_bvnintegrate6(rangea, rangeb, x, y, s, 0.0176140071391521, 0.9931285991850949, _state);
+        v1 = v1*0.5*(rangeb-rangea)/(2*ae_pi);
+        result = fxys-s*(v0+v1);
+    }
+    result = ae_maxreal(result, (double)(0), _state);
+    result = ae_minreal(result, (double)(1), _state);
+    return result;
+}
+
+
+/*************************************************************************
+Internal function which computes integrand of  formula  (3)  by  Alan
+Genz times Gaussian weights (passed by user).
+
+  -- ALGLIB --
+     Copyright 15.11.2019 by Bochkanov Sergey
+*************************************************************************/
+static double normaldistr_bvnintegrate3(double rangea,
+     double rangeb,
+     double x,
+     double y,
+     double gw,
+     double gx,
+     ae_state *_state)
+{
+    double r;
+    double t2;
+    double dd;
+    double sinr;
+    double cosr;
+    double result;
+
+
+    r = (rangeb-rangea)*0.5*gx+(rangeb+rangea)*0.5;
+    t2 = ae_tan(0.5*r, _state);
+    dd = 1/(1+t2*t2);
+    sinr = 2*t2*dd;
+    cosr = (1-t2*t2)*dd;
+    result = gw*ae_exp(-(x*x+y*y-2*x*y*sinr)/(2*cosr*cosr), _state);
+    return result;
+}
+
+
+/*************************************************************************
+Internal function which computes integrand of  formula  (6)  by  Alan
+Genz times Gaussian weights (passed by user).
+
+  -- ALGLIB --
+     Copyright 15.11.2019 by Bochkanov Sergey
+*************************************************************************/
+static double normaldistr_bvnintegrate6(double rangea,
+     double rangeb,
+     double x,
+     double y,
+     double s,
+     double gw,
+     double gx,
+     ae_state *_state)
+{
+    double r;
+    double exphsk22x2;
+    double exphsk2;
+    double sqrt1x2;
+    double exphsk1sqrt1x2;
+    double result;
+
+
+    r = (rangeb-rangea)*0.5*gx+(rangeb+rangea)*0.5;
+    exphsk22x2 = ae_exp(-(x-s*y)*(x-s*y)/(2*r*r), _state);
+    exphsk2 = ae_exp(-x*s*y/2, _state);
+    sqrt1x2 = ae_sqrt((1-r)*(1+r), _state);
+    exphsk1sqrt1x2 = ae_exp(-x*s*y/(1+sqrt1x2), _state);
+    result = gw*exphsk22x2*(exphsk1sqrt1x2/sqrt1x2-exphsk2*(1+(4-x*y*s)*r*r/8));
     return result;
 }
 

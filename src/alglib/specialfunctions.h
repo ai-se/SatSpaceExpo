@@ -1,5 +1,5 @@
 /*************************************************************************
-ALGLIB 3.14.0 (source code generated 2018-06-16)
+ALGLIB 3.16.0 (source code generated 2019-12-19)
 Copyright (c) Sergey Bochkanov (ALGLIB project).
 
 >>> SOURCE LICENSE >>>
@@ -21,6 +21,7 @@ http://www.fsf.org/licensing/licenses
 #define _specialfunctions_pkg_h
 #include "ap.h"
 #include "alglibinternal.h"
+#include "alglibmisc.h"
 
 /////////////////////////////////////////////////////////////////////////
 //
@@ -298,7 +299,28 @@ double errorfunctionc(const double x, const xparams _xparams = alglib::xdefault)
 
 
 /*************************************************************************
-Normal distribution function
+Same as normalcdf(), obsolete name.
+*************************************************************************/
+double normaldistribution(const double x, const xparams _xparams = alglib::xdefault);
+
+
+/*************************************************************************
+Normal distribution PDF
+
+Returns Gaussian probability density function:
+
+               1
+   f(x)  = --------- * exp(-x^2/2)
+           sqrt(2pi)
+
+Cephes Math Library Release 2.8:  June, 2000
+Copyright 1984, 1987, 1988, 1992, 2000 by Stephen L. Moshier
+*************************************************************************/
+double normalpdf(const double x, const xparams _xparams = alglib::xdefault);
+
+
+/*************************************************************************
+Normal distribution CDF
 
 Returns the area under the Gaussian probability density
 function, integrated from minus infinity to x:
@@ -327,7 +349,7 @@ arithmetic   domain     # trials      peak         rms
 Cephes Math Library Release 2.8:  June, 2000
 Copyright 1984, 1987, 1988, 1992, 2000 by Stephen L. Moshier
 *************************************************************************/
-double normaldistribution(const double x, const xparams _xparams = alglib::xdefault);
+double normalcdf(const double x, const xparams _xparams = alglib::xdefault);
 
 
 /*************************************************************************
@@ -340,7 +362,13 @@ double inverf(const double e, const xparams _xparams = alglib::xdefault);
 
 
 /*************************************************************************
-Inverse of Normal distribution function
+Same as invnormalcdf(), deprecated name
+*************************************************************************/
+double invnormaldistribution(const double y0, const xparams _xparams = alglib::xdefault);
+
+
+/*************************************************************************
+Inverse of Normal CDF
 
 Returns the argument, x, for which the area under the
 Gaussian probability density function (integrated from
@@ -364,7 +392,66 @@ arithmetic   domain        # trials      peak         rms
 Cephes Math Library Release 2.8:  June, 2000
 Copyright 1984, 1987, 1988, 1992, 2000 by Stephen L. Moshier
 *************************************************************************/
-double invnormaldistribution(const double y0, const xparams _xparams = alglib::xdefault);
+double invnormalcdf(const double y0, const xparams _xparams = alglib::xdefault);
+
+
+/*************************************************************************
+Bivariate normal PDF
+
+Returns probability density function of the bivariate  Gaussian  with
+correlation parameter equal to Rho:
+
+                         1              (    x^2 - 2*rho*x*y + y^2  )
+    f(x,y,rho) = ----------------- * exp( - ----------------------- )
+                 2pi*sqrt(1-rho^2)      (        2*(1-rho^2)        )
+
+
+with -1<rho<+1 and arbitrary x, y.
+
+This function won't fail as long as Rho is in (-1,+1) range.
+
+  -- ALGLIB --
+     Copyright 15.11.2019 by Bochkanov Sergey
+*************************************************************************/
+double bivariatenormalpdf(const double x, const double y, const double rho, const xparams _xparams = alglib::xdefault);
+
+
+/*************************************************************************
+Bivariate normal CDF
+
+Returns the area under the bivariate Gaussian  PDF  with  correlation
+parameter equal to Rho, integrated from minus infinity to (x,y):
+
+
+                                          x      y
+                                          -      -
+                            1            | |    | |
+    bvn(x,y,rho) = -------------------   |      |   f(u,v,rho)*du*dv
+                    2pi*sqrt(1-rho^2)  | |    | |
+                                        -      -
+                                       -INF   -INF
+
+
+where
+
+                      (    u^2 - 2*rho*u*v + v^2  )
+    f(u,v,rho)   = exp( - ----------------------- )
+                      (        2*(1-rho^2)        )
+
+
+with -1<rho<+1 and arbitrary x, y.
+
+This subroutine uses high-precision approximation scheme proposed  by
+Alan Genz in "Numerical  Computation  of  Rectangular  Bivariate  and
+Trivariate Normal and  t  probabilities",  which  computes  CDF  with
+absolute error roughly equal to 1e-14.
+
+This function won't fail as long as Rho is in (-1,+1) range.
+
+  -- ALGLIB --
+     Copyright 15.11.2019 by Bochkanov Sergey
+*************************************************************************/
+double bivariatenormalcdf(const double x, const double y, const double rho, const xparams _xparams = alglib::xdefault);
 #endif
 
 #if defined(AE_COMPILE_IGAMMAF) || !defined(AE_PARTIAL_BUILD)
@@ -2042,8 +2129,19 @@ double lngamma(double x, double* sgngam, ae_state *_state);
 double errorfunction(double x, ae_state *_state);
 double errorfunctionc(double x, ae_state *_state);
 double normaldistribution(double x, ae_state *_state);
+double normalpdf(double x, ae_state *_state);
+double normalcdf(double x, ae_state *_state);
 double inverf(double e, ae_state *_state);
 double invnormaldistribution(double y0, ae_state *_state);
+double invnormalcdf(double y0, ae_state *_state);
+double bivariatenormalpdf(double x,
+     double y,
+     double rho,
+     ae_state *_state);
+double bivariatenormalcdf(double x,
+     double y,
+     double rho,
+     ae_state *_state);
 #endif
 #if defined(AE_COMPILE_IGAMMAF) || !defined(AE_PARTIAL_BUILD)
 double incompletegamma(double a, double x, ae_state *_state);

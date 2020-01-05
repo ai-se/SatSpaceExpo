@@ -1,5 +1,5 @@
 /*************************************************************************
-ALGLIB 3.14.0 (source code generated 2018-06-16)
+ALGLIB 3.16.0 (source code generated 2019-12-19)
 Copyright (c) Sergey Bochkanov (ALGLIB project).
 
 >>> SOURCE LICENSE >>>
@@ -53,6 +53,64 @@ typedef struct
 } sparsebuffers;
 #endif
 #if defined(AE_COMPILE_ABLAS) || !defined(AE_PARTIAL_BUILD)
+#endif
+#if defined(AE_COMPILE_DLU) || !defined(AE_PARTIAL_BUILD)
+#endif
+#if defined(AE_COMPILE_SPTRF) || !defined(AE_PARTIAL_BUILD)
+typedef struct
+{
+    ae_int_t nfixed;
+    ae_int_t ndynamic;
+    ae_vector idxfirst;
+    ae_vector strgidx;
+    ae_vector strgval;
+    ae_int_t nallocated;
+    ae_int_t nused;
+} sluv2list1matrix;
+typedef struct
+{
+    ae_int_t n;
+    ae_int_t k;
+    ae_vector nzc;
+    ae_int_t maxwrkcnt;
+    ae_int_t maxwrknz;
+    ae_int_t wrkcnt;
+    ae_vector wrkset;
+    ae_vector colid;
+    ae_vector isdensified;
+    ae_vector slscolptr;
+    ae_vector slsrowptr;
+    ae_vector slsidx;
+    ae_vector slsval;
+    ae_int_t slsused;
+    ae_vector tmp0;
+} sluv2sparsetrail;
+typedef struct
+{
+    ae_int_t n;
+    ae_int_t ndense;
+    ae_matrix d;
+    ae_vector did;
+} sluv2densetrail;
+typedef struct
+{
+    ae_int_t n;
+    sparsematrix sparsel;
+    sparsematrix sparseut;
+    sluv2list1matrix bleft;
+    sluv2list1matrix bupper;
+    sluv2sparsetrail strail;
+    sluv2densetrail dtrail;
+    ae_vector rowpermrawidx;
+    ae_matrix dbuf;
+    ae_vector v0i;
+    ae_vector v1i;
+    ae_vector v0r;
+    ae_vector v1r;
+    ae_vector tmp0;
+    ae_vector tmpi;
+    ae_vector tmpp;
+} sluv2buffer;
 #endif
 #if defined(AE_COMPILE_MATGEN) || !defined(AE_PARTIAL_BUILD)
 #endif
@@ -270,6 +328,14 @@ public:
 #endif
 
 #if defined(AE_COMPILE_ABLAS) || !defined(AE_PARTIAL_BUILD)
+
+#endif
+
+#if defined(AE_COMPILE_DLU) || !defined(AE_PARTIAL_BUILD)
+
+#endif
+
+#if defined(AE_COMPILE_SPTRF) || !defined(AE_PARTIAL_BUILD)
 
 #endif
 
@@ -927,6 +993,58 @@ void sparsemtv(const sparsematrix &s, const real_1d_array &x, real_1d_array &y, 
 
 
 /*************************************************************************
+This function calculates generalized sparse matrix-vector product
+
+    y := alpha*op(S)*x + beta*y
+
+Matrix S must be stored in CRS or SKS format (exception  will  be  thrown
+otherwise). op(S) can be either S or S^T.
+
+NOTE: this  function  expects  Y  to  be  large enough to store result. No
+      automatic preallocation happens for smaller arrays.
+
+INPUT PARAMETERS
+    S           -   sparse matrix in CRS or SKS format.
+    Alpha       -   source coefficient
+    OpS         -   operation type:
+                    * OpS=0     =>  op(S) = S
+                    * OpS=1     =>  op(S) = S^T
+    X           -   input vector, must have at least Cols(op(S))+IX elements
+    IX          -   subvector offset
+    Beta        -   destination coefficient
+    Y           -   preallocated output array, must have at least Rows(op(S))+IY elements
+    IY          -   subvector offset
+
+OUTPUT PARAMETERS
+    Y           -   elements [IY...IY+Rows(op(S))-1] are replaced by result,
+                    other elements are not modified
+
+HANDLING OF SPECIAL CASES:
+* below M=Rows(op(S)) and N=Cols(op(S)). Although current  ALGLIB  version
+  does not allow you to  create  zero-sized  sparse  matrices,  internally
+  ALGLIB  can  deal  with  such matrices. So, comments for M or N equal to
+  zero are for internal use only.
+* if M=0, then subroutine does nothing. It does not even touch arrays.
+* if N=0 or Alpha=0.0, then:
+  * if Beta=0, then Y is filled by zeros. S and X are  not  referenced  at
+    all. Initial values of Y are ignored (we do not  multiply  Y by  zero,
+    we just rewrite it by zeros)
+  * if Beta<>0, then Y is replaced by Beta*Y
+* if M>0, N>0, Alpha<>0, but  Beta=0, then  Y is replaced by alpha*op(S)*x
+  initial state of Y  is ignored (rewritten without initial multiplication
+  by zeros).
+
+NOTE: this function throws exception when called for non-CRS/SKS  matrix.
+You must convert your matrix with SparseConvertToCRS/SKS()  before  using
+this function.
+
+  -- ALGLIB PROJECT --
+     Copyright 10.12.2019 by Bochkanov Sergey
+*************************************************************************/
+void sparsegemv(const sparsematrix &s, const double alpha, const ae_int_t ops, const real_1d_array &x, const ae_int_t ix, const double beta, const real_1d_array &y, const ae_int_t iy, const xparams _xparams = alglib::xdefault);
+
+
+/*************************************************************************
 This function simultaneously calculates two matrix-vector products:
     S*x and S^T*x.
 S must be square (non-rectangular) matrix stored in  CRS  or  SKS  format
@@ -1424,6 +1542,39 @@ void sparsetransposecrs(const sparsematrix &s, const xparams _xparams = alglib::
 
 
 /*************************************************************************
+This function performs copying with transposition of CRS matrix.
+
+INPUT PARAMETERS
+    S0      -   sparse matrix in CRS format.
+
+OUTPUT PARAMETERS
+    S1      -   sparse matrix, transposed
+
+  -- ALGLIB PROJECT --
+     Copyright 23.07.2018 by Bochkanov Sergey
+*************************************************************************/
+void sparsecopytransposecrs(const sparsematrix &s0, sparsematrix &s1, const xparams _xparams = alglib::xdefault);
+
+
+/*************************************************************************
+This function performs copying with transposition of CRS matrix  (buffered
+version which reuses memory already allocated by  the  target as  much  as
+possible).
+
+INPUT PARAMETERS
+    S0      -   sparse matrix in CRS format.
+
+OUTPUT PARAMETERS
+    S1      -   sparse matrix, transposed; previously allocated memory  is
+                reused if possible.
+
+  -- ALGLIB PROJECT --
+     Copyright 23.07.2018 by Bochkanov Sergey
+*************************************************************************/
+void sparsecopytransposecrsbuf(const sparsematrix &s0, const sparsematrix &s1, const xparams _xparams = alglib::xdefault);
+
+
+/*************************************************************************
 This  function  performs  in-place  conversion  to  desired sparse storage
 format.
 
@@ -1886,6 +2037,19 @@ void cmatrixcopy(const ae_int_t m, const ae_int_t n, const complex_2d_array &a, 
 Copy
 
 Input parameters:
+    N   -   subvector size
+    A   -   source vector, N elements are copied
+    IA  -   source offset (first element index)
+    B   -   destination vector, must be large enough to store result
+    IB  -   destination offset (first element index)
+*************************************************************************/
+void rvectorcopy(const ae_int_t n, const real_1d_array &a, const ae_int_t ia, const real_1d_array &b, const ae_int_t ib, const xparams _xparams = alglib::xdefault);
+
+
+/*************************************************************************
+Copy
+
+Input parameters:
     M   -   number of rows
     N   -   number of columns
     A   -   source matrix, MxN submatrix is copied and transposed
@@ -1896,6 +2060,28 @@ Input parameters:
     JB  -   submatrix offset (column index)
 *************************************************************************/
 void rmatrixcopy(const ae_int_t m, const ae_int_t n, const real_2d_array &a, const ae_int_t ia, const ae_int_t ja, const real_2d_array &b, const ae_int_t ib, const ae_int_t jb, const xparams _xparams = alglib::xdefault);
+
+
+/*************************************************************************
+Performs generalized copy: B := Beta*B + Alpha*A.
+
+If Beta=0, then previous contents of B is simply ignored. If Alpha=0, then
+A is ignored and not referenced. If both Alpha and Beta  are  zero,  B  is
+filled by zeros.
+
+Input parameters:
+    M   -   number of rows
+    N   -   number of columns
+    Alpha-  coefficient
+    A   -   source matrix, MxN submatrix is copied and transposed
+    IA  -   submatrix offset (row index)
+    JA  -   submatrix offset (column index)
+    Beta-   coefficient
+    B   -   destination matrix, must be large enough to store result
+    IB  -   submatrix offset (row index)
+    JB  -   submatrix offset (column index)
+*************************************************************************/
+void rmatrixgencopy(const ae_int_t m, const ae_int_t n, const double alpha, const real_2d_array &a, const ae_int_t ia, const ae_int_t ja, const double beta, const real_2d_array &b, const ae_int_t ib, const ae_int_t jb, const xparams _xparams = alglib::xdefault);
 
 
 /*************************************************************************
@@ -2492,6 +2678,14 @@ compatibility.
      Bochkanov Sergey
 *************************************************************************/
 void cmatrixsyrk(const ae_int_t n, const ae_int_t k, const double alpha, const complex_2d_array &a, const ae_int_t ia, const ae_int_t ja, const ae_int_t optypea, const double beta, const complex_2d_array &c, const ae_int_t ic, const ae_int_t jc, const bool isupper, const xparams _xparams = alglib::xdefault);
+#endif
+
+#if defined(AE_COMPILE_DLU) || !defined(AE_PARTIAL_BUILD)
+
+#endif
+
+#if defined(AE_COMPILE_SPTRF) || !defined(AE_PARTIAL_BUILD)
+
 #endif
 
 #if defined(AE_COMPILE_MATGEN) || !defined(AE_PARTIAL_BUILD)
@@ -3100,6 +3294,53 @@ OUTPUT PARAMETERS:
      Sergey Bochkanov
 *************************************************************************/
 void spdmatrixcholeskyupdatefixbuf(const real_2d_array &a, const ae_int_t n, const bool isupper, const boolean_1d_array &fix, real_1d_array &bufr, const xparams _xparams = alglib::xdefault);
+
+
+/*************************************************************************
+Sparse LU decomposition with column pivoting for sparsity and row pivoting
+for stability. Input must be square sparse matrix stored in CRS format.
+
+The algorithm  computes  LU  decomposition  of  a  general  square  matrix
+(rectangular ones are not supported). The result  of  an  algorithm  is  a
+representation of A as A = P*L*U*Q, where:
+* L is lower unitriangular matrix
+* U is upper triangular matrix
+* P = P0*P1*...*PK, K=N-1, Pi - permutation matrix for I and P[I]
+* Q = QK*...*Q1*Q0, K=N-1, Qi - permutation matrix for I and Q[I]
+
+This function pivots columns for higher sparsity, and then pivots rows for
+stability (larger element at the diagonal).
+
+INPUT PARAMETERS:
+    A       -   sparse NxN matrix in CRS format. An exception is generated
+                if matrix is non-CRS or non-square.
+    PivotType-  pivoting strategy:
+                * 0 for best pivoting available (2 in current version)
+                * 1 for row-only pivoting (NOT RECOMMENDED)
+                * 2 for complete pivoting which produces most sparse outputs
+
+OUTPUT PARAMETERS:
+    A       -   the result of factorization, matrices L and U stored in
+                compact form using CRS sparse storage format:
+                * lower unitriangular L is stored strictly under main diagonal
+                * upper triangilar U is stored ON and ABOVE main diagonal
+    P       -   row permutation matrix in compact form, array[N]
+    Q       -   col permutation matrix in compact form, array[N]
+
+This function always succeeds, i.e. it ALWAYS returns valid factorization,
+but for your convenience it also returns  boolean  value  which  helps  to
+detect symbolically degenerate matrices:
+* function returns TRUE, if the matrix was factorized AND symbolically
+  non-degenerate
+* function returns FALSE, if the matrix was factorized but U has strictly
+  zero elements at the diagonal (the factorization is returned anyway).
+
+
+  -- ALGLIB routine --
+     03.09.2018
+     Bochkanov Sergey
+*************************************************************************/
+bool sparselu(const sparsematrix &a, const ae_int_t pivottype, integer_1d_array &p, integer_1d_array &q, const xparams _xparams = alglib::xdefault);
 
 
 /*************************************************************************
@@ -6643,6 +6884,15 @@ void sparsemtv(sparsematrix* s,
      /* Real    */ ae_vector* x,
      /* Real    */ ae_vector* y,
      ae_state *_state);
+void sparsegemv(sparsematrix* s,
+     double alpha,
+     ae_int_t ops,
+     /* Real    */ ae_vector* x,
+     ae_int_t ix,
+     double beta,
+     /* Real    */ ae_vector* y,
+     ae_int_t iy,
+     ae_state *_state);
 void sparsemv2(sparsematrix* s,
      /* Real    */ ae_vector* x,
      /* Real    */ ae_vector* y0,
@@ -6693,6 +6943,7 @@ void sparsetrsv(sparsematrix* s,
      /* Real    */ ae_vector* x,
      ae_state *_state);
 void sparseresizematrix(sparsematrix* s, ae_state *_state);
+void sparseinitduidx(sparsematrix* s, ae_state *_state);
 double sparsegetaveragelengthofchain(sparsematrix* s, ae_state *_state);
 ae_bool sparseenumerate(sparsematrix* s,
      ae_int_t* t0,
@@ -6718,6 +6969,12 @@ void sparsegetcompressedrow(sparsematrix* s,
      ae_state *_state);
 void sparsetransposesks(sparsematrix* s, ae_state *_state);
 void sparsetransposecrs(sparsematrix* s, ae_state *_state);
+void sparsecopytransposecrs(sparsematrix* s0,
+     sparsematrix* s1,
+     ae_state *_state);
+void sparsecopytransposecrsbuf(sparsematrix* s0,
+     sparsematrix* s1,
+     ae_state *_state);
 void sparseconvertto(sparsematrix* s0, ae_int_t fmt, ae_state *_state);
 void sparsecopytobuf(sparsematrix* s0,
      ae_int_t fmt,
@@ -6828,11 +7085,28 @@ void cmatrixcopy(ae_int_t m,
      ae_int_t ib,
      ae_int_t jb,
      ae_state *_state);
+void rvectorcopy(ae_int_t n,
+     /* Real    */ ae_vector* a,
+     ae_int_t ia,
+     /* Real    */ ae_vector* b,
+     ae_int_t ib,
+     ae_state *_state);
 void rmatrixcopy(ae_int_t m,
      ae_int_t n,
      /* Real    */ ae_matrix* a,
      ae_int_t ia,
      ae_int_t ja,
+     /* Real    */ ae_matrix* b,
+     ae_int_t ib,
+     ae_int_t jb,
+     ae_state *_state);
+void rmatrixgencopy(ae_int_t m,
+     ae_int_t n,
+     double alpha,
+     /* Real    */ ae_matrix* a,
+     ae_int_t ia,
+     ae_int_t ja,
+     double beta,
      /* Real    */ ae_matrix* b,
      ae_int_t ib,
      ae_int_t jb,
@@ -7156,6 +7430,60 @@ void cmatrixsyrk(ae_int_t n,
      ae_bool isupper,
      ae_state *_state);
 #endif
+#if defined(AE_COMPILE_DLU) || !defined(AE_PARTIAL_BUILD)
+void cmatrixluprec(/* Complex */ ae_matrix* a,
+     ae_int_t offs,
+     ae_int_t m,
+     ae_int_t n,
+     /* Integer */ ae_vector* pivots,
+     /* Complex */ ae_vector* tmp,
+     ae_state *_state);
+void rmatrixluprec(/* Real    */ ae_matrix* a,
+     ae_int_t offs,
+     ae_int_t m,
+     ae_int_t n,
+     /* Integer */ ae_vector* pivots,
+     /* Real    */ ae_vector* tmp,
+     ae_state *_state);
+void cmatrixplurec(/* Complex */ ae_matrix* a,
+     ae_int_t offs,
+     ae_int_t m,
+     ae_int_t n,
+     /* Integer */ ae_vector* pivots,
+     /* Complex */ ae_vector* tmp,
+     ae_state *_state);
+void rmatrixplurec(/* Real    */ ae_matrix* a,
+     ae_int_t offs,
+     ae_int_t m,
+     ae_int_t n,
+     /* Integer */ ae_vector* pivots,
+     /* Real    */ ae_vector* tmp,
+     ae_state *_state);
+#endif
+#if defined(AE_COMPILE_SPTRF) || !defined(AE_PARTIAL_BUILD)
+ae_bool sptrflu(sparsematrix* a,
+     ae_int_t pivottype,
+     /* Integer */ ae_vector* pr,
+     /* Integer */ ae_vector* pc,
+     sluv2buffer* buf,
+     ae_state *_state);
+void _sluv2list1matrix_init(void* _p, ae_state *_state, ae_bool make_automatic);
+void _sluv2list1matrix_init_copy(void* _dst, void* _src, ae_state *_state, ae_bool make_automatic);
+void _sluv2list1matrix_clear(void* _p);
+void _sluv2list1matrix_destroy(void* _p);
+void _sluv2sparsetrail_init(void* _p, ae_state *_state, ae_bool make_automatic);
+void _sluv2sparsetrail_init_copy(void* _dst, void* _src, ae_state *_state, ae_bool make_automatic);
+void _sluv2sparsetrail_clear(void* _p);
+void _sluv2sparsetrail_destroy(void* _p);
+void _sluv2densetrail_init(void* _p, ae_state *_state, ae_bool make_automatic);
+void _sluv2densetrail_init_copy(void* _dst, void* _src, ae_state *_state, ae_bool make_automatic);
+void _sluv2densetrail_clear(void* _p);
+void _sluv2densetrail_destroy(void* _p);
+void _sluv2buffer_init(void* _p, ae_state *_state, ae_bool make_automatic);
+void _sluv2buffer_init_copy(void* _dst, void* _src, ae_state *_state, ae_bool make_automatic);
+void _sluv2buffer_clear(void* _p);
+void _sluv2buffer_destroy(void* _p);
+#endif
 #if defined(AE_COMPILE_MATGEN) || !defined(AE_PARTIAL_BUILD)
 void rmatrixrndorthogonal(ae_int_t n,
      /* Real    */ ae_matrix* a,
@@ -7250,6 +7578,11 @@ void spdmatrixcholeskyupdatefixbuf(/* Real    */ ae_matrix* a,
      ae_bool isupper,
      /* Boolean */ ae_vector* fix,
      /* Real    */ ae_vector* bufr,
+     ae_state *_state);
+ae_bool sparselu(sparsematrix* a,
+     ae_int_t pivottype,
+     /* Integer */ ae_vector* p,
+     /* Integer */ ae_vector* q,
      ae_state *_state);
 ae_bool sparsecholeskyskyline(sparsematrix* a,
      ae_int_t n,
