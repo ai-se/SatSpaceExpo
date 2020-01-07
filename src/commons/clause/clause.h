@@ -1,6 +1,7 @@
 #pragma once
 
 #include <boost/dynamic_bitset.hpp>
+
 #include <map>
 #include <set>
 #include <string.h>
@@ -12,7 +13,7 @@ struct clause_t {
   std::vector<int> vs;
   std::set<int> avs;
 
-  clause_t(std::string s);
+  clause_t(std::string s, std::set<int> &indv);
 
   std::size_t unique() const;
   bool empty() { return vs.size() <= 1; }

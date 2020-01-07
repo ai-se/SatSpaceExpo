@@ -1,5 +1,6 @@
 #include "program.h"
 #include "commons/utility/utility.h"
+
 #include <algorithm>
 #include <boost/range/irange.hpp>
 #include <cstring>
@@ -87,14 +88,8 @@ program::program(std::string input_file) {
         if (v)
           indv.insert(v);
       }
-    } else if (line.find("p cnf") == 0) {
-      // std::istringstream iss(line);
-      // std::string s_dump;
-      // iss >> s_dump >> s_dump; // 'p' 'cnf'
-      // iss >> vars_num;         // p value
-      // std::cout << "INFO : |vars| = " << vars_num << std::endl;
     } else if (line[0] != 'c' && line[0] != 'p') {
-      clause_t cline(line);
+      clause_t cline(line, indv); // assuming indv has already been recorded
       clauses.push_back(cline);
     }
   }
@@ -122,7 +117,6 @@ program::program(std::string input_file) {
   }
 
   vars_num = vars.size();
-
   // setting up the clause mask and reversed
   for (auto &clause : clauses) {
     clause.mask.resize(vars_num, false);
@@ -132,10 +126,6 @@ program::program(std::string input_file) {
       clause.reversed.set(var_bit_id[std::abs(v)], !(v > 0));
     }
   }
-  // end..
-
-  // std::cout << "INFO : |vars| = " << vars_num << std::endl;
-  // std::cout << "INIT : Loading " << input_file << " done." << std::endl;
 }
 
 cpset_t program::related_cluases(var_bitset &indicator) {
@@ -219,10 +209,8 @@ vbitset_vec_t program::gen_N_models(int N) {
   // END load the whole model
 
   vbitset_vec_t res;
-  double total = static_cast<double>(N);
   // std::cout << "Generating " << N << " models" << std::endl;
   while (N-- > 0) {
-    print_progress(1 - N / total);
     z3::check_result has_correct = opt.check();
     if (has_correct != z3::sat)
       break;
@@ -257,7 +245,7 @@ void program::mutate_the_seed_with_tree(btree &tree, var_bitset &seed,
   // the mutation
   std::set<size_t> idx_hash_memo;
   idx_hash_memo.clear();
-  int life = 5;
+  int life = 20;
   while (life > 0) {
     size_t prev_found = results_container.size();
     global_sampled++;
@@ -335,6 +323,7 @@ std::set<var_bitset> program::solve(vbitset_vec_t &samples, std::ofstream &ofs,
   std::set<var_bitset> results;
 
   vbitset_vec_t S = samples;
+
   // while (true) {
   while (solver_clock.duration() < max_time) {
     std::cout << results.size() << std::endl;

@@ -81,7 +81,7 @@ std::vector<size_t> rnd_pick_idx(size_t length, int cnt) {
 std::set<int> first_N_elements(std::set<int> src, int cnt) {
   std::set<int> res;
   for (int x : src) {
-    if (!cnt-- > 0)
+    if (!(cnt-- > 0))
       break;
     res.insert(x);
   }

@@ -10,12 +10,12 @@
 //   return c.constant(c.str_symbol(std::to_string(v).c_str()), c.bool_sort());
 // }
 
-clause_t::clause_t(std::string s) {
+clause_t::clause_t(std::string s, std::set<int> &indv) {
   std::istringstream iss(s);
   int v;
   while (!iss.eof()) {
     iss >> v;
-    if (v) {
+    if (v && indv.find(v) != indv.end()) {
       vs.push_back(v);
       avs.insert(abs(v));
     }

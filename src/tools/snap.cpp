@@ -10,33 +10,11 @@
 #include <time.h>
 #include <vector>
 
-void test_udg(int argc, char *argv[]) {
-  /* Testing the disjoint set*/
-  UDG<int> t;
-  for (int i = 1; i < 8; i++)
-    t.add_node(i);
-
-  t.add_edge(1, 3);
-  t.add_edge(1, 6);
-  t.add_edge(1, 7);
-  t.add_edge(2, 3);
-  t.add_edge(5, 6);
-
-  std::vector<std::set<int>> cc = t.de_components();
-  for (std::set<int> i : cc)
-    debug(i);
-}
-
 /* generating and memorizing the samples for testing */
 void pre_memo(std::string model) {
   program p_test(model);
   vbitset_vec_t samples;
-  // timer p1;
   samples = p_test.gen_N_models(10);
-  // std::cout << model.substr(model.find_last_of("/") + 1) << " & ";
-  // std::cout << p_test.vars_num << " & ";
-  // std::cout << p_test.clauses.size() << " & ";
-  // std::cout << p1.duration() << "\\\\" << std::endl;
   std::ofstream memo_file;
   memo_file.open("memo/" + model.substr(model.find_last_of("/") + 1) + ".memo");
   for (auto &sample : samples)
@@ -46,7 +24,6 @@ void pre_memo(std::string model) {
 
 void verifying_memos(std::string model) {
   program p_test(model);
-  // std::ifstream gen_input;
   std::ifstream memo_input;
   // gen_input.open("memo/" + model.substr(model.find_last_of("/") + 1) +
   //                ".qs.valid2");
@@ -55,19 +32,11 @@ void verifying_memos(std::string model) {
 
   vbitset_vec_t gens, memos;
   std::string line;
-  // int limit = INT_MAX;
-  // while (getline(gen_input, line) && limit-- > 0)
-  //   if (line[0] != '#')
-  //     gens.push_back(var_bitset(line));
-  // gen_input.close();
 
   while (getline(memo_input, line))
     if (line[0] != '#')
       memos.push_back(var_bitset(line));
   memo_input.close();
-
-  // std::cout << "FROM MEMO: " << locate_diffs(memos).count() << std::endl;
-  // std::cout << "FROM QS: " << locate_diffs(gens).count() << std::endl;
 
   // plotting the delta distribution
   std::map<var_bitset, int> delta_cnt;
@@ -92,17 +61,18 @@ void test_solver(std::string model, double max_time) {
   program p_test(model);
   std::cout << " | " << model.substr(model.find_last_of("/") + 1) << " | "
             << p_test.vars_num << " | " << std::endl;
-
-  vbitset_vec_t samples;
-
-  std::ifstream loading_file;
-  loading_file.open("memo/" + model.substr(model.find_last_of("/") + 1) +
-                    ".memo");
-  std::string line;
-  while (getline(loading_file, line))
-    if (line[0] != '#')
-      samples.push_back(var_bitset(line));
-  loading_file.close();
+  std::cout << "start" << std::endl;
+  vbitset_vec_t samples = p_test.gen_N_models(100);
+  std::cout << samples.size() << std::endl;
+  std::cout << "done" << std::endl;
+  // std::ifstream loading_file;
+  // loading_file.open("memo/" + model.substr(model.find_last_of("/") + 1) +
+  //                   ".memo");
+  // std::string line;
+  // while (getline(loading_file, line))
+  //   if (line[0] != '#')
+  //     samples.push_back(var_bitset(line));
+  // loading_file.close();
   // randomly pick 100 samples
   // vbitset_vec_t tmp_samples;
   // for (auto i : rnd_pick_idx(samples.size(), 100))
@@ -117,18 +87,6 @@ void test_solver(std::string model, double max_time) {
   p_test.solve(samples, r_ofs, max_time);
   P1.show_duration("sampling requires");
   r_ofs.close();
-}
-
-void test_bit_op() {
-  // vbitset_vec_t sample;
-  // sample.push_back(var_bitset(std::string("1000")));
-  // sample.push_back(var_bitset(std::string("1010")));
-  // sample.push_back(var_bitset(std::string("0011")));
-  // std::cout << locate_diffs(sample) << std::endl;
-  var_bitset A(std::string("11010001000"));
-  var_bitset B(std::string("11001101001"));
-  // auto e = truncate_bitset(truncating, mmmmmmmask);
-  std::cout << (A ^ B) << std::endl;
 }
 
 int main(int argc, char *argv[]) {
@@ -152,12 +110,6 @@ int main(int argc, char *argv[]) {
 
   // srand (time(NULL));
   srand(201903);
-  // pre_memo(model);
   test_solver(model, max_time);
-  // verifying_memos(model);
-  // test_udg(argc, argv);
-  // test_bit_op();
-  // for (auto m : benchmark_models)
-  //   std::cout << m << " ";
   return 0;
 }
