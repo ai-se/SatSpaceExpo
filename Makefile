@@ -6,7 +6,7 @@ FILES_OBJECTS=${FILES:.cpp=.o}
 
 # TOOLS_NAMES = $(shell find ./src/tools -type f -name "*.cpp" | sed 's/\.\/src\/tools\///g' | sed 's/\.cpp//g')
 # TOOLS_NAMES = zt snap clst_ahc ncd revqs
-TOOLS_NAMES = snap
+TOOLS_NAMES = snap zt qs
 TOOLS=${TOOLS_NAMES:%=./src/tools/%.cpp}
 TOOLS_OBJECTS=${TOOLS_NAMES:%=./src/tools/%.o}
 TOOLS_BINARIES=${TOOLS_NAMES:%=./bin/%}
@@ -27,6 +27,3 @@ $(TOOLS_BINARIES): $(FILES_OBJECTS) $(TOOLS_OBJECTS)
 
 %.o: %.cpp
 	$(CC) $(CFLAGS) -c ./$< -o $@
-
-learn: # DONT MAKE "learn" IF YOU DOWNLOAD THE CODE VIA GITHUB
-	g++ -std=c++11 -g ./src/tools/cppexp.cpp -o ./bin/cppexp

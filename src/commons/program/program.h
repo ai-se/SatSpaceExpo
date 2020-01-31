@@ -24,10 +24,10 @@ std::ostream &operator<<(std::ostream &os, const vset_t &obj);
 struct program {
   z3::context c;
   std::map<var_t, cpset_t> vars2clauses_map;
-  std::map<var_t, cpset_t> true_match,
-      false_match;       // if var of var_t(key) set to true/ false,
-                         // then set of caluses can be matched
-                         // DUDG<var_t> c_udg;
+  // std::map<var_t, cpset_t> true_match,
+  //     false_match;       // if var of var_t(key) set to true/ false,
+  // then set of caluses can be matched
+  // DUDG<var_t> c_udg;
   cpset_t all_clause_ps; // all clause_t pointers
   std::map<var_t, size_t> var_bit_id;
   int vars_num;

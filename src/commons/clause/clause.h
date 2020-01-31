@@ -13,7 +13,7 @@ struct clause_t {
   std::vector<int> vs;
   std::set<int> avs;
 
-  clause_t(std::string s, std::set<int> &indv);
+  clause_t(std::string s);
 
   std::size_t unique() const;
   bool empty() { return vs.size() <= 1; }

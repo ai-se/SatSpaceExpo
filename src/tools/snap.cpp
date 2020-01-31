@@ -59,26 +59,7 @@ void verifying_memos(std::string model) {
 
 void test_solver(std::string model, double max_time) {
   program p_test(model);
-  std::cout << " | " << model.substr(model.find_last_of("/") + 1) << " | "
-            << p_test.vars_num << " | " << std::endl;
-  std::cout << "start" << std::endl;
   vbitset_vec_t samples = p_test.gen_N_models(100);
-  std::cout << samples.size() << std::endl;
-  std::cout << "done" << std::endl;
-  // std::ifstream loading_file;
-  // loading_file.open("memo/" + model.substr(model.find_last_of("/") + 1) +
-  //                   ".memo");
-  // std::string line;
-  // while (getline(loading_file, line))
-  //   if (line[0] != '#')
-  //     samples.push_back(var_bitset(line));
-  // loading_file.close();
-  // randomly pick 100 samples
-  // vbitset_vec_t tmp_samples;
-  // for (auto i : rnd_pick_idx(samples.size(), 100))
-  //   tmp_samples.push_back(samples[i]);
-  // samples = std::move(tmp_samples);
-  // std::cout << "Loading samples done." << std::endl;
 
   timer P1;
   std::ofstream r_ofs;

@@ -76,6 +76,7 @@ program::program(std::string input_file) {
     abort();
   }
   std::string line;
+  std::set<std::size_t> tmp_clause_hashes;
   while (getline(f, line)) {
     if (line.find("c ind ") == 0) {
       std::istringstream iss(line);
@@ -89,25 +90,26 @@ program::program(std::string input_file) {
           indv.insert(v);
       }
     } else if (line[0] != 'c' && line[0] != 'p') {
-      clause_t cline(line, indv); // assuming indv has already been recorded
-      clauses.push_back(cline);
+      clause_t cline(line); // assuming indv has already been recorded
+      if (cline.vs.size() > 0 &&
+          tmp_clause_hashes.find(cline.unique()) == tmp_clause_hashes.end()) {
+        clauses.push_back(cline);
+        tmp_clause_hashes.insert(cline.unique());
+      }
     }
   }
 
   // set up the vars2clauses_map
   for (clause_t &clause : clauses)
-    for (var_t v : clause.vs) {
-      vars2clauses_map[std::abs(v)].insert(&clause);
-      if (v > 0)
-        true_match[v].insert(&clause);
-      else
-        false_match[-v].insert(&clause);
-      vars.insert(std::abs(v));
+    for (var_t v : clause.avs) {
+      vars2clauses_map[v].insert(&clause);
+      vars.insert(v);
     }
 
   // save to all_clause_ps
-  for (auto &clause : clauses)
+  for (auto &clause : clauses) {
     all_clause_ps.insert(&clause);
+  }
 
   // mark var_bit_id
   {
@@ -199,7 +201,6 @@ vbitset_vec_t program::gen_N_models(int N) {
   // load the whole model
   z3::optimize opt(c);
   for (auto &clause : clauses) {
-
     z3::expr_vector V(c);
 
     for (var_t v : clause.vs)
@@ -209,16 +210,20 @@ vbitset_vec_t program::gen_N_models(int N) {
   // END load the whole model
 
   vbitset_vec_t res;
-  // std::cout << "Generating " << N << " models" << std::endl;
   while (N-- > 0) {
+    for (int v : indv) {
+      if (rand() % 2)
+        opt.add(exprs.at(v), 1);
+      else
+        opt.add(!exprs.at(v), 1);
+    }
     z3::check_result has_correct = opt.check();
     if (has_correct != z3::sat)
       break;
     z3::model m = opt.get_model();
     res.push_back(read_model(m, decls));
-    dont_gen_m_again(opt, m, exprs, decls);
+    // dont_gen_m_again(opt, m, exprs, decls);
   }
-  // std::cout << std::endl;
   return res;
 }
 
@@ -271,8 +276,6 @@ void program::mutate_the_seed_with_tree(btree &tree, var_bitset &seed,
       while (opt.check() == z3::sat && trial++ < 5) {
         z3::model m = opt.get_model();
         auto fix_gen = read_model(m, decls);
-        // if (!results_container.count(fix_gen))
-        //   std::cout << "contribute new " << std::endl;
         results_container.insert(fix_gen);
         ofs << fix_gen << std::endl;
         if (trial == 1)
@@ -281,11 +284,6 @@ void program::mutate_the_seed_with_tree(btree &tree, var_bitset &seed,
         dont_gen_m_again(opt, m, exprs, decls);
       }
       opt.pop();
-
-      // if (trial != 0)
-      //   std::cout << "pass check" << std::endl;
-      // else
-      //   std::cout << "FAIL check" << std::endl;
     }
 
     if (results_container.size() == prev_found)
@@ -324,7 +322,6 @@ std::set<var_bitset> program::solve(vbitset_vec_t &samples, std::ofstream &ofs,
 
   vbitset_vec_t S = samples;
 
-  // while (true) {
   while (solver_clock.duration() < max_time) {
     std::cout << results.size() << std::endl;
     btree tree = btree(S);

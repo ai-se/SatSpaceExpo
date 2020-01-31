@@ -4,18 +4,19 @@
 #include <fstream>
 #include <iostream>
 #include <iterator>
+#include <math.h>
 
 // z3::context c;
 // z3::expr literal(int v) {
 //   return c.constant(c.str_symbol(std::to_string(v).c_str()), c.bool_sort());
 // }
 
-clause_t::clause_t(std::string s, std::set<int> &indv) {
+clause_t::clause_t(std::string s) {
   std::istringstream iss(s);
   int v;
   while (!iss.eof()) {
     iss >> v;
-    if (v && indv.find(v) != indv.end()) {
+    if (v) {
       vs.push_back(v);
       avs.insert(abs(v));
     }
