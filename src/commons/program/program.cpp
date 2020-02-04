@@ -277,7 +277,6 @@ void program::mutate_the_seed_with_tree(btree &tree, var_bitset &seed,
         z3::model m = opt.get_model();
         auto fix_gen = read_model(m, decls);
         results_container.insert(fix_gen);
-        ofs << fix_gen << std::endl;
         if (trial == 1)
           next_samples.push_back(fix_gen);
         cc += 1;
@@ -323,7 +322,6 @@ std::set<var_bitset> program::solve(vbitset_vec_t &samples, std::ofstream &ofs,
   vbitset_vec_t S = samples;
 
   while (solver_clock.duration() < max_time) {
-    std::cout << results.size() << std::endl;
     btree tree = btree(S);
     // create the fast verification memo
     tree.traverse(TRA_T_POST_ORDER, [&](bin_tree_node *node) {

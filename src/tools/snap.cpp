@@ -57,7 +57,7 @@ void verifying_memos(std::string model) {
   ofs.close();
 }
 
-void test_solver(std::string model, double max_time) {
+void snap(std::string model, double max_time) {
   program p_test(model);
   vbitset_vec_t samples = p_test.gen_N_models(100);
 
@@ -72,7 +72,7 @@ void test_solver(std::string model, double max_time) {
 
 int main(int argc, char *argv[]) {
   std::string model = "Benchmarks/polynomial.sk_7_25.cnf";
-  double max_time = 180;
+  double max_time = 10;
 
   for (int i = 0; i < argc; i++) {
     if (!strcmp(argv[i], "L"))
@@ -91,6 +91,6 @@ int main(int argc, char *argv[]) {
 
   // srand (time(NULL));
   srand(201903);
-  test_solver(model, max_time);
+  snap(model, max_time);
   return 0;
 }
