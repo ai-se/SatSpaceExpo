@@ -60,7 +60,7 @@ void verifying_memos(std::string model) {
 void test_solver(std::string model, double max_time) {
   program p_test(model);
   vbitset_vec_t samples = p_test.gen_N_models(100);
-
+  std::cout << "samples ready." << std::endl;
   timer P1;
   std::ofstream r_ofs;
   r_ofs.open("memo/" + model.substr(model.find_last_of("/") + 1) +
