@@ -250,10 +250,11 @@ void program::mutate_the_seed_with_tree(btree &tree, var_bitset &seed,
   // the mutation
   std::set<size_t> idx_hash_memo;
   idx_hash_memo.clear();
-  int life = 20;
+  int life = 10;
   while (life > 0) {
     size_t prev_found = results_container.size();
     global_sampled++;
+    // the tree has already been cluested with k-means by samples.
     auto idx = tree.rnd_pick_idx_based_on_probability(2); // TODO 2 or 3
     size_t tmp_hash = hash_sizet_vec(idx);
     if (idx_hash_memo.count(tmp_hash))
@@ -339,10 +340,12 @@ std::set<var_bitset> program::solve(vbitset_vec_t &samples, std::ofstream &ofs,
     });
     // END of creating memo
     vbitset_vec_t next_samples;
+    // NOTE : to get more diversed results, we can use every sample of S,
+    // to get faster (agile) reponse, we can use the centromid of S
     for (auto &sam : S) {
       mutate_the_seed_with_tree(tree, sam, results, next_samples, ofs, opt,
                                 decls, exprs);
-      ofs << "# " << solver_clock.duration() << " " << results.size() << " / "
+      // ofs << "# " << solver_clock.duration() << " " << results.size() << " / "
           << global_sampled << std::endl;
     }
 
@@ -353,6 +356,7 @@ std::set<var_bitset> program::solve(vbitset_vec_t &samples, std::ofstream &ofs,
     S.clear();
     for (auto is : rnd_pick_idx(next_samples.size(), 100))
       S.push_back(next_samples[is]);
+    std::cout << "current size of results = " << results.size() << std::endl;
   }
   std::cout << "found valid unqiue # " << results.size() << std::endl;
   std::cout << "cc = " << cc << std::endl;

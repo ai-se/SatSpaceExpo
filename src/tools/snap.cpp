@@ -23,9 +23,9 @@ void pre_memo(std::string model) {
 }
 
 void verifying_memos(std::string model) {
+  /* exprimental. not kernal code of SNAP. Deletable */
   program p_test(model);
   std::ifstream memo_input;
-  // gen_input.open("memo/" + model.substr(model.find_last_of("/") + 1) +
   //                ".qs.valid2");
   memo_input.open("memo/" + model.substr(model.find_last_of("/") + 1) +
                   ".memo");
@@ -57,14 +57,13 @@ void verifying_memos(std::string model) {
   ofs.close();
 }
 
-void snap(std::string model, double max_time) {
+void snap(std::string model, double max_time, int id = -1) {
   program p_test(model);
   vbitset_vec_t samples = p_test.gen_N_models(100);
-
+  std::cout << "samples ready." << std::endl;
   timer P1;
   std::ofstream r_ofs;
-  r_ofs.open("memo/" + model.substr(model.find_last_of("/") + 1) +
-             ".me.valid2");
+  r_ofs.open("memo/" + model.substr(model.find_last_of("/") + 1) + ".snap");
   p_test.solve(samples, r_ofs, max_time);
   P1.show_duration("sampling requires");
   r_ofs.close();
@@ -72,7 +71,7 @@ void snap(std::string model, double max_time) {
 
 int main(int argc, char *argv[]) {
   std::string model = "Benchmarks/polynomial.sk_7_25.cnf";
-  double max_time = 10;
+  double max_time = 60.0;
 
   for (int i = 0; i < argc; i++) {
     if (!strcmp(argv[i], "L"))
@@ -89,8 +88,7 @@ int main(int argc, char *argv[]) {
       max_time = double(atoi(argv[i + 1]));
   }
 
-  // srand (time(NULL));
-  srand(201903);
+  srand(time(NULL));
   snap(model, max_time);
   return 0;
 }
