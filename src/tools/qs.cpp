@@ -16,7 +16,9 @@ class QuickSampler {
     double max_time;
 
     z3::context c;
+    z3::context c2;
     z3::optimize opt;
+    z3::optimize opt4Verify;
     std::vector<int> ind;
     std::unordered_set<int> unsat_vars;
     int epochs = 0;
@@ -27,7 +29,7 @@ class QuickSampler {
     std::ofstream results_file;
 
 public:
-    QuickSampler(std::string input, int max_samples, double max_time) : opt(c), input_file(input), max_samples(max_samples), max_time(max_time) {}
+    QuickSampler(std::string input, int max_samples, double max_time) : opt(c), opt4Verify(c2), input_file(input), max_samples(max_samples), max_time(max_time) {}
 
     void run() {
         clock_gettime(CLOCK_REALTIME, &start_time);
@@ -122,6 +124,7 @@ public:
         }
         z3::expr formula = mk_and(exp);
         opt.add(formula);
+        opt4Verify.add(formula);
     }
 
     void sample(z3::model m) {
@@ -193,9 +196,26 @@ public:
         opt.pop();
     }
 
+    bool valid_solution(std::string sample){
+      // TODO we need to have a global variable result!
+      opt4Verify.push();
+      for (int i = 0; i < ind.size(); ++i) {
+          int v = ind[i];
+          if (sample[i] == '1')
+              opt4Verify.add(literal(v));
+          else
+              opt4Verify.add(!literal(-v));
+      }
+      opt4Verify.get_model();
+      bool res = opt.check() == z3::sat;
+      opt4Verify.pop();
+      return res;
+    }
+
     void output(std::string sample, int nmut) {
-        samples += 1;
-        results_file << nmut << ": " << sample << '\n';
+      if (valid_solution(sample)) {
+        results_file << sample << '\n'; // to unify the output to snap, we remove the numt here
+      }
     }
 
     void finish() {

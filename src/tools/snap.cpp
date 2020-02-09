@@ -26,7 +26,6 @@ void verifying_memos(std::string model) {
   /* exprimental. not kernal code of SNAP. Deletable */
   program p_test(model);
   std::ifstream memo_input;
-  // gen_input.open("memo/" + model.substr(model.find_last_of("/") + 1) +
   //                ".qs.valid2");
   memo_input.open("memo/" + model.substr(model.find_last_of("/") + 1) +
                   ".memo");
@@ -64,8 +63,7 @@ void snap(std::string model, double max_time, int id = -1) {
   std::cout << "samples ready." << std::endl;
   timer P1;
   std::ofstream r_ofs;
-  r_ofs.open("memo/" + model.substr(model.find_last_of("/") + 1) +
-             ".me.valid2");
+  r_ofs.open("memo/" + model.substr(model.find_last_of("/") + 1) + ".snap");
   p_test.solve(samples, r_ofs, max_time);
   P1.show_duration("sampling requires");
   r_ofs.close();
