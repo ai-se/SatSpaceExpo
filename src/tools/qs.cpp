@@ -77,6 +77,7 @@ public:
 
   void parse_cnf() {
     z3::expr_vector exp(c);
+    z3::expr_vector exp2(c2);
     std::ifstream f(input_file);
     if (!f.is_open()) {
       std::cout << "Error opening input file\n";
@@ -103,22 +104,30 @@ public:
         }
       } else if (line[0] != 'c' && line[0] != 'p') {
         z3::expr_vector clause(c);
+        z3::expr_vector clause2(c2);
         int v;
         while (!iss.eof()) {
           iss >> v;
-          if (v > 0)
+          if (v > 0) {
             clause.push_back(literal(v));
-          else if (v < 0)
+            clause2.push_back(literal2(v));
+          } else if (v < 0) {
             clause.push_back(!literal(-v));
+            clause2.push_back(!literal2(-v));
+          }
           v = abs(v);
-          vars.insert(v);
+          if (v != 0) {
+            vars.insert(v);
+          }
           if (!has_ind && v != 0)
             indset.insert(v);
           if (v > max_var)
             max_var = v;
         }
-        if (clause.size() > 0)
+        if (clause.size() > 0) {
           exp.push_back(mk_or(clause));
+          exp2.push_back(mk_or(clause2));
+        }
       }
     }
     f.close();
@@ -130,8 +139,9 @@ public:
       }
     }
     z3::expr formula = mk_and(exp);
+    z3::expr formula2 = mk_and(exp2);
     opt.add(formula);
-    opt4Verify.add(formula);
+    opt4Verify.add(formula2);
   }
 
   void sample(z3::model m) {
@@ -209,39 +219,37 @@ public:
     for (int i = 0; i < ind.size(); ++i) {
       int v = ind[i];
       if (sample[i] == '1')
-        opt4Verify.add(literal(v));
+        opt4Verify.add(literal2(v));
       else
-        opt4Verify.add(!literal(-v));
+        opt4Verify.add(!literal2(-v));
     }
 
-    z3::model model = opt4Verify.get_model();
-    bool res = opt.check() == z3::sat;
-    opt4Verify.pop();
-    if (res && res_strs.find(sample) == res_strs.end()) {
-      res_strs.insert(sample);
-      std::string s;
+    z3::model mt = opt4Verify.get_model();
+    bool issat = opt4Verify.check() == z3::sat;
+    std::string s;
 
+    if (issat && res_strs.find(sample) == res_strs.end()) {
+      res_strs.insert(sample);
       for (int v : vars) {
-        z3::func_decl decl(literal(v).decl());
-        z3::expr b = model.get_const_interp(decl);
+        z3::func_decl decl(literal2(v).decl());
+        z3::expr b = mt.get_const_interp(decl);
         if (b.bool_value() == Z3_L_TRUE) {
           s += "1";
         } else {
           s += "0";
         }
       }
-      return s;
     } else {
-      return "-1";
+      s = "-1";
     }
+    opt4Verify.pop();
+    return s;
   }
 
   void output(std::string sample, int nmut) {
     std::string complete_str = valid_solution(sample);
-    if (complete_str.compare("-1") == 0) {
-      results_file
-          << sample
-          << '\n'; // to unify the output to snap, we remove the numt here
+    if (complete_str.compare("-1") != 0) {
+      results_file << complete_str << '\n';
     }
   }
 
@@ -295,11 +303,16 @@ public:
   z3::expr literal(int v) {
     return c.constant(c.str_symbol(std::to_string(v).c_str()), c.bool_sort());
   }
+
+  z3::expr literal2(int v) {
+    return c2.constant(c2.str_symbol(std::to_string(v).c_str()),
+                       c2.bool_sort());
+  }
 };
 
 int main(int argc, char *argv[]) {
   std::string model = "Benchmarks/polynomial.sk_7_25.cnf";
-  double max_time = 60.0;
+  double max_time = 15.0;
 
   for (int i = 0; i < argc; i++) {
     if (!strcmp(argv[i], "L"))
