@@ -345,8 +345,9 @@ std::set<var_bitset> program::solve(vbitset_vec_t &samples, std::ofstream &ofs,
     for (auto &sam : S) {
       mutate_the_seed_with_tree(tree, sam, results, next_samples, ofs, opt,
                                 decls, exprs);
-      // ofs << "# " << solver_clock.duration() << " " << results.size() << " / "
-          << global_sampled << std::endl;
+      // ofs << "# " << solver_clock.duration() << " " << results.size() << " /
+      // "
+      // << global_sampled << std::endl;
     }
 
     if (next_samples.empty())
