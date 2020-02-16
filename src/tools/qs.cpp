@@ -216,23 +216,30 @@ public:
 
   std::string valid_solution(std::string sample) {
     opt4Verify.push();
+    exprs_t exprs2;
+    decls_t decls2;
+    for (var_t v : vars) {
+      z3::expr l = literal2(v);
+      exprs2.insert(std::make_pair(v, l));
+      decls2.insert(std::make_pair(v, l.decl()));
+    }
+
     for (int i = 0; i < ind.size(); ++i) {
       int v = ind[i];
       if (sample[i] == '1')
-        opt4Verify.add(literal2(v));
+        opt4Verify.add(exprs2.at(v), 1);
       else
-        opt4Verify.add(!literal2(-v));
+        opt4Verify.add(!exprs2.at(v), 1);
     }
 
-    z3::model mt = opt4Verify.get_model();
     bool issat = opt4Verify.check() == z3::sat;
+    z3::model mt = opt4Verify.get_model();
     std::string s;
 
     if (issat && res_strs.find(sample) == res_strs.end()) {
       res_strs.insert(sample);
       for (int v : vars) {
-        z3::func_decl decl(literal2(v).decl());
-        z3::expr b = mt.get_const_interp(decl);
+        z3::expr b = mt.get_const_interp(decls2.at(v));
         if (b.bool_value() == Z3_L_TRUE) {
           s += "1";
         } else {
@@ -312,7 +319,7 @@ public:
 
 int main(int argc, char *argv[]) {
   std::string model = "Benchmarks/polynomial.sk_7_25.cnf";
-  double max_time = 15.0;
+  double max_time = 60.0;
 
   for (int i = 0; i < argc; i++) {
     if (!strcmp(argv[i], "L"))
