@@ -88,7 +88,7 @@ int main(int argc, char *argv[]) {
       max_time = double(atoi(argv[i + 1]));
   }
 
-  srand (time(NULL));
+  srand(time(NULL));
   snap(model, max_time);
   return 0;
 }
