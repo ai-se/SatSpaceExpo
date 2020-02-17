@@ -319,7 +319,7 @@ public:
 
 int main(int argc, char *argv[]) {
   std::string model = "Benchmarks/polynomial.sk_7_25.cnf";
-  double max_time = 60.0;
+  double max_time = 600.0;
 
   for (int i = 0; i < argc; i++) {
     if (!strcmp(argv[i], "L"))
