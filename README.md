@@ -12,7 +12,4 @@ Benchmark is large and not included in this repo. To run the benchmark in the pa
 - To build the snap, run `make snap`.
 - To clean up the binaries, run `make clean`.
 - All benchmarks in the paper were assigned the id. IDs are the index of vector `benchmark_models` in the file `src/commons/utility/utility.h`.
-- Kernel of snap can be run (`bin` folder is created after the compilation)
-```
-bin/snap -i ID
-```
+- Kernel of snap can be run (`bin` folder is created after the compilation) by `bin/snap -i ID`
